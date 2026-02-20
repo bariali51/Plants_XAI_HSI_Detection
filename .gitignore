@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual env
+.venv/
+
+# IDE
+.idea/
+
+# Django
+db.sqlite3
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ML models
+
+# OS
+.DS_Store
