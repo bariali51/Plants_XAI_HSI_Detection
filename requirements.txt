@@ -18,3 +18,5 @@ matplotlib
 plotly
 pillow
 django-storages
+grad-cam
+opencv-python
