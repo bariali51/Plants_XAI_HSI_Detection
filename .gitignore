@@ -9,6 +9,7 @@ __pycache__/
 # IDE
 .idea/
 
+
 # Django
 db.sqlite3
 
