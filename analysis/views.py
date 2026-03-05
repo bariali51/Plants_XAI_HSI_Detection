@@ -52,4 +52,4 @@ def upload_image(request):
             traceback.print_exc()
             context['error'] = str(e)
 
-    return render(request, 'analysis/upload.html', context)
+    return render(request, 'analysis/home.html', context)
