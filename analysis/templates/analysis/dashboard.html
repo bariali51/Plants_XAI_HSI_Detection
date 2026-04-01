@@ -1,0 +1,997 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-Powered Plant Disease Detection Dashboard">
+    <title>PlantGuard AI | Premium Diagnostic Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        /* ===== DASHBOARD-SPECIFIC STYLES ===== */
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            grid-column: span 4;
+            min-height: 240px;
+            border: 2px dashed var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--primary);
+            background: var(--primary-bg);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .upload-zone.drag-over {
+            border-style: solid;
+            animation: pulseGlow 1.5s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 var(--primary-glow); }
+            50% { box-shadow: 0 0 0 12px rgba(46, 125, 50, 0); }
+        }
+
+        .upload-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .upload-icon {
+            font-size: 42px;
+            color: var(--primary);
+            transition: transform 0.3s var(--ease-spring);
+        }
+
+        .upload-zone:hover .upload-icon { transform: translateY(-6px) scale(1.1); }
+
+        .upload-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .upload-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Preview Cards */
+        .preview-card {
+            grid-column: span 4;
+        }
+
+        .preview-container {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            aspect-ratio: 4/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 5;
+        }
+
+        .preview-label.gradcam {
+            background: rgba(239, 68, 68, 0.85);
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .preview-container:hover .preview-image { transform: scale(1.03); }
+
+        .preview-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Results Section */
+        .results-section {
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        .result-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            margin-top: 8px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .disease-name {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        [data-theme="dark"] .disease-name { color: var(--primary-light); }
+        .disease-name i { font-size: 22px; }
+
+        .confidence-badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 10px 22px;
+            border-radius: var(--radius-full);
+            font-weight: 800;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+
+        /* Progress Section */
+        .progress-section { margin-bottom: 24px; }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-label {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        .progress-value {
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        /* Stage Box */
+        .stage-box {
+            background: var(--bg-color);
+            padding: 18px 24px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .stage-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .stage-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .stage-value span { color: var(--danger); }
+
+        /* Action Button */
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            margin-bottom: 28px;
+            transition: var(--transition-fast);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Recommendations */
+        .reco-box {
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            border: 1px solid var(--border);
+            margin-bottom: 28px;
+        }
+
+        .reco-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reco-title i { color: var(--primary); }
+
+        .reco-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .reco-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            transition: var(--transition-fast);
+        }
+
+        .reco-list li:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .reco-list li::before {
+            content: '\f058';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: var(--primary);
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* AI Report */
+        .ai-report {
+            margin-top: 32px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+
+        .ai-report-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-report-title i { color: var(--info); }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 768px) { .report-grid { grid-template-columns: 1fr; } }
+
+        .report-box {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            transition: var(--transition-fast);
+        }
+
+        .report-box:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .report-box.risk { border-left-color: var(--danger); }
+
+        .report-box h4 {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .report-box h4 i { color: var(--primary); font-size: 14px; }
+        .report-box.risk h4 i { color: var(--danger); }
+
+        .report-box p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Yield Card */
+        .yield-card {
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .yield-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        .yield-badge {
+            background: var(--danger-bg);
+            color: var(--danger);
+            padding: 4px 14px;
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .yield-track {
+            height: 10px;
+            background: var(--border);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .yield-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--warning), var(--danger));
+            border-radius: var(--radius-full);
+            transition: width 1s ease;
+        }
+
+        .yield-desc {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Fungicide Card */
+        .fungicide-card {
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .fungicide-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fungicide-title i { color: var(--info); }
+
+        .fungicide-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .fungicide-table th {
+            text-align: left;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 8px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .fungicide-table td {
+            padding: 14px 8px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .mode-badge {
+            background: var(--primary-bg);
+            color: var(--primary-dark);
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Save Form */
+        .save-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .save-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 500;
+            background: var(--surface);
+            color: var(--text-main);
+            transition: var(--transition-fast);
+        }
+
+        .save-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .save-input::placeholder { color: var(--text-muted); }
+
+        /* Modal Buttons */
+        .modal-btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition-fast);
+            font-family: inherit;
+        }
+
+        .modal-btn.cancel {
+            background: var(--bg-color);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .modal-btn.cancel:hover { background: var(--border); }
+
+        .modal-btn.confirm {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+
+        .modal-btn.confirm:hover { transform: translateY(-2px); }
+
+        .modal-btn.danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .modal-btn.danger:hover { background: #dc2626; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .upload-zone, .preview-card { grid-column: span 6; }
+        }
+
+        @media (max-width: 640px) {
+            .upload-zone, .preview-card { grid-column: span 12; }
+            .save-form { flex-direction: column; align-items: stretch; }
+            .result-card { padding: 24px 20px; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Skip Link -->
+    <a href="#main-content" class="sr-only" style="position:absolute;top:12px;left:12px;background:var(--primary);color:white;padding:12px 20px;border-radius:10px;z-index:9999;">
+        Skip to main content
+    </a>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+        <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar" aria-expanded="true">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">PlantGuard AI</span>
+        </div>
+
+        <div class="nav-section-label">Navigation</div>
+        <nav>
+            <a href="{% url 'home' %}" class="nav active" aria-current="page">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Diagnosis</span>
+            </a>
+            <a href="{% url 'model' %}" class="nav">
+                <i class="fas fa-brain"></i>
+                <span class="nav-text">Model Info</span>
+            </a>
+            <a href="{% url 'history' %}" class="nav">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">History</span>
+            </a>
+            <a href="{% url 'my_files' %}" class="nav">
+                <i class="fas fa-folder"></i>
+                <span class="nav-text">My Files</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="confirmLogout()" data-logout-url="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="nav-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="header">
+            <div>
+                <h1 class="header-title">Disease Diagnostics</h1>
+                <p class="header-subtitle">Upload a leaf image to detect plant diseases with AI precision</p>
+            </div>
+            <div class="header-actions">
+                <span class="status-badge" role="status" aria-live="polite">
+                    <i class="fas fa-circle"></i> System Online
+                </span>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content" id="main-content">
+            <div class="grid">
+                <!-- Upload Zone -->
+                <div class="card upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload plant image">
+                    <form method="POST" enctype="multipart/form-data" id="uploadForm" style="position:absolute;inset:0;z-index:10;">
+                        {% csrf_token %}
+                        <input type="file" name="image" class="upload-input" accept="image/*" aria-label="Select image file" onchange="handleFileSelect(event)">
+                    </form>
+                    <i class="fas fa-cloud-arrow-up upload-icon"></i>
+                    <p class="upload-text">Drop image here</p>
+                    <p class="upload-hint">or click to browse &bull; JPG, PNG up to 10MB</p>
+                </div>
+
+                <!-- Original Preview -->
+                <div class="card preview-card">
+                    <h3 class="card-title"><i class="fas fa-image"></i> Original Image</h3>
+                    <div class="preview-container">
+                        <span class="preview-label"><i class="fas fa-camera"></i> Input</span>
+                        {% if image_url %}
+                            <img src="{{ image_url }}" alt="Uploaded leaf image" class="preview-image" loading="lazy">
+                        {% else %}
+                            <div class="preview-placeholder">
+                                <i class="fas fa-image fa-3x" style="color:var(--border);"></i>
+                                <span>No image uploaded</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Grad-CAM Preview -->
+                <div class="card preview-card">
+                    <h3 class="card-title"><i class="fas fa-fire"></i> Grad-CAM Analysis</h3>
+                    <div class="preview-container">
+                        <span class="preview-label gradcam"><i class="fas fa-bolt"></i> Heatmap</span>
+                        {% if gradcam_url %}
+                            <img src="{{ gradcam_url }}" alt="Grad-CAM visualization" class="preview-image" loading="lazy">
+                        {% else %}
+                            <div class="preview-placeholder">
+                                <i class="fas fa-microscope fa-3x" style="color:var(--border);"></i>
+                                <span>Waiting for analysis...</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Results Section -->
+            {% if result %}
+            <section class="results-section" id="resultBox" aria-live="polite">
+                <div class="result-card">
+                    <div class="result-header">
+                        <h2 class="disease-name">
+                            <i class="fas fa-leaf"></i>
+                            {{ result.disease }}
+                        </h2>
+                        <div class="confidence-badge">
+                            <i class="fas fa-check-circle"></i>
+                            {{ result.confidence }}
+                        </div>
+                    </div>
+
+                    <!-- Confidence Progress -->
+                    <div class="progress-section">
+                        <div class="progress-header">
+                            <span class="progress-label">Model Confidence</span>
+                            <span class="progress-value" id="confidenceValue">{{ result.confidence }}</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="confidenceBar" style="width: {{ result.confidence }};"></div>
+                        </div>
+                    </div>
+
+                    <!-- Disease Stage -->
+                    <div class="stage-box">
+                        <div class="stage-label">Disease Progression</div>
+                        <div class="stage-value">
+                            {{ progress_stage }} — <span>{{ progress_ratio }}%</span>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'progress' %}?img={{ gradcam_url }}&ratio={{ progress_ratio }}&stage={{ progress_stage }}"
+                       class="action-btn"
+                       aria-label="View detailed analytics for {{ result.disease }}">
+                        <i class="fas fa-microscope"></i> View Detailed Analytics
+                    </a>
+
+                    <!-- Recommendations -->
+                    <div class="reco-box">
+                        <h3 class="reco-title">
+                            <i class="fas fa-clipboard-list"></i>
+                            Immediate Treatment Recommendations
+                        </h3>
+                        <ul class="reco-list">
+                            {% for r in result.recommendations %}
+                                <li>{{ r }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- AI Agronomic Report -->
+                    {% if ai_report %}
+                    <div class="ai-report">
+                        <h3 class="ai-report-title">
+                            <i class="fas fa-robot"></i> AI Agronomic Intelligence Report
+                        </h3>
+
+                        <div class="report-grid">
+                            <div class="report-box">
+                                <h4><i class="fas fa-stethoscope"></i> Medical Diagnosis</h4>
+                                <p>{{ ai_report.medical }}</p>
+                            </div>
+                            <div class="report-box">
+                                <h4><i class="fas fa-pills"></i> Treatment Strategy</h4>
+                                <p>{{ ai_report.treatment }}</p>
+                            </div>
+                            <div class="report-box">
+                                <h4><i class="fas fa-tint"></i> Irrigation Plan</h4>
+                                <p>{{ ai_report.irrigation }}</p>
+                            </div>
+                            <div class="report-box risk">
+                                <h4><i class="fas fa-chart-line"></i> Economic Risk</h4>
+                                <p>{{ ai_report.economic_risk }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Yield Loss -->
+                        <div class="yield-card">
+                            <div class="yield-header">
+                                <span><i class="fas fa-arrow-trend-down"></i> Yield Loss Prediction</span>
+                                <span class="yield-badge">{{ ai_report.yield_loss_percent }}% Loss</span>
+                            </div>
+                            <div class="yield-track">
+                                <div class="yield-fill" id="yieldBar" style="width: {{ ai_report.yield_loss_percent }}%;"></div>
+                            </div>
+                            <p class="yield-desc">Estimated production reduction based on AI disease severity analysis.</p>
+                        </div>
+
+                        <!-- Fungicides Table -->
+                        <div class="fungicide-card">
+                            <h4 class="fungicide-title">
+                                <i class="fas fa-flask"></i> Recommended Fungicides
+                            </h4>
+                            <table class="fungicide-table" role="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Product Name</th>
+                                        <th scope="col">Action Mode</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for f in ai_report.fungicides %}
+                                    <tr>
+                                        <td>{{ f.name }}</td>
+                                        <td><span class="mode-badge">{{ f.type }}</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Save Form -->
+                    <form method="POST" id="saveForm" action="{% url 'save_scan' %}" class="save-form">
+                        {% csrf_token %}
+                        <input type="text"
+                               name="folder_name"
+                               placeholder="Name this scan (e.g., Field A - Row 2)"
+                               required
+                               class="save-input"
+                               aria-label="Scan folder name">
+
+                        <button type="button" onclick="openSaveModal()" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Report
+                        </button>
+                        <button type="button" onclick="openDeleteModal()" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Discard
+                        </button>
+
+                        <!-- Hidden fields -->
+                        <input type="hidden" name="prediction" value="{{ result.disease }}">
+                        <input type="hidden" name="confidence" value="{{ result.confidence }}">
+                        <input type="hidden" name="ratio" value="{{ progress_ratio }}">
+                        <input type="hidden" name="stage" value="{{ progress_stage }}">
+                        <input type="hidden" name="orig" value="{{ image_url }}">
+                        <input type="hidden" name="gradcam" value="{{ gradcam_url }}">
+                        {% if ai_report %}
+                        <input type="hidden" name="ai_medical" value="{{ ai_report.medical }}">
+                        <input type="hidden" name="ai_treatment" value="{{ ai_report.treatment }}">
+                        <input type="hidden" name="ai_irrigation" value="{{ ai_report.irrigation }}">
+                        <input type="hidden" name="ai_economic" value="{{ ai_report.economic_risk }}">
+                        <input type="hidden" name="yield_loss" value="{{ ai_report.yield_loss_percent }}">
+                        <input type="hidden" name="fungicides_json" value='{{ ai_report.fungicides|safe }}'>
+                        {% endif %}
+                    </form>
+                </div>
+            </section>
+            {% endif %}
+        </main>
+    </div>
+
+    <!-- Save Modal -->
+    <div class="modal" id="saveModal" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-cloud-arrow-up"></i>
+            </div>
+            <h3 class="modal-title" id="saveModalTitle">Save AI Report</h3>
+            <p class="modal-text">Do you want to securely save this diagnostic report to your files for future reference?</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal('saveModal')">Cancel</button>
+                <button class="modal-btn confirm" onclick="saveScanAjax()">
+                    <i class="fas fa-check"></i> Yes, Save Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+        <div class="modal-content">
+            <div class="modal-icon" style="background:var(--danger-bg);color:var(--danger);">
+                <i class="fas fa-trash"></i>
+            </div>
+            <h3 class="modal-title" id="deleteModalTitle">Discard Analysis</h3>
+            <p class="modal-text">This will remove the current results. You will need to re-upload to scan again.</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="modal-btn danger" onclick="deleteResult()">
+                    <i class="fas fa-check"></i> Discard Results
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Shared JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- Dashboard-specific JS -->
+    <script>
+        // ===== DRAG & DROP =====
+        document.addEventListener('DOMContentLoaded', () => {
+            setupDragDrop('uploadZone');
+            animateProgressBars();
+        });
+
+        // ===== FILE HANDLING =====
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.match('image.*')) {
+                showToast('Please select a valid image file', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('File too large. Max 10MB allowed', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            showToast('Uploading image...', 'success');
+            event.target.form.submit();
+        }
+
+        // ===== MODAL MANAGEMENT =====
+        function openSaveModal() {
+            const input = document.querySelector('input[name="folder_name"]');
+            if (!input?.value.trim()) {
+                showToast('Please enter a name for this scan', 'warning');
+                input?.focus();
+                return;
+            }
+            showModal('saveModal');
+        }
+
+        function openDeleteModal() {
+            showModal('deleteModal');
+        }
+
+        // ===== DELETE =====
+        function deleteResult() {
+            const resultBox = document.getElementById('resultBox');
+            if (resultBox) {
+                resultBox.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => {
+                    resultBox.remove();
+                    showToast('Results discarded', 'success');
+                }, 300);
+            }
+            closeModal('deleteModal');
+        }
+
+        // ===== AJAX SAVE =====
+        function saveScanAjax() {
+            const form = document.getElementById('saveForm');
+            const formData = new FormData(form);
+            const btn = form.querySelector('.btn-primary');
+
+            const originalBtn = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(async response => {
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || 'Save failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                closeModal('saveModal');
+                showToast('Report saved successfully!', 'success');
+                document.querySelector('input[name="folder_name"]').value = '';
+            })
+            .catch(error => {
+                console.error('Save error:', error);
+                showToast(`${error.message || 'Failed to save report'}`, 'error');
+            })
+            .finally(() => {
+                btn.innerHTML = originalBtn;
+                btn.disabled = false;
+            });
+        }
+
+        // ===== PROGRESS BARS =====
+        function animateProgressBars() {
+            const confidenceBar = document.getElementById('confidenceBar');
+            const confidenceValue = document.getElementById('confidenceValue');
+            if (confidenceBar && confidenceValue) {
+                const target = parseFloat(confidenceValue.textContent);
+                confidenceBar.style.width = `${target}%`;
+            }
+
+            const yieldBar = document.getElementById('yieldBar');
+            if (yieldBar) {
+                const target = parseFloat(yieldBar.style.width);
+                yieldBar.style.width = `${target}%`;
+            }
+        }
+
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 's') {
+                    e.preventDefault();
+                    openSaveModal();
+                }
+                if (e.key === 'd') {
+                    e.preventDefault();
+                    openDeleteModal();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

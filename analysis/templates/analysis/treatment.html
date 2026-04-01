@@ -1,0 +1,369 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered treatment plan for plant disease">
+    <title>Treatment Plan | PlantGuard AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        /* Treatment-specific styles */
+        .treatment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .treatment-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .treatment-title i { color: var(--primary); }
+
+        .urgency-badge {
+            padding: 10px 24px;
+            border-radius: var(--radius-full);
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .urgency-badge.critical {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 2px solid var(--danger);
+            animation: urgencyPulse 2s infinite;
+        }
+
+        .urgency-badge.moderate {
+            background: var(--warning-bg);
+            color: var(--warning);
+            border: 2px solid var(--warning);
+        }
+
+        .urgency-badge.early {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+
+        @keyframes urgencyPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        }
+
+        /* Disease Summary */
+        .disease-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .summary-item {
+            background: var(--bg-color);
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .summary-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        /* Action List */
+        .actions-section { margin-bottom: 32px; }
+
+        .actions-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .actions-title i { color: var(--primary); }
+
+        .action-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 16px 20px;
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            transition: var(--transition-fast);
+            cursor: default;
+        }
+
+        .action-item:hover {
+            border-color: var(--primary);
+            background: var(--primary-bg);
+            transform: translateX(4px);
+        }
+
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-bg);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        .action-text {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        /* Fungicide Card */
+        .fungicide-section {
+            margin-top: 32px;
+        }
+
+        .fungicide-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .fungicide-title i { color: var(--info); }
+
+        .fungicide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .fungicide-item {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: var(--transition-fast);
+        }
+
+        .fungicide-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .fungicide-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .fungicide-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Back Button */
+        .back-section {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+        <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">PlantGuard AI</span>
+        </div>
+
+        <div class="nav-section-label">Navigation</div>
+        <nav>
+            <a href="{% url 'home' %}" class="nav">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Diagnosis</span>
+            </a>
+            <a href="{% url 'model' %}" class="nav">
+                <i class="fas fa-brain"></i>
+                <span class="nav-text">Model Info</span>
+            </a>
+            <a href="{% url 'history' %}" class="nav">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">History</span>
+            </a>
+            <a href="{% url 'my_files' %}" class="nav">
+                <i class="fas fa-folder"></i>
+                <span class="nav-text">My Files</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="confirmLogout()" data-logout-url="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="nav-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="header">
+            <div>
+                <h1 class="header-title">Treatment Plan</h1>
+                <p class="header-subtitle">AI-powered agronomic treatment recommendations</p>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content" id="main-content">
+            <div class="card" style="max-width: 900px; margin: 0 auto;" data-animate>
+                <!-- Treatment Header -->
+                <div class="treatment-header">
+                    <div class="treatment-title">
+                        <i class="fas fa-prescription-bottle-medical"></i>
+                        Treatment Protocol
+                    </div>
+                    <div class="urgency-badge {{ urgency }}">
+                        {% if urgency == 'critical' %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% elif urgency == 'moderate' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                        {% else %}
+                            <i class="fas fa-shield-halved"></i>
+                        {% endif %}
+                        {{ urgency|upper }} PRIORITY
+                    </div>
+                </div>
+
+                <!-- Disease Summary -->
+                <div class="disease-summary" data-animate>
+                    <div class="summary-item">
+                        <div class="summary-label">Disease</div>
+                        <div class="summary-value">{{ disease|default:"Pathogen" }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Stage</div>
+                        <div class="summary-value">{{ stage }}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Severity</div>
+                        <div class="summary-value">{{ ratio }}%</div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="actions-section" data-animate>
+                    <h3 class="actions-title">
+                        <i class="fas fa-bullseye"></i> Immediate Actions
+                    </h3>
+                    <ul class="action-list">
+                        {% for action in actions %}
+                        <li class="action-item">
+                            <div class="action-icon">{{ forloop.counter }}</div>
+                            <div class="action-text">{{ action }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Fungicides -->
+                <div class="fungicide-section" data-animate>
+                    <h3 class="fungicide-title">
+                        <i class="fas fa-flask"></i> Recommended Fungicides
+                    </h3>
+                    <div class="fungicide-grid">
+                        {% for f in fungicides %}
+                        <div class="fungicide-item">
+                            <div class="fungicide-name">{{ f.name }}</div>
+                            <div class="fungicide-meta">
+                                <span class="badge badge-primary">{{ f.type }}</span>
+                                <span class="badge badge-info">{{ f.dosage }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Back -->
+                <div class="back-section">
+                    <a href="{% url 'home' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        <i class="fas fa-print"></i> Print Report
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

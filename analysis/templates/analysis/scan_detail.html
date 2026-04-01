@@ -1,0 +1,590 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Medical Scan Report - PlantGuard">
+    <title>Scan Report | PlantGuard AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        .report-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Images */
+        .images-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) { .images-grid { grid-template-columns: 1fr; } }
+
+        .image-card img {
+            width: 100%;
+            border-radius: var(--radius-md);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            object-fit: cover;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover img { transform: scale(1.01); }
+
+        .image-card h4 {
+            margin: 0 0 14px 0;
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        .image-card h4 i { color: var(--text-muted); }
+
+        /* Info Section */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
+
+        .info-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--primary-dark);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        [data-theme="dark"] .info-title { color: var(--primary-light); }
+
+        .info-meta {
+            color: var(--text-muted);
+            line-height: 2;
+            font-size: 14px;
+        }
+
+        .info-meta strong { color: var(--text-main); }
+
+        .yield-header {
+            font-weight: 700;
+            color: var(--text-main);
+            margin-top: 24px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .yield-bar {
+            height: 10px;
+            background: var(--border);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .yield-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--warning), var(--danger));
+            border-radius: var(--radius-full);
+            transition: width 1s ease;
+        }
+
+        /* AI Report */
+        .ai-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) { .ai-grid { grid-template-columns: 1fr; } }
+
+        .ai-section {
+            padding: 20px;
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+        }
+
+        .ai-section.risk { border-left-color: var(--danger); }
+
+        .ai-section h3 {
+            color: var(--text-main);
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+
+        .ai-section h3 i { color: var(--primary); }
+        .ai-section.risk h3 i { color: var(--danger); }
+
+        .ai-section p {
+            margin: 0;
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* Fungicide Table */
+        .mode-badge {
+            background: var(--primary-bg);
+            color: var(--primary-dark);
+            padding: 5px 12px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Evolution History */
+        .history-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-title i { color: var(--warning); }
+
+        .follow-card {
+            display: grid;
+            grid-template-columns: 120px 120px 1fr;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+            border-left: 4px solid var(--warning);
+            transition: var(--transition-fast);
+        }
+
+        .follow-card:hover { transform: translateX(4px); }
+
+        @media (max-width: 768px) {
+            .follow-card { grid-template-columns: 1fr; }
+        }
+
+        .follow-card img {
+            width: 100%;
+            border-radius: var(--radius-sm);
+        }
+
+        .follow-details p { margin: 5px 0; color: var(--text-muted); font-size: 14px; }
+        .follow-details strong { color: var(--text-main); }
+
+        .evo-text {
+            background: var(--warning-bg);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            color: #92400e;
+            font-size: 13px;
+            margin-top: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        [data-theme="dark"] .evo-text { color: var(--warning); }
+
+        /* Compare Zone */
+        .compare-zone {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .compare-input {
+            display: block;
+            margin: 20px auto;
+            padding: 12px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            background: var(--bg-color);
+            cursor: pointer;
+            max-width: 400px;
+            transition: var(--transition-fast);
+            font-family: inherit;
+            color: var(--text-main);
+        }
+
+        .compare-input:hover { border-color: var(--primary); }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+        <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">PlantGuard AI</span>
+        </div>
+
+        <div class="nav-section-label">Navigation</div>
+        <nav>
+            <a href="{% url 'home' %}" class="nav">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Diagnosis</span>
+            </a>
+            <a href="{% url 'model' %}" class="nav">
+                <i class="fas fa-brain"></i>
+                <span class="nav-text">Model Info</span>
+            </a>
+            <a href="{% url 'history' %}" class="nav">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">History</span>
+            </a>
+            <a href="{% url 'my_files' %}" class="nav active" aria-current="page">
+                <i class="fas fa-folder"></i>
+                <span class="nav-text">My Files</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="confirmLogout()" data-logout-url="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="nav-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="header">
+            <div>
+                <h1 class="header-title">Scan Report</h1>
+                <p class="header-subtitle">AI Medical Diagnostic Report</p>
+            </div>
+            <div class="header-actions">
+                <div class="top-actions">
+                    <button onclick="window.print()" class="btn btn-primary btn-sm">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <a href="{% url 'my_files' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Files
+                    </a>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content" id="main-content">
+            <div class="report-container">
+
+                <!-- Images + Info -->
+                <div class="info-grid" data-animate>
+                    <div class="card">
+                        <div class="images-grid">
+                            <div class="image-card">
+                                <h4><i class="fas fa-camera"></i> Original</h4>
+                                {% if scan %}
+                                <img src="{{ scan.image_original.url }}" alt="Original scan" loading="lazy">
+                                {% endif %}
+                            </div>
+                            <div class="image-card">
+                                <h4><i class="fas fa-fire"></i> Grad-CAM</h4>
+                                {% if scan %}
+                                <img src="{{ scan.image_gradcam.url }}" alt="Grad-CAM heatmap" loading="lazy">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        {% if scan %}
+                        <div class="info-title">
+                            <i class="fas fa-leaf" style="color:var(--primary)"></i>
+                            {{ scan.prediction }}
+                        </div>
+                        <div class="info-meta">
+                            <strong>Confidence:</strong> {{ scan.confidence }}% <br>
+                            <strong>Disease Stage:</strong> {{ scan.disease_stage }} <br>
+                            <strong>Infection Ratio:</strong> {{ scan.disease_ratio }}% <br>
+                            <strong>Analyzed on:</strong> {{ scan.created_at|date:"M d, Y H:i" }}
+                        </div>
+
+                        <div class="yield-header">
+                            <span><i class="fas fa-arrow-trend-down"></i> Yield Loss</span>
+                            <span style="color:var(--danger)">{{ scan.yield_loss }}%</span>
+                        </div>
+                        <div class="yield-bar">
+                            <div class="yield-fill" style="width: {{ scan.yield_loss }}%"></div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- AI Intelligence -->
+                {% if scan %}
+                <div class="card" data-animate>
+                    <h2 class="card-title" style="font-size: 20px; margin-bottom: 24px;">
+                        <i class="fas fa-brain"></i> AI Agronomic Intelligence
+                    </h2>
+
+                    <div class="ai-grid">
+                        <div class="ai-section">
+                            <h3><i class="fas fa-stethoscope"></i> Medical Diagnosis</h3>
+                            <p>{{ scan.ai_medical|default:"No data available" }}</p>
+                        </div>
+                        <div class="ai-section">
+                            <h3><i class="fas fa-prescription-bottle-medical"></i> Treatment Strategy</h3>
+                            <p>{{ scan.ai_treatment|default:"No data available" }}</p>
+                        </div>
+                        <div class="ai-section">
+                            <h3><i class="fas fa-droplet"></i> Irrigation Plan</h3>
+                            <p>{{ scan.ai_irrigation|default:"No data available" }}</p>
+                        </div>
+                        <div class="ai-section risk">
+                            <h3><i class="fas fa-chart-line"></i> Economic Risk</h3>
+                            <p>{{ scan.ai_economic|default:"No data available" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fungicides -->
+                <div class="card" data-animate>
+                    <h2 class="card-title" style="font-size: 20px;">
+                        <i class="fas fa-flask"></i> Recommended Fungicides
+                    </h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Action Mode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for f in scan.fungicides_json %}
+                            <tr>
+                                <td><strong>{{ f.name }}</strong></td>
+                                <td><span class="mode-badge">{{ f.type }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" style="color: var(--text-muted); text-align: center;">
+                                    No fungicides recorded.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Evolution History -->
+                {% if progress %}
+                <div class="card" data-animate>
+                    <h2 class="history-title" style="margin-bottom: 20px;">
+                        <i class="fas fa-clock-rotate-left"></i> Disease Evolution History
+                    </h2>
+                    {% for p in progress %}
+                    <div class="follow-card card" style="margin-bottom: 16px;">
+                        <img src="{{ p.new_image.url }}" alt="Past scan" loading="lazy">
+                        <img src="{{ p.new_gradcam.url }}" alt="Past Grad-CAM" loading="lazy">
+                        <div class="follow-details">
+                            <p><strong>Diagnosis:</strong> {{ p.disease }}</p>
+                            <p><strong>Severity:</strong> {{ p.ratio }}% | <strong>Yield Loss:</strong> {{ p.yield_loss }}%</p>
+                            <div class="evo-text">
+                                <i class="fas fa-robot"></i>
+                                <span>{{ p.evolution_text }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Compare Zone -->
+                <div class="card compare-zone" data-animate>
+                    <h2 class="card-title" style="font-size: 20px; justify-content: center;">
+                        <i class="fas fa-code-compare"></i> Compare Disease Evolution
+                    </h2>
+                    <p style="color: var(--text-muted); margin-bottom: 20px;">
+                        Upload a new scan of the same plant to analyze disease progression.
+                    </p>
+
+                    <input type="file" id="newImageInput" class="compare-input" accept="image/*">
+                    <button onclick="compareScan('{{ scan.photo_id }}')" class="btn btn-primary" id="compareBtn" style="margin-top: 16px;">
+                        <i class="fas fa-microscope"></i> Analyze New Image
+                    </button>
+                </div>
+                {% endif %}
+
+                <div id="compareResultsContainer"></div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        {% if scan %}
+        const PHOTO_ID = "{{ scan.photo_id }}";
+        {% else %}
+        const PHOTO_ID = "";
+        {% endif %}
+        window.lastCompareData = null;
+
+        function compareScan(photoId) {
+            const fileInput = document.getElementById("newImageInput");
+            const btn = document.getElementById("compareBtn");
+
+            if (!fileInput.files.length) {
+                showToast("Please select an image first", "warning");
+                return;
+            }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append("new_image", fileInput.files[0]);
+
+            fetch(`/compare-ajax/${photoId}/`, {
+                method: "POST",
+                headers: { "X-CSRFToken": getCsrfToken() },
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.innerHTML = '<i class="fas fa-microscope"></i> Analyze New Image';
+                btn.disabled = false;
+
+                if (data.status === "ok") {
+                    window.lastCompareData = data;
+                    renderCompareResults(data);
+                    showToast("Analysis complete!", "success");
+                } else {
+                    showToast("Error analyzing image", "error");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                btn.innerHTML = '<i class="fas fa-microscope"></i> Analyze New Image';
+                btn.disabled = false;
+                showToast("Network error occurred", "error");
+            });
+        }
+
+        function renderCompareResults(data) {
+            const html = `
+            <div class="card" style="margin-top: 24px; border: 2px solid var(--primary);" data-animate>
+                <h2 class="card-title" style="font-size: 20px; justify-content: center; margin-bottom: 28px;">
+                    <i class="fas fa-chart-line"></i> Evolution Intelligence
+                </h2>
+
+                <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 28px; flex-wrap: wrap;">
+                    <div style="text-align: center; width: 30%; min-width: 120px;">
+                        <p style="color: var(--text-muted); font-weight: 700; font-size: 13px; margin-bottom: 10px;">Previous Scan</p>
+                        {% if scan %}<img src="{{ scan.image_gradcam.url }}" style="width:100%; border-radius: var(--radius-md);">{% endif %}
+                    </div>
+                    <div style="font-size: 32px; color: var(--warning);"><i class="fas fa-arrow-right"></i></div>
+                    <div style="text-align: center; width: 30%; min-width: 120px;">
+                        <p style="color: var(--text-muted); font-weight: 700; font-size: 13px; margin-bottom: 10px;">New Scan</p>
+                        <img src="${data.gradcam}" style="width:100%; border-radius: var(--radius-md);">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                    <div style="background: var(--bg-color); padding: 14px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border);">
+                        <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">Disease</span>
+                        <b style="color: var(--primary-dark);">${data.disease}</b>
+                    </div>
+                    <div style="background: var(--bg-color); padding: 14px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border);">
+                        <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">Confidence</span>
+                        <b style="color: var(--primary-dark);">${data.confidence}</b>
+                    </div>
+                    <div style="background: var(--bg-color); padding: 14px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border);">
+                        <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">Stage</span>
+                        <b style="color: var(--primary-dark);">${data.stage}</b>
+                    </div>
+                    <div style="background: var(--bg-color); padding: 14px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border);">
+                        <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">Severity</span>
+                        <b style="color: var(--danger);">${data.ratio}%</b>
+                    </div>
+                </div>
+
+                <div class="ai-section" style="border-left-color: var(--warning); margin-bottom: 24px;">
+                    <h3><i class="fas fa-robot" style="color: var(--warning);"></i> AI Evolution Interpretation</h3>
+                    <p>${data.evolution}</p>
+                </div>
+
+                <div style="text-align: center;">
+                    <button id="saveFollowBtn" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Progress Report
+                    </button>
+                </div>
+            </div>`;
+
+            document.getElementById("compareResultsContainer").innerHTML = html;
+            document.getElementById("compareResultsContainer").scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        document.addEventListener("click", function(e) {
+            if (e.target && (e.target.id === "saveFollowBtn" || e.target.closest('#saveFollowBtn'))) {
+                const btn = document.getElementById("saveFollowBtn");
+                if (!window.lastCompareData) {
+                    showToast("No comparison result available", "warning");
+                    return;
+                }
+
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                btn.disabled = true;
+
+                fetch(`/save-followup/${PHOTO_ID}/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCsrfToken()
+                    },
+                    body: JSON.stringify(window.lastCompareData)
+                })
+                .then(r => r.json())
+                .then(d => {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                    btn.style.background = "#16a34a";
+                    showToast("Progress report saved!", "success");
+                    setTimeout(() => location.reload(), 1500);
+                })
+                .catch(err => {
+                    console.error("Save error:", err);
+                    showToast("Failed to save", "error");
+                    btn.innerHTML = '<i class="fas fa-save"></i> Save Progress Report';
+                    btn.disabled = false;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

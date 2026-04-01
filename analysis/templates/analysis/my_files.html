@@ -1,0 +1,366 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="My saved AI plant disease scans - PlantGuard">
+    <title>My Scans | PlantGuard AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        /* ===== FILES GRID ===== */
+        .files-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .files-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .files-header h1 i { color: var(--primary); }
+
+        .files-count {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            padding: 10px 20px;
+            min-width: 260px;
+            transition: var(--transition-fast);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .search-box i { color: var(--text-muted); font-size: 14px; }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            font-size: 14px;
+            font-family: inherit;
+            width: 100%;
+            outline: none;
+        }
+
+        .search-box input::placeholder { color: var(--text-muted); }
+
+        /* Grid */
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        /* File Card */
+        .file-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .file-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--info));
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .file-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .file-card:hover::before { opacity: 1; }
+
+        /* Image */
+        .file-img {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+            background: var(--border);
+        }
+
+        .file-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .file-card:hover .file-img img {
+            transform: scale(1.05);
+        }
+
+        .file-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            border: 1px solid var(--glass-border);
+        }
+
+        .file-date-badge {
+            position: absolute;
+            bottom: 14px;
+            right: 14px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Body */
+        .file-body {
+            padding: 20px;
+        }
+
+        .file-disease {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        [data-theme="dark"] .file-disease { color: var(--primary-light); }
+
+        .file-confidence {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .file-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .file-yield {
+            height: 6px;
+            border-radius: var(--radius-full);
+            background: var(--border);
+            overflow: hidden;
+        }
+
+        .file-yield-inner {
+            height: 100%;
+            background: linear-gradient(90deg, var(--warning), var(--danger));
+            border-radius: var(--radius-full);
+            transition: width 0.6s ease;
+        }
+
+        .file-yield-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+        <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">PlantGuard AI</span>
+        </div>
+
+        <div class="nav-section-label">Navigation</div>
+        <nav>
+            <a href="{% url 'home' %}" class="nav">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Diagnosis</span>
+            </a>
+            <a href="{% url 'model' %}" class="nav">
+                <i class="fas fa-brain"></i>
+                <span class="nav-text">Model Info</span>
+            </a>
+            <a href="{% url 'history' %}" class="nav">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">History</span>
+            </a>
+            <a href="{% url 'my_files' %}" class="nav active" aria-current="page">
+                <i class="fas fa-folder"></i>
+                <span class="nav-text">My Files</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="confirmLogout()" data-logout-url="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="nav-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="header">
+            <div>
+                <h1 class="header-title">My Scans</h1>
+                <p class="header-subtitle">All saved AI diagnostic reports</p>
+            </div>
+            <div class="header-actions">
+                <span class="status-badge">
+                    <i class="fas fa-circle"></i> System Online
+                </span>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content" id="main-content">
+            <div class="files-header">
+                <div>
+                    <h1><i class="fas fa-folder-open"></i> Saved Scans</h1>
+                    <p class="files-count">
+                        {% if scans %}
+                            {{ scans|length }} scan{{ scans|length|pluralize }} saved
+                        {% else %}
+                            No scans yet
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by disease or folder..." oninput="filterScans(this.value)">
+                </div>
+            </div>
+
+            {% if scans %}
+            <div class="files-grid" id="filesGrid">
+                {% for scan in scans %}
+                <a href="{% url 'scan_detail' scan.photo_id %}" class="file-card" data-animate data-search="{{ scan.prediction|lower }} {{ scan.folder_name|lower }}">
+
+                    <div class="file-img">
+                        <img src="{{ scan.image_original.url }}" alt="{{ scan.prediction }}" loading="lazy">
+                        <div class="file-badge">
+                            <i class="fas fa-tag"></i> {{ scan.folder_name }}
+                        </div>
+                        <div class="file-date-badge">
+                            <i class="fas fa-clock"></i> {{ scan.created_at|date:"M d, Y" }}
+                        </div>
+                    </div>
+
+                    <div class="file-body">
+                        <div class="file-disease">
+                            <i class="fas fa-leaf"></i> {{ scan.prediction }}
+                        </div>
+
+                        <div class="file-confidence">
+                            Confidence: {{ scan.confidence }}%
+                        </div>
+
+                        <div class="file-meta">
+                            <span class="badge
+                                {% if scan.disease_stage == 'Very Early' or scan.disease_stage == 'Early' %}badge-success
+                                {% elif scan.disease_stage == 'Moderate' %}badge-warning
+                                {% else %}badge-danger{% endif %}">
+                                {{ scan.disease_stage }}
+                            </span>
+                            <span class="badge badge-info">{{ scan.disease_ratio }}% severity</span>
+                        </div>
+
+                        <div class="file-yield">
+                            <div class="file-yield-inner" style="width: {{ scan.yield_loss }}%"></div>
+                        </div>
+                        <div class="file-yield-label">
+                            <span>Yield Loss</span>
+                            <span>{{ scan.yield_loss }}%</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-seedling"></i>
+                <h3>No Scans Saved Yet</h3>
+                <p>Upload a plant image from the dashboard and save the AI diagnosis to see it here.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Start New Scan
+                </a>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        function filterScans(query) {
+            const cards = document.querySelectorAll('.file-card');
+            const q = query.toLowerCase().trim();
+
+            cards.forEach(card => {
+                const searchText = card.dataset.search || '';
+                card.style.display = searchText.includes(q) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

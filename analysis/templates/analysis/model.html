@@ -1,0 +1,307 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Model Architecture - PlantGuard">
+    <title>Model Info | PlantGuard AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            max-width: 1100px;
+        }
+
+        .spec-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background: var(--bg-color);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .spec-item .label {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .spec-item .value {
+            color: var(--text-main);
+            font-weight: 800;
+        }
+
+        .arch-flow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            margin-top: 16px;
+        }
+
+        .arch-block {
+            background: var(--surface);
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .arch-block.highlight {
+            background: var(--primary-bg);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
+
+        .arch-arrow {
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .xai-section {
+            margin-top: 24px;
+            padding: 24px;
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--info);
+        }
+
+        .xai-section h3 {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .xai-section h3 i { color: var(--info); }
+
+        .xai-section p {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .tech-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+        <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">PlantGuard AI</span>
+        </div>
+
+        <div class="nav-section-label">Navigation</div>
+        <nav>
+            <a href="{% url 'home' %}" class="nav">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Diagnosis</span>
+            </a>
+            <a href="{% url 'model' %}" class="nav active" aria-current="page">
+                <i class="fas fa-brain"></i>
+                <span class="nav-text">Model Info</span>
+            </a>
+            <a href="{% url 'history' %}" class="nav">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">History</span>
+            </a>
+            <a href="{% url 'my_files' %}" class="nav">
+                <i class="fas fa-folder"></i>
+                <span class="nav-text">My Files</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="confirmLogout()" data-logout-url="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="nav-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="header">
+            <div>
+                <h1 class="header-title">Model Architecture</h1>
+                <p class="header-subtitle">Deep learning model specifications &amp; XAI methodology</p>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content" id="main-content">
+            <div class="info-grid">
+                <!-- Model Specs -->
+                <div class="card" data-animate>
+                    <h2 class="card-title"><i class="fas fa-microchip"></i> Model Specifications</h2>
+                    <ul class="spec-list">
+                        <li class="spec-item">
+                            <span class="label">Framework</span>
+                            <span class="value">TensorFlow / Keras</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="label">Architecture</span>
+                            <span class="value">CNN (Sequential)</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="label">Input Size</span>
+                            <span class="value">128 &times; 128 &times; 3</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="label">Output Classes</span>
+                            <span class="value">38 disease types</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="label">Model Format</span>
+                            <span class="value">.h5 (HDF5)</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="label">Preprocessing</span>
+                            <span class="value">Normalize [0, 1]</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Training Info -->
+                <div class="card" data-animate>
+                    <h2 class="card-title"><i class="fas fa-graduation-cap"></i> Training Details</h2>
+                    <ul class="spec-list">
+                        <li class="spec-item">
+                            <span class="label">Dataset</span>
+                            <span class="value">PlantVillage</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="label">Total Images</span>
+                            <span class="value">~87,000</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="label">Optimizer</span>
+                            <span class="value">Adam</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="label">Loss Function</span>
+                            <span class="value">Categorical CE</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="label">Validation Split</span>
+                            <span class="value">20%</span>
+                        </li>
+                        <li class="spec-item">
+                            <span class="label">Augmentation</span>
+                            <span class="value">Rotation, Flip, Zoom</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Architecture Flow -->
+            <div class="card" style="margin-top: 24px; max-width: 1100px;" data-animate>
+                <h2 class="card-title"><i class="fas fa-project-diagram"></i> Architecture Pipeline</h2>
+                <div class="arch-flow">
+                    <div class="arch-block">Input<br><small>128&times;128&times;3</small></div>
+                    <i class="fas fa-arrow-right arch-arrow"></i>
+                    <div class="arch-block">Conv2D + ReLU</div>
+                    <i class="fas fa-arrow-right arch-arrow"></i>
+                    <div class="arch-block">MaxPool2D</div>
+                    <i class="fas fa-arrow-right arch-arrow"></i>
+                    <div class="arch-block">Conv2D + ReLU</div>
+                    <i class="fas fa-arrow-right arch-arrow"></i>
+                    <div class="arch-block">MaxPool2D</div>
+                    <i class="fas fa-arrow-right arch-arrow"></i>
+                    <div class="arch-block">Flatten</div>
+                    <i class="fas fa-arrow-right arch-arrow"></i>
+                    <div class="arch-block">Dense + Dropout</div>
+                    <i class="fas fa-arrow-right arch-arrow"></i>
+                    <div class="arch-block highlight">Softmax<br><small>38 classes</small></div>
+                </div>
+            </div>
+
+            <!-- XAI Section -->
+            <div class="card" style="margin-top: 24px; max-width: 1100px;" data-animate>
+                <h2 class="card-title"><i class="fas fa-eye"></i> Explainable AI (XAI)</h2>
+
+                <div class="xai-section">
+                    <h3><i class="fas fa-fire"></i> Grad-CAM (Gradient-weighted Class Activation Mapping)</h3>
+                    <p>
+                        Grad-CAM produces visual explanations by computing the gradient of the predicted class score
+                        with respect to feature maps of the last convolutional layer. This reveals which spatial
+                        regions of the input image most influence the model's classification decision, providing
+                        transparency and interpretability for plant pathology diagnosis.
+                    </p>
+                    <p style="margin-top: 12px;">
+                        The heatmap overlay uses a JET colormap where <strong style="color: #ef4444;">red/warm</strong>
+                        regions indicate high model attention (likely infection zones) and
+                        <strong style="color: #3b82f6;">blue/cool</strong> regions indicate low relevance.
+                    </p>
+                </div>
+
+                <div class="xai-section" style="margin-top: 16px; border-left-color: var(--primary);">
+                    <h3><i class="fas fa-microscope" style="color: var(--primary);"></i> Disease Progression Estimation</h3>
+                    <p>
+                        After Grad-CAM generation, the system analyzes the heatmap using HSV color space segmentation
+                        to estimate the infection ratio. Red/yellow regions represent infected tissue, while green
+                        regions indicate healthy tissue. The ratio of infected to total leaf area provides the
+                        disease severity percentage.
+                    </p>
+                </div>
+
+                <div class="tech-badges">
+                    <span class="badge badge-primary"><i class="fas fa-cog"></i> TensorFlow 2.x</span>
+                    <span class="badge badge-info"><i class="fas fa-eye"></i> OpenCV</span>
+                    <span class="badge badge-warning"><i class="fas fa-robot"></i> GPT-4o / Gemini</span>
+                    <span class="badge badge-success"><i class="fas fa-leaf"></i> PlantVillage</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

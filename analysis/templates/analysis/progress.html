@@ -1,0 +1,443 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Disease Progression Analysis - PlantGuard">
+    <title>Infection Progress | PlantGuard AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        /* Progress-specific styles */
+        .progress-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 28px;
+        }
+
+        @media (max-width: 900px) {
+            .progress-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Image Panel */
+        .image-panel { display: flex; flex-direction: column; gap: 16px; }
+
+        .image-box {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--bg-color);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+            border: 1px solid var(--border);
+            aspect-ratio: 4/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .image-box:hover img { transform: scale(1.02); }
+
+        .image-label {
+            position: absolute;
+            top: 16px; left: 16px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 5;
+        }
+
+        .ai-insight {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            background: var(--bg-color);
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--primary);
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .ai-insight i { margin-top: 3px; flex-shrink: 0; color: var(--primary); }
+
+        /* Analysis Panel */
+        .analysis-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            gap: 24px;
+        }
+
+        /* Donut Gauge */
+        .gauge-wrapper {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: conic-gradient(var(--gauge-color, #4ade80) var(--gauge-deg, 0deg), var(--border) 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            transition: background 1s ease-out;
+        }
+
+        .gauge-inner {
+            width: 175px;
+            height: 175px;
+            background: var(--surface);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.03);
+        }
+
+        .gauge-percent {
+            font-size: 46px;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .gauge-percent span {
+            font-size: 22px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .gauge-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .gauge-legend {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .legend-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-dot.safe { background: #4ade80; }
+        .legend-dot.warning { background: #f59e0b; }
+        .legend-dot.critical { background: #ef4444; }
+
+        /* Stage Box */
+        .stage-box {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            width: 100%;
+            box-shadow: var(--shadow-xs);
+            border: 1px solid var(--border);
+        }
+
+        .stage-title {
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stage-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Risk Bar */
+        .risk-wrapper { width: 100%; }
+
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .risk-track {
+            height: 10px;
+            background: var(--border);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .risk-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #fbbf24, #ef4444);
+            width: 0%;
+            border-radius: var(--radius-full);
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .risk-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        /* Action Footer */
+        .action-footer {
+            display: flex;
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            margin-top: 10px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .image-placeholder {
+            color: var(--text-muted);
+            text-align: center;
+            padding: 24px;
+        }
+
+        .image-placeholder i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+        <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">PlantGuard AI</span>
+        </div>
+
+        <div class="nav-section-label">Navigation</div>
+        <nav>
+            <a href="{% url 'home' %}" class="nav">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Diagnosis</span>
+            </a>
+            <a href="{% url 'model' %}" class="nav">
+                <i class="fas fa-brain"></i>
+                <span class="nav-text">Model Info</span>
+            </a>
+            <a href="{% url 'history' %}" class="nav">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">History</span>
+            </a>
+            <a href="{% url 'my_files' %}" class="nav">
+                <i class="fas fa-folder"></i>
+                <span class="nav-text">My Files</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="confirmLogout()" data-logout-url="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="nav-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="header">
+            <div>
+                <h1 class="header-title">Infection Progress</h1>
+                <p class="header-subtitle">AI-powered disease severity analysis</p>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content" id="main-content">
+            <div class="card" style="max-width: 1100px; margin: 0 auto;" data-animate>
+                <div class="progress-grid">
+
+                    <!-- Image Panel -->
+                    <div class="image-panel">
+                        <div class="image-box">
+                            <div class="image-label">
+                                <i class="fas fa-fire" style="color:#fbbf24;"></i> AI Heatmap
+                            </div>
+                            {% if gradcam_url %}
+                                <img src="{{ gradcam_url }}"
+                                     alt="Grad-CAM visualization"
+                                     loading="lazy"
+                                     onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'><i class=\'fas fa-triangle-exclamation\' style=\'color:#f59e0b\'></i><div>Image unavailable</div></div>'">
+                            {% else %}
+                                <div class="image-placeholder">
+                                    <i class="fas fa-image"></i>
+                                    <div>Preview Unavailable</div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="ai-insight" role="note">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>AI Insight:</strong> Higher intensity zones (red/yellow) indicate aggressive pathogen activity detected by the deep vision neural network.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Panel -->
+                    <div class="analysis-panel">
+                        <div class="gauge-wrapper" id="gauge" role="img" aria-label="Disease severity gauge">
+                            <div class="gauge-inner">
+                                <div class="gauge-percent" id="percentText">0<span>%</span></div>
+                                <div class="gauge-label">Severity Level</div>
+                            </div>
+                        </div>
+
+                        <div class="gauge-legend">
+                            <div class="legend-item"><span class="legend-dot safe"></span> Safe &lt;40%</div>
+                            <div class="legend-item"><span class="legend-dot warning"></span> Warning 40-70%</div>
+                            <div class="legend-item"><span class="legend-dot critical"></span> Critical &gt;70%</div>
+                        </div>
+
+                        <div class="stage-box">
+                            <div class="stage-title">Detected Stage</div>
+                            <div class="stage-value">
+                                {{ stage }}
+                                {% if ratio|default:0|floatformat:0 < 40 %}
+                                    <span class="badge badge-success">Early</span>
+                                {% elif ratio|default:0|floatformat:0 < 70 %}
+                                    <span class="badge badge-warning">Moderate</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Advanced</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="risk-wrapper">
+                            <div class="risk-header">
+                                <span>Canopy Damage Risk</span>
+                                <span id="riskText" style="font-weight: 800; color: var(--text-main);">0%</span>
+                            </div>
+                            <div class="risk-track">
+                                <div class="risk-fill" id="riskFill"></div>
+                            </div>
+                        </div>
+
+                        <div class="action-footer">
+                            <a href="{% url 'home' %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                            <a href="{% url 'treatment' %}?stage={{ stage }}&ratio={{ ratio }}&disease=" class="btn btn-secondary">
+                                <i class="fas fa-prescription-bottle-medical"></i> Treatment Plan
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const ratioStr = "{{ ratio|default:0 }}";
+            let ratio = parseFloat(ratioStr);
+            if (isNaN(ratio)) ratio = 0;
+            ratio = Math.max(0, Math.min(100, ratio));
+
+            const deg = ratio * 3.6;
+            const gauge = document.getElementById("gauge");
+
+            let color = "#4ade80";
+            if (ratio >= 70) color = "#ef4444";
+            else if (ratio >= 40) color = "#f59e0b";
+
+            setTimeout(() => {
+                gauge.style.setProperty('--gauge-color', color);
+                gauge.style.setProperty('--gauge-deg', `${deg}deg`);
+
+                // Animate counter
+                const percentEl = document.getElementById("percentText");
+                if (percentEl) {
+                    animateCounter(percentEl, 0, Math.round(ratio), 1200);
+                    setTimeout(() => {
+                        percentEl.innerHTML = `${Math.round(ratio)}<span>%</span>`;
+                    }, 1300);
+                }
+
+                // Risk bar
+                document.getElementById("riskText").textContent = `${Math.round(ratio)}%`;
+                document.getElementById("riskFill").style.width = `${ratio}%`;
+            }, 200);
+        });
+    </script>
+</body>
+</html>

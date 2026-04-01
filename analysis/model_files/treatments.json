@@ -1,0 +1,127 @@
+{
+  "TREATMENT_RECOMMENDATIONS": {
+    "tomato__bacterial_spot": [
+      "Remove and destroy infected plants",
+      "Rotate crops (avoid planting tomatoes in the same location for 2-3 years)",
+      "Use copper-based fungicides",
+      "Ensure proper spacing between plants for good air circulation"
+    ],
+    "tomato__early_blight": [
+      "Remove infected leaves immediately",
+      "Apply fungicides containing chlorothalonil or copper",
+      "Mulch around the base of plants",
+      "Water at soil level rather than on foliage"
+    ],
+    "tomato__late_blight": [
+      "Remove and destroy infected plants",
+      "Apply fungicides proactively before symptoms appear",
+      "Improve air circulation around plants",
+      "Avoid overhead irrigation"
+    ],
+    "tomato__leaf_mold": [
+      "Increase spacing between plants to improve air circulation",
+      "Apply fungicides containing chlorothalonil or copper",
+      "Remove infected leaves",
+      "Keep foliage dry by watering at the base"
+    ],
+    "tomato__septoria_leaf_spot": [
+      "Remove infected leaves",
+      "Apply fungicides containing chlorothalonil or copper",
+      "Rotate crops",
+      "Mulch around plants to prevent spores splashing from soil"
+    ],
+    "tomato__spider_mites_(two_spotted_spider_mite)": [
+      "Spray plants with strong streams of water to dislodge mites",
+      "Apply insecticidal soap or neem oil",
+      "Introduce predatory mites",
+      "Increase humidity around plants"
+    ],
+    "tomato__target_spot": [
+      "Remove infected plant debris",
+      "Apply fungicides",
+      "Improve air circulation",
+      "Avoid overhead watering"
+    ],
+    "tomato__yellow_leaf_curl_virus": [
+      "No cure available - remove and destroy infected plants",
+      "Control whitefly populations (vectors)",
+      "Use reflective mulches to repel whiteflies",
+      "Plant resistant varieties"
+    ],
+    "tomato__mosaic_virus": [
+      "No cure available - remove and destroy infected plants",
+      "Wash hands and tools after handling infected plants",
+      "Control aphid populations (vectors)",
+      "Plant resistant varieties"
+    ],
+    "potato__early_blight": [
+      "Remove infected leaves",
+      "Apply fungicides containing chlorothalonil",
+      "Maintain good soil fertility",
+      "Ensure proper hilling to protect tubers"
+    ],
+    "potato__late_blight": [
+      "Apply fungicides preventatively",
+      "Remove volunteer potato plants",
+      "Harvest tubers during dry weather",
+      "Ensure proper storage conditions for harvested potatoes"
+    ],
+    "pepper_bell__bacterial_spot": [
+      "Remove infected plant debris",
+      "Rotate crops",
+      "Apply copper-based sprays",
+      "Use disease-free seeds"
+    ],
+    "apple__scab": [
+      "Rake fallen leaves",
+      "Apply fungicides at bud break",
+      "Plant resistant varieties"
+    ],
+    "apple__black_rot": [
+      "Remove mummified fruits",
+      "Apply fungicides during bloom",
+      "Prune for airflow"
+    ],
+    "grape__black_rot": [
+      "Remove mummified fruits from vines",
+      "Apply fungicides during growing season",
+      "Ensure good air circulation"
+    ],
+    "grape__black_measles": [
+      "Prune infected canes",
+      "Apply fungicides during dormant season",
+      "Remove mummified clusters"
+    ],
+    "corn__common_rust": [
+      "Apply fungicides if severe",
+      "Plant resistant hybrids",
+      "Rotate crops"
+    ],
+    "corn__gray_leaf_spot": [
+      "Use resistant hybrids",
+      "Apply foliar fungicides",
+      "Practice crop rotation"
+    ],
+    "soybean__rust": [
+      "Apply triazole fungicides",
+      "Monitor weather conditions",
+      "Early planting"
+    ],
+    "wheat__yellow_rust": [
+      "Apply fungicides at flag leaf",
+      "Use resistant varieties",
+      "Early sowing"
+    ],
+    "healthy": [
+      "Maintain watering schedule",
+      "Ensure adequate sunlight",
+      "Fertilize appropriately"
+    ]
+  },
+  "DEFAULT_HEALTHY_PRACTICES": [
+    "Maintain proper watering schedule",
+    "Ensure adequate sunlight",
+    "Fertilize appropriately for plant type",
+    "Monitor regularly for signs of disease"
+  ]
+}

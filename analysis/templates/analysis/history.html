@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Analysis history timeline - PlantGuard">
+    <title>History | PlantGuard AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .timeline-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .timeline-header h1 i { color: var(--primary); }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 32px 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: var(--transition-normal);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 16px;
+        }
+
+        .feature-icon.green { background: var(--primary-bg); color: var(--primary); }
+        .feature-icon.blue { background: var(--info-bg); color: var(--info); }
+        .feature-icon.amber { background: var(--warning-bg); color: var(--warning); }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .coming-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            background: var(--warning-bg);
+            color: var(--warning);
+            border: 2px solid var(--warning);
+            border-radius: var(--radius-full);
+            font-weight: 800;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .tip-card {
+            max-width: 700px;
+            margin: 40px auto 0;
+            padding: 24px;
+            background: var(--bg-color);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .tip-card i {
+            color: var(--primary);
+            font-size: 18px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .tip-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .tip-card p strong { color: var(--text-main); }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+        <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">PlantGuard AI</span>
+        </div>
+
+        <div class="nav-section-label">Navigation</div>
+        <nav>
+            <a href="{% url 'home' %}" class="nav">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Diagnosis</span>
+            </a>
+            <a href="{% url 'model' %}" class="nav">
+                <i class="fas fa-brain"></i>
+                <span class="nav-text">Model Info</span>
+            </a>
+            <a href="{% url 'history' %}" class="nav active" aria-current="page">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">History</span>
+            </a>
+            <a href="{% url 'my_files' %}" class="nav">
+                <i class="fas fa-folder"></i>
+                <span class="nav-text">My Files</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="confirmLogout()" data-logout-url="{% url 'logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="nav-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="header">
+            <div>
+                <h1 class="header-title">Analysis History</h1>
+                <p class="header-subtitle">Track your diagnostic activity over time</p>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content" id="main-content">
+            <div class="timeline-header">
+                <h1><i class="fas fa-clock-rotate-left"></i> Activity Timeline</h1>
+                <span class="coming-badge">
+                    <i class="fas fa-wrench"></i> Coming Soon
+                </span>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card" data-animate>
+                    <div class="feature-icon green">
+                        <i class="fas fa-chart-area"></i>
+                    </div>
+                    <h3>Disease Trends</h3>
+                    <p>Track how disease patterns evolve across your fields over weeks and months with interactive charts.</p>
+                </div>
+
+                <div class="feature-card" data-animate>
+                    <div class="feature-icon blue">
+                        <i class="fas fa-timeline"></i>
+                    </div>
+                    <h3>Scan Timeline</h3>
+                    <p>Visual timeline of all your scans with before/after comparisons and severity tracking.</p>
+                </div>
+
+                <div class="feature-card" data-animate>
+                    <div class="feature-icon amber">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <h3>Export Reports</h3>
+                    <p>Download comprehensive PDF reports of your diagnostic history for record-keeping and compliance.</p>
+                </div>
+            </div>
+
+            <div class="tip-card" data-animate>
+                <i class="fas fa-lightbulb"></i>
+                <p>
+                    <strong>Pro Tip:</strong> In the meantime, you can view all your saved diagnostic reports
+                    in <a href="{% url 'my_files' %}" style="color: var(--primary); font-weight: 700;">My Files</a>.
+                    Each saved scan includes full AI analysis, treatment advice, and disease evolution tracking.
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
