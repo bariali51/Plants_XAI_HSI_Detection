@@ -3,20 +3,29 @@ djangorestframework
 celery
 django-celery-beat
 redis
+
 numpy
 pandas
 scipy
 scikit-learn
-torch
-torchvision
+
+# PyTorch CPU ONLY
+torch==2.2.0+cpu
+torchvision==0.17.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 spectral
 opencv-python
+pillow
+
+# Explainable AI (اختار واحد فقط إذا أمكن)
 shap
-lime
 captum
+
 matplotlib
 plotly
-pillow
+
 django-storages
+gunicorn
+whitenoise
 grad-cam
-opencv-python
