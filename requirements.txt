@@ -10,16 +10,15 @@ scipy
 scikit-learn
 
 # PyTorch CPU ONLY
+--extra-index-url https://download.pytorch.org/whl/cpu
 torch==2.2.0+cpu
 torchvision==0.17.0+cpu
---extra-index-url https://download.pytorch.org/whl/cpu
 
 spectral
-opencv-python
+opencv-python-headless
 pillow
 
-# Explainable AI (اختار واحد فقط إذا أمكن)
-shap
+# Explainable AI (اختر واحد فقط)
 captum
 
 matplotlib
@@ -28,4 +27,6 @@ plotly
 django-storages
 gunicorn
 whitenoise
+
+# optional (إذا تحتاجه فعلاً)
 grad-cam
