@@ -1,0 +1,539 @@
+{
+  "keyword_synonyms": {
+    "fosfat": "phosphate",
+    "fosfor": "phosphorus",
+    "phosphor": "phosphorus",
+    "no9ss": "deficiency",
+    "na9ss": "deficiency",
+    "naqss": "deficiency",
+    "noqss": "deficiency",
+    "azot": "nitrogen",
+    "azote": "nitrogen",
+    "nitro": "nitrogen",
+    "potass": "potassium",
+    "potash": "potassium",
+    "kali": "potassium",
+    "kalium": "potassium",
+    "magnez": "magnesium",
+    "magnesie": "magnesium",
+    "calci": "calcium",
+    "chaux": "calcium",
+    "soufre": "sulfur",
+    "sulphur": "sulfur",
+    "fer": "iron",
+    "rouille": "rust",
+    "mildiou": "mildew",
+    "tache": "spot",
+    "feuille": "leaf",
+    "feuilles": "leaves",
+    "jaune": "yellow",
+    "jaunatre": "yellow",
+    "brun": "brown",
+    "noir": "black",
+    "blanc": "white",
+    "rouge": "red",
+    "fletri": "wilt",
+    "fletrissement": "wilt",
+    "pourriture": "rot",
+    "champignon": "fungus",
+    "fongique": "fungal",
+    "insecte": "insect",
+    "puceron": "aphid",
+    "mouche": "fly",
+    "ver": "worm",
+    "chenille": "caterpillar",
+    "arrosage": "irrigation",
+    "eau": "water",
+    "engrais": "fertilizer",
+    "sol": "soil",
+    "racine": "root",
+    "racines": "roots",
+    "tige": "stem",
+    "fruit": "fruit",
+    "fleur": "flower",
+    "graine": "seed",
+    "recolte": "harvest",
+    "rendement": "yield",
+    "traitement": "treatment",
+    "maladie": "disease",
+    "sain": "healthy",
+    "seche": "dry",
+    "humide": "humid",
+    "tomate": "tomato",
+    "pomme_de_terre": "potato",
+    "patate": "potato",
+    "riz": "rice",
+    "ble": "wheat",
+    "mais": "corn",
+    "maize": "corn",
+    "soja": "soybean",
+    "pomme": "apple",
+    "raisin": "grape",
+    "vigne": "grape",
+    "peche": "peach",
+    "cerise": "cherry",
+    "fraise": "strawberry",
+    "citron": "lemon",
+    "mangue": "mango",
+    "cafe": "coffee",
+    "the": "tea",
+    "canne": "sugarcane",
+    "concombre": "cucumber",
+    "piment": "chili",
+    "poivron": "pepper",
+
+    "طماطم": "tomato",
+    "بندورة": "tomato",
+    "بطاطا": "potato",
+    "بطاطس": "potato",
+    "أرز": "rice",
+    "قمح": "wheat",
+    "ذرة": "corn",
+    "صويا": "soybean",
+    "تفاح": "apple",
+    "عنب": "grape",
+    "كرز": "cherry",
+    "خوخ": "peach",
+    "فراولة": "strawberry",
+    "فلفل": "pepper",
+    "فلفل_حار": "chili",
+    "قهوة": "coffee",
+    "شاي": "tea",
+    "قصب_السكر": "sugarcane",
+    "خيار": "cucumber",
+    "ليمون": "lemon",
+    "مانجو": "mango",
+    "زيتون": "olive",
+    "توت": "mulberry",
+
+    "نيتروجين": "nitrogen",
+    "آزوت": "nitrogen",
+    "فوسفور": "phosphorus",
+    "فوسفات": "phosphate",
+    "بوتاسيوم": "potassium",
+    "كالسيوم": "calcium",
+    "مغنيسيوم": "magnesium",
+    "حديد": "iron",
+    "كبريت": "sulfur",
+    "نقص": "deficiency",
+    "عوز": "deficiency",
+    "سماد": "fertilizer",
+    "تسميد": "fertilizer",
+    "تربة": "soil",
+    "أرض": "soil",
+    "ري": "irrigation",
+    "سقي": "irrigation",
+    "ماء": "water",
+    "مياه": "water",
+
+    "مرض": "disease",
+    "أمراض": "disease",
+    "مريض": "disease",
+    "علاج": "treatment",
+    "معالجة": "treatment",
+    "وقاية": "prevention",
+    "تشخيص": "diagnosis",
+    "فحص": "diagnosis",
+    "كشف": "detect",
+    "صحي": "healthy",
+    "سليم": "healthy",
+
+    "ورقة": "leaf",
+    "أوراق": "leaves",
+    "ورق": "leaves",
+    "ساق": "stem",
+    "جذر": "root",
+    "جذور": "roots",
+    "ثمرة": "fruit",
+    "ثمار": "fruit",
+    "زهرة": "flower",
+    "بذور": "seed",
+    "حصاد": "harvest",
+    "محصول": "yield",
+
+    "بقعة": "spot",
+    "بقع": "spot",
+    "لفحة": "blight",
+    "صدأ": "rust",
+    "عفن": "mold",
+    "تعفن": "rot",
+    "بياض_دقيقي": "powdery_mildew",
+    "بياض_زغبي": "downy_mildew",
+    "ذبول": "wilt",
+    "اصفرار": "yellow",
+    "أصفر": "yellow",
+    "بني": "brown",
+    "أسود": "black",
+    "أبيض": "white",
+    "أحمر": "red",
+    "فطر": "fungus",
+    "فطري": "fungal",
+    "بكتيريا": "bacterial",
+    "بكتيري": "bacterial",
+    "فيروس": "virus",
+    "فيروسي": "virus",
+    "حشرة": "insect",
+    "حشرات": "insect",
+    "من": "aphid",
+    "دودة": "worm",
+    "مبيد": "fungicide",
+    "مبيد_فطري": "fungicide",
+    "رش": "spray",
+    "جاف": "dry",
+    "رطب": "humid",
+    "رطوبة": "humid"
+  },
+
+  "plant_aliases": {
+    "tomato": ["tomato", "tomate", "tomatoes", "طماطم", "بندورة"],
+    "potato": ["potato", "patate", "pomme_de_terre", "potatoes", "بطاطا", "بطاطس"],
+    "rice": ["rice", "riz", "paddy", "أرز"],
+    "wheat": ["wheat", "ble", "blé", "قمح"],
+    "corn": ["corn", "mais", "maize", "maïs", "ذرة"],
+    "soybean": ["soybean", "soja", "soy", "صويا"],
+    "apple": ["apple", "pomme", "تفاح"],
+    "grape": ["grape", "raisin", "vigne", "vine", "عنب"],
+    "cherry": ["cherry", "cerise", "كرز"],
+    "peach": ["peach", "peche", "pêche", "خوخ"],
+    "strawberry": ["strawberry", "fraise", "فراولة"],
+    "pepper": ["pepper", "poivron", "bell_pepper", "فلفل"],
+    "chili": ["chili", "piment", "hot_pepper", "فلفل_حار"],
+    "coffee": ["coffee", "cafe", "café", "قهوة"],
+    "tea": ["tea", "the", "thé", "شاي"],
+    "sugarcane": ["sugarcane", "canne", "cane", "قصب_السكر"],
+    "cucumber": ["cucumber", "concombre", "خيار"],
+    "lemon": ["lemon", "citron", "ليمون"],
+    "mango": ["mango", "mangue", "مانجو"],
+    "cassava": ["cassava", "manioc"],
+    "olive": ["olive", "زيتون"],
+    "mulberry": ["mulberry", "murier", "توت"]
+  },
+
+  "nutrient_deficiencies": {
+    "nitrogen": {
+      "keywords": ["nitrogen", "azote", "n_deficiency", "nitrate", "نيتروجين", "آزوت"],
+      "symptoms": [
+        "Yellowing of older/lower leaves (chlorosis)",
+        "Stunted growth and small leaves",
+        "Pale green to yellow foliage",
+        "Premature leaf drop"
+      ],
+      "symptoms_ar": [
+        "اصفرار الأوراق السفلية والقديمة (شحوب)",
+        "تقزم النمو وصغر حجم الأوراق",
+        "تحول لون الأوراق إلى أخضر باهت ثم أصفر",
+        "تساقط مبكر للأوراق"
+      ],
+      "advice": [
+        "Apply nitrogen-rich fertilizer (urea, ammonium sulfate)",
+        "Use organic sources: compost, blood meal, fish emulsion",
+        "Split nitrogen applications for better uptake",
+        "Consider legume cover crops for natural nitrogen fixation"
+      ],
+      "advice_ar": [
+        "استخدم سماد غني بالنيتروجين (يوريا، كبريتات الأمونيوم)",
+        "استخدم مصادر عضوية: سماد عضوي، مستحلب السمك",
+        "قسّم تطبيقات النيتروجين لامتصاص أفضل",
+        "ازرع محاصيل بقولية لتثبيت النيتروجين الطبيعي"
+      ]
+    },
+    "phosphorus": {
+      "keywords": ["phosphorus", "phosphate", "phosphor", "p_deficiency", "فوسفور", "فوسفات"],
+      "symptoms": [
+        "Purple or reddish discoloration of leaves",
+        "Dark green foliage turning purple",
+        "Poor root development",
+        "Delayed maturity and poor fruit/seed development"
+      ],
+      "symptoms_ar": [
+        "تلون الأوراق باللون الأرجواني أو المحمر",
+        "تحول الأوراق الخضراء الداكنة إلى اللون البنفسجي",
+        "ضعف نمو الجذور",
+        "تأخر النضج وضعف تكوين الثمار والبذور"
+      ],
+      "advice": [
+        "Apply phosphorus fertilizer (superphosphate, DAP)",
+        "Use bone meal for organic phosphorus",
+        "Maintain soil pH between 6.0-7.0 for best availability",
+        "Add mycorrhizal fungi to improve phosphorus uptake"
+      ],
+      "advice_ar": [
+        "استخدم سماد الفوسفور (سوبر فوسفات، DAP)",
+        "استخدم مسحوق العظام كمصدر عضوي للفوسفور",
+        "حافظ على حموضة التربة بين 6.0-7.0 لأفضل امتصاص",
+        "أضف فطريات الميكوريزا لتحسين امتصاص الفوسفور"
+      ]
+    },
+    "potassium": {
+      "keywords": ["potassium", "potash", "k_deficiency", "kalium", "بوتاسيوم"],
+      "symptoms": [
+        "Leaf edge browning (marginal necrosis/scorch)",
+        "Weak stems prone to lodging",
+        "Poor fruit quality and size",
+        "Increased susceptibility to disease"
+      ],
+      "symptoms_ar": [
+        "احتراق حواف الأوراق (نخر هامشي)",
+        "ضعف السيقان وسهولة انكسارها",
+        "ضعف جودة وحجم الثمار",
+        "زيادة قابلية الإصابة بالأمراض"
+      ],
+      "advice": [
+        "Apply potassium fertilizer (muriate of potash, sulfate of potash)",
+        "Use wood ash as natural potassium source",
+        "Avoid over-liming which can reduce potassium availability",
+        "Ensure adequate potassium during fruiting stage"
+      ],
+      "advice_ar": [
+        "استخدم سماد البوتاسيوم (كلوريد البوتاسيوم، كبريتات البوتاسيوم)",
+        "استخدم رماد الخشب كمصدر طبيعي للبوتاسيوم",
+        "تجنب الإفراط في الجير الذي يقلل توفر البوتاسيوم",
+        "وفر كمية كافية من البوتاسيوم أثناء مرحلة الإثمار"
+      ]
+    },
+    "calcium": {
+      "keywords": ["calcium", "ca_deficiency", "chaux", "كالسيوم"],
+      "symptoms": [
+        "Blossom end rot in tomatoes and peppers",
+        "Distorted new growth",
+        "Leaf tip burn on young leaves",
+        "Poor root development"
+      ],
+      "symptoms_ar": [
+        "تعفن الطرف الزهري في الطماطم والفلفل",
+        "تشوه النمو الجديد",
+        "احتراق أطراف الأوراق الفتية",
+        "ضعف نمو الجذور"
+      ],
+      "advice": [
+        "Apply calcium-rich amendments (lime, gypsum)",
+        "Maintain consistent soil moisture",
+        "Avoid excessive nitrogen and potassium fertilization",
+        "Use calcium foliar sprays for quick correction"
+      ],
+      "advice_ar": [
+        "أضف تعديلات غنية بالكالسيوم (جير، جبس)",
+        "حافظ على رطوبة تربة ثابتة",
+        "تجنب الإفراط في التسميد بالنيتروجين والبوتاسيوم",
+        "استخدم رش ورقي بالكالسيوم للتصحيح السريع"
+      ]
+    },
+    "magnesium": {
+      "keywords": ["magnesium", "mg_deficiency", "magnez", "مغنيسيوم"],
+      "symptoms": [
+        "Interveinal chlorosis on older leaves",
+        "Yellowing between leaf veins while veins stay green",
+        "Leaf curling upward",
+        "Premature leaf drop"
+      ],
+      "symptoms_ar": [
+        "اصفرار بين العروق في الأوراق القديمة",
+        "اصفرار بين عروق الورقة مع بقاء العروق خضراء",
+        "تجعد الأوراق للأعلى",
+        "تساقط مبكر للأوراق"
+      ],
+      "advice": [
+        "Apply Epsom salt (magnesium sulfate) as foliar spray",
+        "Add dolomitic lime to raise pH and supply magnesium",
+        "Avoid excessive potassium which antagonizes magnesium",
+        "Use magnesium-containing fertilizers"
+      ],
+      "advice_ar": [
+        "استخدم ملح إبسوم (كبريتات المغنيسيوم) كرش ورقي",
+        "أضف جير دولوميتي لرفع الحموضة وتوفير المغنيسيوم",
+        "تجنب الإفراط في البوتاسيوم الذي يتعارض مع المغنيسيوم",
+        "استخدم أسمدة تحتوي على المغنيسيوم"
+      ]
+    },
+    "iron": {
+      "keywords": ["iron", "fe_deficiency", "fer", "chlorosis", "حديد"],
+      "symptoms": [
+        "Interveinal chlorosis on young/new leaves",
+        "Yellowing of new growth while veins remain green",
+        "Severe cases: leaves turn white",
+        "Stunted growth"
+      ],
+      "symptoms_ar": [
+        "اصفرار بين العروق في الأوراق الفتية والجديدة",
+        "اصفرار النمو الجديد مع بقاء العروق خضراء",
+        "الحالات الشديدة: تتحول الأوراق إلى اللون الأبيض",
+        "تقزم النمو"
+      ],
+      "advice": [
+        "Apply chelated iron (Fe-EDDHA for alkaline soils)",
+        "Acidify soil to improve iron availability",
+        "Avoid over-liming and excessive phosphorus",
+        "Use iron sulfate as soil amendment"
+      ],
+      "advice_ar": [
+        "استخدم حديد مخلبي (Fe-EDDHA للتربة القلوية)",
+        "عدّل حموضة التربة لتحسين توفر الحديد",
+        "تجنب الإفراط في الجير والفوسفور",
+        "استخدم كبريتات الحديد كمحسن للتربة"
+      ]
+    },
+    "sulfur": {
+      "keywords": ["sulfur", "sulphur", "s_deficiency", "soufre", "كبريت"],
+      "symptoms": [
+        "Uniform yellowing of young leaves",
+        "Similar to nitrogen deficiency but on newer growth",
+        "Stunted growth",
+        "Delayed maturity"
+      ],
+      "symptoms_ar": [
+        "اصفرار منتظم للأوراق الفتية",
+        "أعراض مشابهة لنقص النيتروجين لكن على النمو الجديد",
+        "تقزم النمو",
+        "تأخر النضج"
+      ],
+      "advice": [
+        "Apply sulfur-containing fertilizers (ammonium sulfate, gypsum)",
+        "Use elemental sulfur to lower pH",
+        "Add organic matter rich in sulfur",
+        "Ensure proper soil drainage"
+      ],
+      "advice_ar": [
+        "استخدم أسمدة تحتوي على الكبريت (كبريتات الأمونيوم، الجبس)",
+        "استخدم الكبريت العنصري لخفض الحموضة",
+        "أضف مواد عضوية غنية بالكبريت",
+        "تأكد من الصرف الجيد للتربة"
+      ]
+    }
+  },
+
+  "disease_keywords": {
+    "early_blight": ["early", "blight", "alternaria", "concentric", "rings", "target", "لفحة", "مبكرة", "ألترناريا"],
+    "late_blight": ["late", "blight", "phytophthora", "water_soaked", "rapid", "لفحة", "متأخرة", "فيتوفثورا"],
+    "bacterial_spot": ["bacterial", "spot", "xanthomonas", "lesion", "بقعة", "بكتيرية", "بكتيري"],
+    "leaf_mold": ["mold", "mould", "cladosporium", "fuzzy", "عفن", "ورقي"],
+    "septoria": ["septoria", "small_spots", "pycnidia", "سبتوريا"],
+    "spider_mites": ["spider", "mite", "webbing", "stippling", "عنكبوت", "أكاروس"],
+    "target_spot": ["target", "spot", "corynespora", "بقعة", "هدفية"],
+    "yellow_leaf_curl": ["yellow", "curl", "virus", "whitefly", "yellowing", "curling", "اصفرار", "تجعد", "ذبابة_بيضاء"],
+    "mosaic_virus": ["mosaic", "virus", "mottling", "distortion", "فسيفساء", "فيروس"],
+    "powdery_mildew": ["powdery", "mildew", "white_powder", "powder", "بياض", "دقيقي", "بياض_دقيقي"],
+    "rust": ["rust", "orange", "pustules", "rouille", "uredinia", "صدأ"],
+    "brown_spot": ["brown", "spot", "lesion", "بقعة", "بنية"],
+    "leaf_blast": ["blast", "diamond", "lesion", "لفحة", "انفجار"],
+    "scab": ["scab", "rough", "lesion", "جرب"],
+    "black_rot": ["black", "rot", "decay", "عفن", "أسود", "تعفن"],
+    "wilt": ["wilt", "wilting", "drooping", "fletri", "ذبول"],
+    "root_rot": ["root", "rot", "mushy", "brown_roots", "تعفن", "جذور"],
+    "anthracnose": ["anthracnose", "sunken", "lesion", "أنثراكنوز"],
+    "downy_mildew": ["downy", "mildew", "underside", "fuzzy", "بياض", "زغبي", "بياض_زغبي"]
+  },
+
+  "disease_names_ar": {
+    "early_blight": "اللفحة المبكرة (Early Blight)",
+    "late_blight": "اللفحة المتأخرة (Late Blight)",
+    "bacterial_spot": "البقعة البكتيرية (Bacterial Spot)",
+    "leaf_mold": "عفن الأوراق (Leaf Mold)",
+    "septoria": "سبتوريا (Septoria)",
+    "spider_mites": "العنكبوت الأحمر (Spider Mites)",
+    "target_spot": "البقعة الهدفية (Target Spot)",
+    "yellow_leaf_curl": "تجعد الأوراق الأصفر (Yellow Leaf Curl)",
+    "mosaic_virus": "فيروس الفسيفساء (Mosaic Virus)",
+    "powdery_mildew": "البياض الدقيقي (Powdery Mildew)",
+    "rust": "الصدأ (Rust)",
+    "brown_spot": "البقعة البنية (Brown Spot)",
+    "leaf_blast": "لفحة الأوراق (Leaf Blast)",
+    "scab": "الجرب (Scab)",
+    "black_rot": "العفن الأسود (Black Rot)",
+    "wilt": "الذبول (Wilt)",
+    "root_rot": "تعفن الجذور (Root Rot)",
+    "anthracnose": "الأنثراكنوز (Anthracnose)",
+    "downy_mildew": "البياض الزغبي (Downy Mildew)"
+  },
+
+  "general_advice": {
+    "watering": [
+      "Water at the base of plants, not on foliage",
+      "Use drip irrigation to minimize leaf wetness",
+      "Water in the morning to allow foliage to dry",
+      "Maintain consistent soil moisture — avoid overwatering",
+      "Mulch around plants to retain moisture"
+    ],
+    "prevention": [
+      "Practice crop rotation every 2-3 seasons",
+      "Remove and destroy infected plant material",
+      "Ensure proper plant spacing for air circulation",
+      "Use disease-resistant varieties when available",
+      "Keep tools clean and sanitized between plants",
+      "Apply preventive fungicides during humid seasons"
+    ],
+    "soil_health": [
+      "Test soil pH and nutrients annually",
+      "Add organic compost to improve soil structure",
+      "Maintain soil pH between 6.0-7.0 for most crops",
+      "Avoid soil compaction — use raised beds if needed",
+      "Practice cover cropping in off-seasons"
+    ],
+    "monitoring": [
+      "Inspect plants weekly for early disease signs",
+      "Use PlantGuard AI scans to document and track changes",
+      "Monitor weather conditions (humidity, temperature)",
+      "Keep a crop journal with observations and treatments",
+      "Scout for insect pests that can vector diseases"
+    ]
+  },
+
+  "general_advice_ar": {
+    "watering": [
+      "اسقِ النباتات عند القاعدة وليس على الأوراق",
+      "استخدم الري بالتنقيط لتقليل رطوبة الأوراق",
+      "اسقِ في الصباح الباكر ليجف الورق",
+      "حافظ على رطوبة تربة منتظمة — تجنب الإفراط في الري",
+      "استخدم التغطية حول النباتات للحفاظ على الرطوبة"
+    ],
+    "prevention": [
+      "مارس تناوب المحاصيل كل 2-3 مواسم",
+      "أزل وأتلف المواد النباتية المصابة",
+      "تأكد من التباعد المناسب بين النباتات لتهوية جيدة",
+      "استخدم أصناف مقاومة للأمراض عند توفرها",
+      "حافظ على نظافة وتعقيم الأدوات بين النباتات",
+      "طبق مبيدات فطرية وقائية خلال المواسم الرطبة"
+    ],
+    "soil_health": [
+      "افحص حموضة التربة والمغذيات سنوياً",
+      "أضف سماد عضوي لتحسين بنية التربة",
+      "حافظ على حموضة التربة بين 6.0-7.0 لمعظم المحاصيل",
+      "تجنب ضغط التربة — استخدم أحواض مرتفعة إذا لزم الأمر",
+      "مارس زراعة محاصيل التغطية في غير الموسم"
+    ],
+    "monitoring": [
+      "افحص النباتات أسبوعياً بحثاً عن علامات مبكرة للأمراض",
+      "استخدم فحوصات PlantGuard AI لتوثيق وتتبع التغييرات",
+      "راقب الظروف الجوية (الرطوبة، درجة الحرارة)",
+      "احتفظ بسجل للمحاصيل مع الملاحظات والعلاجات",
+      "ابحث عن الحشرات الضارة التي يمكن أن تنقل الأمراض"
+    ]
+  },
+
+  "stopwords": [
+    "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
+    "have", "has", "had", "do", "does", "did", "will", "would", "shall",
+    "should", "may", "might", "must", "can", "could", "i", "me", "my",
+    "we", "our", "you", "your", "he", "she", "it", "they", "them",
+    "this", "that", "these", "those", "what", "which", "who", "whom",
+    "how", "when", "where", "why", "not", "no", "nor", "and", "but",
+    "or", "so", "if", "then", "than", "too", "very", "just", "about",
+    "with", "from", "for", "on", "in", "at", "to", "of", "by", "as",
+    "into", "through", "during", "before", "after", "above", "below",
+    "up", "down", "out", "off", "over", "under", "again", "further",
+    "here", "there", "all", "each", "every", "both", "few", "more",
+    "some", "such", "only", "own", "same", "also", "much", "many",
+    "please", "help", "need", "want", "think", "know", "see", "look",
+    "tell", "ask", "give", "make", "get", "got", "go", "going",
+    "le", "la", "les", "un", "une", "des", "de", "du", "et", "est",
+    "je", "tu", "il", "elle", "nous", "vous", "ils", "mon", "ma",
+    "que", "qui", "quoi", "comment", "pourquoi", "sur", "dans", "avec",
+
+    "في", "من", "على", "إلى", "عن", "مع", "هو", "هي", "هم",
+    "هذا", "هذه", "ذلك", "تلك", "هل", "لا", "نعم", "أو", "و",
+    "ثم", "لكن", "إذا", "قد", "لم", "لن", "كل", "بعض", "أي",
+    "كان", "يكون", "أن", "إن", "ما", "هنا", "هناك", "فقط",
+    "أنا", "أنت", "نحن", "أنتم", "عند", "بين", "فوق", "تحت",
+    "قبل", "بعد", "حتى", "منذ", "كيف", "لماذا", "متى", "أين",
+    "ممكن", "يرجى", "أريد", "أعرف", "أرى", "ساعدني", "ساعد"
+  ]
+}

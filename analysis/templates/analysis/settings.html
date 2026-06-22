@@ -1,0 +1,300 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Settings" %} | Nabtati{% endblock %}
+{% block meta_description %}{% trans "Manage your Nabtati account settings" %}{% endblock %}
+{% block header_title %}{% trans "Settings" %}{% endblock %}
+{% block header_subtitle %}{% trans "Manage your account, profile, and view your statistics" %}{% endblock %}
+
+{% block nav_settings %}active{% endblock %}
+
+{% block page_styles %}
+.settings-container { max-width: 800px; margin: 0 auto; }
+
+.tab-nav {
+    display: flex; gap: 4px; margin-bottom: 24px;
+    background: var(--surface); border-radius: 14px; padding: 4px;
+    border: 1px solid var(--border);
+}
+.tab-btn {
+    flex: 1; padding: 12px 16px; border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 700; font-family: inherit;
+    cursor: pointer; transition: all 0.2s ease;
+    background: transparent; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.tab-btn:hover { color: var(--text-main); background: var(--bg-color); }
+.tab-btn.active {
+    background: var(--primary); color: white;
+    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+}
+
+.tab-panel { display: none; animation: fadeIn 0.3s ease; }
+.tab-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.info-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+.info-item {
+    padding: 16px 20px;
+    background: var(--bg-color); border-radius: 12px;
+    border: 1px solid var(--border);
+}
+.info-item .info-label {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+}
+.info-item .info-value {
+    font-size: 16px; font-weight: 700; color: var(--text-main);
+    word-break: break-all;
+}
+
+.form-section { margin-bottom: 28px; }
+.form-section h3 {
+    font-size: 16px; font-weight: 800; margin-bottom: 16px;
+    color: var(--text-main); display: flex; align-items: center; gap: 8px;
+}
+
+.form-group { margin-bottom: 20px; }
+.form-label {
+    display: block; font-size: 12px; font-weight: 700; color: var(--text-muted);
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.form-input {
+    width: 100%; padding: 12px 16px; border: 2px solid var(--border);
+    border-radius: 10px; font-size: 14px; font-weight: 600;
+    font-family: inherit; background: var(--bg-color); color: var(--text-main);
+    transition: border-color 0.2s; box-sizing: border-box;
+}
+.form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46,125,50,0.1); }
+.form-input.error { border-color: var(--danger, #ef4444); }
+.form-error { font-size: 12px; font-weight: 600; color: var(--danger, #ef4444); margin-top: 4px; }
+
+.stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px; margin-bottom: 24px;
+}
+.stat-card {
+    text-align: center; padding: 24px 16px;
+    background: var(--surface); border-radius: 14px;
+    border: 1px solid var(--border);
+}
+.stat-card .stat-value {
+    font-size: 32px; font-weight: 900; color: var(--primary);
+}
+.stat-card .stat-label {
+    font-size: 12px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; margin-top: 4px;
+}
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+
+    {# ===== TAB NAVIGATION ===== #}
+    <div class="tab-nav">
+        <button class="tab-btn {% if tab == 'info' %}active{% endif %}" onclick="switchTab('info')" id="tab-btn-info">
+            <i class="fas fa-user"></i> {% trans "Your Info" %}
+        </button>
+        <button class="tab-btn {% if tab == 'edit' %}active{% endif %}" onclick="switchTab('edit')" id="tab-btn-edit">
+            <i class="fas fa-edit"></i> {% trans "Edit Profile" %}
+        </button>
+        <button class="tab-btn {% if tab == 'stats' %}active{% endif %}" onclick="switchTab('stats')" id="tab-btn-stats">
+            <i class="fas fa-chart-bar"></i> {% trans "My Statistics" %}
+        </button>
+    </div>
+
+    {# ===== TAB 1: YOUR INFORMATION ===== #}
+    <div class="tab-panel {% if tab == 'info' %}active{% endif %}" id="panel-info">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-id-card"></i> {% trans "Your Information" %}</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">{% trans "Username" %}</div>
+                    <div class="info-value">{{ user.username }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">{% trans "Email" %}</div>
+                    <div class="info-value">{{ user.email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">{% trans "Full Name" %}</div>
+                    <div class="info-value">{{ user.get_full_name|default:"—" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">{% trans "Purpose" %}</div>
+                    <div class="info-value">
+                        <span class="badge badge-{% if user.purpose == 'farmer' %}success{% elif user.purpose == 'company' %}info{% else %}primary{% endif %}" style="text-transform:capitalize;">
+                            {{ user.get_purpose_display }}
+                        </span>
+                    </div>
+                </div>
+                {% if user.birth_date %}
+                <div class="info-item">
+                    <div class="info-label">{% trans "Birth Date" %}</div>
+                    <div class="info-value">{{ user.birth_date|date:"F d, Y" }}</div>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <div class="info-label">{% trans "User Code" %}</div>
+                    <div class="info-value"><code>{{ user.user_code }}</code></div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">{% trans "Current Plan" %}</div>
+                    <div class="info-value">
+                        <span class="badge {% if plan_type == 'premium' %}badge-warning{% elif plan_type == 'basic' %}badge-info{% else %}badge-success{% endif %}" style="text-transform:capitalize; font-size:13px; padding:5px 14px;">
+                            {{ plan_label }}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">{% trans "Member Since" %}</div>
+                    <div class="info-value">{{ user.date_joined|date:"F d, Y" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ===== TAB 2: EDIT INFORMATION ===== #}
+    <div class="tab-panel {% if tab == 'edit' %}active{% endif %}" id="panel-edit">
+        <div class="card">
+            <div class="form-section">
+                <h3><i class="fas fa-user-edit"></i> {% trans "Update Profile" %}</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_profile">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                        <div class="form-group">
+                            <label class="form-label" for="first_name">{% trans "First Name" %}</label>
+                            <input type="text" class="form-input" id="first_name" name="first_name" value="{{ user.first_name }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="last_name">{% trans "Last Name" %}</label>
+                            <input type="text" class="form-input" id="last_name" name="last_name" value="{{ user.last_name }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="email">{% trans "Email" %}</label>
+                        <input type="email" class="form-input {% if errors.email %}error{% endif %}" id="email" name="email" value="{{ user.email }}" required>
+                        {% if errors.email %}<div class="form-error">{{ errors.email }}</div>{% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary" style="padding:10px 24px;">
+                        <i class="fas fa-save"></i> {% trans "Save Changes" %}
+                    </button>
+                </form>
+            </div>
+
+            <div style="border-top:1px solid var(--border);padding-top:24px;">
+                <div class="form-section">
+                    <h3><i class="fas fa-lock"></i> {% trans "Change Password" %}</h3>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="change_password">
+                        <div class="form-group">
+                            <label class="form-label" for="current_password">{% trans "Current Password" %}</label>
+                            <input type="password" class="form-input {% if errors.current_password %}error{% endif %}" id="current_password" name="current_password" required>
+                            {% if errors.current_password %}<div class="form-error">{{ errors.current_password }}</div>{% endif %}
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                            <div class="form-group">
+                                <label class="form-label" for="new_password">{% trans "New Password" %}</label>
+                                <input type="password" class="form-input {% if errors.new_password %}error{% endif %}" id="new_password" name="new_password" required minlength="6">
+                                {% if errors.new_password %}<div class="form-error">{{ errors.new_password }}</div>{% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="confirm_password">{% trans "Confirm Password" %}</label>
+                                <input type="password" class="form-input {% if errors.confirm_password %}error{% endif %}" id="confirm_password" name="confirm_password" required>
+                                {% if errors.confirm_password %}<div class="form-error">{{ errors.confirm_password }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary" style="padding:10px 24px;">
+                            <i class="fas fa-key"></i> {% trans "Change Password" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ===== TAB 3: MY STATISTICS ===== #}
+    <div class="tab-panel {% if tab == 'stats' %}active{% endif %}" id="panel-stats">
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ user_stats.total_scans }}</div>
+                <div class="stat-label">{% trans "Total Scans" %}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ user_stats.scans_today }}</div>
+                <div class="stat-label">{% trans "Today" %}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ user_stats.scans_week }}</div>
+                <div class="stat-label">{% trans "This Week" %}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="font-size:20px; color: var(--text-main);">
+                    <span class="badge {% if user_stats.plan_type == 'premium' %}badge-warning{% elif user_stats.plan_type == 'basic' %}badge-info{% else %}badge-success{% endif %}" style="font-size:14px;padding:6px 16px;">
+                        {{ user_stats.plan_label }}
+                    </span>
+                </div>
+                <div class="stat-label">{% trans "Current Plan" %}</div>
+            </div>
+        </div>
+
+        {% if user_stats.subscription_end %}
+        <div class="card" style="margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <i class="fas fa-clock" style="font-size:20px;color:var(--primary);"></i>
+                <div>
+                    <div style="font-size:13px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">{% trans "Subscription Expires" %}</div>
+                    <div style="font-size:18px;font-weight:800;color:var(--text-main);">{{ user_stats.subscription_end|date:"F d, Y — H:i" }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if payments %}
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-receipt"></i> {% trans "Subscription History" %}</h3>
+            <table class="data-table" role="table">
+                <thead>
+                    <tr>
+                        <th>{% trans "Plan" %}</th>
+                        <th>{% trans "Amount" %}</th>
+                        <th>{% trans "Date" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td>
+                            <span class="badge {% if p.plan_requested == 'premium' %}badge-warning{% else %}badge-info{% endif %}" style="text-transform:capitalize;">
+                                {{ p.plan_requested }}
+                            </span>
+                        </td>
+                        <td><strong>{{ p.amount }} DA</strong></td>
+                        <td>{{ p.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-btn-' + tab).classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+    history.replaceState(null, '', '?tab=' + tab);
+}
+</script>
+{% endblock %}

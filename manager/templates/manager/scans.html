@@ -1,0 +1,175 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+
+{% block title %}Scan Management | Nabtati{% endblock %}
+{% block meta_description %}Manage all plant disease scans{% endblock %}
+{% block header_title %}Scan Management{% endblock %}
+{% block header_subtitle %}View and manage all diagnostic scans{% endblock %}
+
+{% block nav_admin_scans %}active{% endblock %}
+
+{% block content %}
+<style>
+.search-card-pro{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px 24px;margin-bottom:24px;box-shadow:0 4px 20px rgba(0,0,0,.04)}
+.search-row-pro{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.search-input-pro{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;background:var(--bg-color);border:2px solid var(--border);border-radius:14px;padding:10px 16px;transition:all .2s}
+.search-input-pro:focus-within{border-color:var(--primary);box-shadow:0 0 0 4px rgba(46,125,50,.08)}
+.search-input-pro i{color:var(--primary);font-size:15px;flex-shrink:0}
+.search-input-pro input{border:none;background:transparent;font-size:14px;font-weight:600;color:var(--text-main);outline:none;width:100%}
+.search-input-pro input::placeholder{color:var(--text-muted);font-weight:500}
+.filter-pill-pro{background:var(--bg-color);border:1.5px solid var(--border);border-radius:12px;padding:9px 32px 9px 14px;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all .2s;appearance:none;font-family:inherit;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.filter-pill-pro:focus{outline:none;border-color:var(--primary)}
+.search-btn-pro{height:44px;padding:0 22px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;font-family:inherit}
+.search-btn-pro:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(46,125,50,.3)}
+.clear-btn-pro{height:44px;padding:0 18px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;text-decoration:none;font-family:inherit}
+.clear-btn-pro:hover{border-color:var(--danger);color:var(--danger)}
+.results-chip{display:inline-flex;align-items:center;gap:6px;background:var(--primary-bg);color:var(--primary);border-radius:10px;padding:4px 12px;font-size:12px;font-weight:800;margin-top:12px}
+</style>
+
+<div class="admin-section-header">
+    <div>
+        <h1><i class="fas fa-microscope"></i> All Scans</h1>
+        <p class="subtitle">{{ scans_page.paginator.count }} scan{{ scans_page.paginator.count|pluralize }} total</p>
+    </div>
+</div>
+
+<!-- Premium Search Card -->
+<div class="search-card-pro">
+    <form id="filterForm" method="GET">
+        <div class="search-row-pro">
+            <div class="search-input-pro">
+                <i class="fas fa-search"></i>
+                <input type="text" name="q" value="{{ search }}"
+                       placeholder="Search disease, user or scan ID…" aria-label="Search scans" autocomplete="off">
+            </div>
+
+            <select name="stage" class="filter-pill-pro" onchange="this.form.submit()" aria-label="Filter by stage">
+                <option value="">All Stages</option>
+                {% for s in stages %}
+                <option value="{{ s }}" {% if s == stage_filter %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="sort" class="filter-pill-pro" onchange="this.form.submit()" aria-label="Sort by">
+                <option value="-created_at"    {% if current_sort == '-created_at'    %}selected{% endif %}>Newest First</option>
+                <option value="created_at"     {% if current_sort == 'created_at'     %}selected{% endif %}>Oldest First</option>
+                <option value="-disease_ratio" {% if current_sort == '-disease_ratio' %}selected{% endif %}>Highest Severity</option>
+                <option value="disease_ratio"  {% if current_sort == 'disease_ratio'  %}selected{% endif %}>Lowest Severity</option>
+                <option value="-confidence"    {% if current_sort == '-confidence'    %}selected{% endif %}>Highest Confidence</option>
+            </select>
+
+            {% if search or stage_filter %}
+            <a href="{% url 'manager:scans' %}" class="clear-btn-pro">
+                <i class="fas fa-times"></i> Clear
+            </a>
+            {% endif %}
+        </div>
+
+        {% if search or stage_filter %}
+        <div>
+            <span class="results-chip">
+                <i class="fas fa-filter"></i>
+                {{ scans_page.paginator.count }} result{{ scans_page.paginator.count|pluralize }}
+                {% if search %}· "{{ search }}"{% endif %}
+                {% if stage_filter %}· Stage: {{ stage_filter }}{% endif %}
+            </span>
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+    {% if scans_page %}
+    <div class="card" style="overflow-x:auto;">
+        <table class="data-table" id="scansTable" role="table">
+            <thead>
+                <tr>
+                    <th scope="col">Image</th>
+                    <th scope="col">Disease</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Confidence</th>
+                    <th scope="col">Severity</th>
+                    <th scope="col">Stage</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in scans_page %}
+                <tr class="{% if scan.disease_ratio >= 70 %}row-critical{% elif scan.disease_ratio >= 40 %}row-warning{% endif %}" data-animate>
+                    <td>
+                        {% if scan.image_original %}
+                        <img src="{{ scan.image_original.url }}" alt="{{ scan.prediction }}" class="cell-thumb" loading="lazy">
+                        {% else %}
+                        <div class="cell-thumb" style="background:var(--border);display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-image" style="color:var(--text-muted);font-size:14px;"></i>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ scan.prediction }}</strong></td>
+                    <td>
+                        <div class="cell-user">
+                            <span class="cell-avatar">{{ scan.user.username|make_list|first|upper }}</span>
+                            <a href="{% url 'manager:user_detail' scan.user.pk %}" style="color:var(--primary);text-decoration:none;font-weight:600;">
+                                {{ scan.user.username }}
+                            </a>
+                        </div>
+                    </td>
+                    <td>{{ scan.confidence }}%</td>
+                    <td>
+                        <span class="badge {% if scan.disease_ratio >= 70 %}badge-danger{% elif scan.disease_ratio >= 40 %}badge-warning{% else %}badge-success{% endif %}">
+                            {{ scan.disease_ratio }}%
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {% if scan.disease_stage == 'Critical' or scan.disease_stage == 'Severe' %}badge-danger{% elif scan.disease_stage == 'Moderate' %}badge-warning{% elif scan.disease_stage == 'Very Early' or scan.disease_stage == 'Early' %}badge-success{% else %}badge-info{% endif %}">
+                            {{ scan.disease_stage }}
+                        </span>
+                    </td>
+                    <td style="white-space:nowrap;">{{ scan.created_at|date:"M d, Y" }}</td>
+                    <td class="cell-actions">
+                        <a href="{% url 'manager:scan_detail' scan.photo_id %}" class="btn btn-sm btn-secondary" title="View details">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <form method="POST" action="{% url 'manager:delete_scan' scan.photo_id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger" title="Delete scan"
+                                    onclick="return confirm('Delete scan {{ scan.photo_id }}? This cannot be undone.')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "analysis/components/pagination.html" with page_obj=scans_page %}
+
+    {% else %}
+    {% include "analysis/components/empty_state.html" with icon="fa-microscope" title="No Scans Found" message="No scans match your search criteria." action_url=request.path action_text="Clear Filters" %}
+    {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+    var form  = document.getElementById('filterForm');
+    if (!form) return;
+    var input = form.querySelector('input[name="q"]');
+    if (!input) return;
+    var timer;
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () { form.submit(); }, 420);
+    });
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { clearTimeout(timer); form.submit(); }
+    });
+    var val = input.value;
+    input.focus();
+    input.value = '';
+    input.value = val;
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load community_tags %}
+
+{% block title %}Community — Nabtati{% endblock %}
+{% block header_title %}🌿 Community{% endblock %}
+{% block header_subtitle %}Share, learn, and grow together{% endblock %}
+{% block nav_community %}active{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/community.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="community-layout">
+    <!-- MAIN FEED COLUMN -->
+    <div class="feed-main">
+
+        <!-- Pro Welcome Section (Emerald Edition) -->
+        <div class="community-welcome fade-in-down" style="padding: 24px 32px; min-height: 140px;">
+            <div class="welcome-glass-overlay"></div>
+            <div class="welcome-content">
+                <h1 style="font-size: 26px; font-weight: 900; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    {% trans "Welcome back," %} {{ request.user.get_display_name }}! 👋
+                </h1>
+                <p style="font-size: 15px; font-weight: 600; opacity: 0.9; letter-spacing: -0.1px;">
+                    {% trans "Your fields are looking great! Ready to share some insights?" %}
+                </p>
+            </div>
+            <div class="welcome-decoration" style="font-size: 80px; bottom: -10px; right: 20px;">🌿</div>
+        </div>
+
+        <!-- Create Post Prompt (Pro) -->
+        <a href="{% url 'community:create_post' %}" class="create-post-prompt-pro" id="createPostPrompt" style="padding: 16px 24px;">
+            <div class="prompt-left-pro">
+                <div class="prompt-avatar-pro" style="width: 44px; height: 44px;">
+                    {% if request.user.avatar %}
+                    <img src="{{ request.user.avatar.url }}" alt="{{ request.user.username }}">
+                    {% else %}
+                    <span class="avatar-init-pro" style="font-size: 18px;">{{ request.user.get_display_name|make_list|first|upper }}</span>
+                    {% endif %}
+                </div>
+                <div class="prompt-text-pro">
+                    <strong style="font-size: 15px;">{% trans "Share an update..." %}</strong>
+                    <span style="font-size: 13px;">{% trans "Post a question, solution, or alert" %}</span>
+                </div>
+            </div>
+            <div class="prompt-actions-pro">
+                <div class="action-item-pro"><i class="fas fa-camera"></i></div>
+                <div class="action-item-pro primary"><i class="fas fa-plus"></i></div>
+            </div>
+        </a>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar glass-card" style="border-radius: 20px;">
+            <div class="stat-item">
+                <div class="stat-item-icon stat-icon-green"><i class="fas fa-file-alt"></i></div>
+                <div>
+                    <span class="stat-value">{{ total_posts }}</span>
+                    <span class="stat-label">Posts</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-item-icon stat-icon-emerald"><i class="fas fa-check-circle"></i></div>
+                <div>
+                    <span class="stat-value">{{ total_resolved }}</span>
+                    <span class="stat-label">Resolved</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-item-icon stat-icon-blue"><i class="fas fa-comments"></i></div>
+                <div>
+                    <span class="stat-value">{{ active_discussions }}</span>
+                    <span class="stat-label">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter + Sort Bar -->
+        <div class="filter-bar glass-card" style="border-radius: 20px;">
+            <div class="filter-row">
+                <div class="filter-chips">
+                    <a href="{% url 'community:feed' %}" class="filter-chip {% if not current_type %}active{% endif %}">
+                        <i class="fas fa-stream"></i> All
+                    </a>
+                    <a href="?type=question{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="filter-chip {% if current_type == 'question' %}active{% endif %}">
+                        <i class="fas fa-question-circle"></i> Questions
+                    </a>
+                    <a href="?type=solution{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="filter-chip {% if current_type == 'solution' %}active{% endif %}">
+                        <i class="fas fa-lightbulb"></i> Solutions
+                    </a>
+                    <a href="?type=discussion{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="filter-chip {% if current_type == 'discussion' %}active{% endif %}">
+                        <i class="fas fa-comment-dots"></i> Discussion
+                    </a>
+                    <a href="?type=alert{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="filter-chip {% if current_type == 'alert' %}active{% endif %}">
+                        <i class="fas fa-exclamation-triangle"></i> Alerts
+                    </a>
+                </div>
+                <div class="sort-select">
+                    <select id="sortSelect" onchange="window.location='?{% if current_type %}type={{ current_type }}&{% endif %}sort='+this.value">
+                        <option value="latest" {% if current_sort == 'latest' %}selected{% endif %}>🕐 Latest</option>
+                        <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>🔥 Popular</option>
+                        <option value="discussed" {% if current_sort == 'discussed' %}selected{% endif %}>💬 Most Discussed</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Feed Header (Pro) -->
+        <div class="feed-header-pro">
+            <div class="header-left">
+                <h2 style="font-size: 22px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-rss" style="color: var(--primary);"></i>
+                    {% if page_title %}{{ page_title }}{% else %}{% trans "Activity Feed" %}{% endif %}
+                </h2>
+                <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">
+                    {% if current_tag_obj %}
+                        {% trans "Showing posts tagged:" %} <strong>{{ current_tag_obj.name }}</strong>
+                    {% else %}
+                        {% trans "Stay updated with the latest from the fields" %}
+                    {% endif %}
+                </span>
+            </div>
+            <div class="header-right">
+                {% if current_tag_obj %}
+                    <a href="{% url 'community:feed' %}" class="btn-secondary btn-sm" style="border-radius: 30px;">
+                        <i class="fas fa-times"></i> {% trans "Clear Filter" %}
+                    </a>
+                {% else %}
+                    <div class="live-indicator">
+                        <span class="pulse-dot"></span>
+                        {% trans "Live Updates" %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Post Cards -->
+        <div class="posts-grid" id="postsGrid">
+            {% for post in posts %}
+            <article class="post-card glass-card pro-style fade-in-up {% if post.is_ad %}is-ad-card{% endif %}" id="post-{{ post.pk }}" style="animation-delay:{{ forloop.counter0|multiply:60 }}ms">
+                <div class="post-card-header">
+                    <div class="post-author-info">
+                        <div class="author-avatar {% if post.author.role == 'expert' %}avatar-expert{% elif post.author.role == 'company' %}avatar-company{% endif %}">
+                            {% if post.author.avatar %}
+                            <img src="{{ post.author.avatar.url }}" alt="{{ post.author.username }}">
+                            {% else %}
+                            {{ post.author.username|make_list|first|upper }}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{% url 'community:user_profile' post.author.pk %}" class="author-name" style="font-size: 16px; font-weight: 700;">
+                                {{ post.author.get_display_name }}
+                                {% if post.author.role == 'expert' %}<span class="role-badge expert-badge">Expert</span>{% endif %}
+                                {% if post.author.role == 'company' %}<span class="role-badge company-badge">Company</span>{% endif %}
+                            </a>
+                            <span class="post-time" style="display: block; margin-top: 2px;">{{ post.created_at|time_ago }}</span>
+                        </div>
+                    </div>
+                    <div class="post-detail-actions">
+                        {% if post.is_ad %}
+                        <span class="premium-ad-badge">
+                            <i class="fas fa-ad"></i> Ad
+                        </span>
+                        {% endif %}
+                        <span class="post-type-badge {{ post.post_type|post_type_class }}">
+                            {{ post.post_type|post_type_icon }} {{ post.get_post_type_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <a href="{% url 'community:post_detail' post.pk %}" class="post-card-link" style="margin: 16px 0;">
+                    <h3 class="post-card-title" style="font-size: 20px; line-height: 1.4; display: flex; align-items: center; gap: 8px;">
+                        {% if post.is_ad %}
+                        <span class="premium-ad-badge-title" title="Sponsored Post">
+                            <i class="fas fa-ad"></i> Ad
+                        </span>
+                        {% endif %}
+                        {{ post.title }}
+                    </h3>
+                    <p class="post-card-body" style="font-size: 15px; color: var(--text-muted);">{{ post.body|truncate_body:160 }}</p>
+                </a>
+
+                {% if post.images.all %}
+                <div class="post-gallery-ultra" style="margin: 20px 0; border-radius: 20px; overflow: hidden; border: 1px solid var(--border);">
+                    {% with count=post.images.count %}
+                    {% if count == 1 %}
+                        {% with img=post.images.first %}
+                        <img src="{{ img.image.url }}" alt="Post image" class="gallery-img-single" style="width: 100%; height: auto; max-height: 450px; object-fit: cover; display: block;">
+                        {% endwith %}
+                    {% else %}
+                        <div class="gallery-grid-pro" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px;">
+                            {% for img in post.images.all|slice:":4" %}
+                            <div style="position: relative; height: 220px;">
+                                <img src="{{ img.image.url }}" alt="Post image" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% if forloop.counter == 4 and count > 4 %}
+                                <div class="gallery-more-overlay" style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 24px;">
+                                    +{{ count|add:"-3" }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+                {% endif %}
+
+                <!-- Interaction Footer -->
+                <div class="interaction-bar-pro" style="border-top: 1px solid var(--border); padding-top: 16px;">
+                    <div class="interact-group" style="display: flex; gap: 20px;">
+                        <span class="meta-item"><i class="fas fa-heart" style="color: #ef4444;"></i> {{ post.likes_count }}</span>
+                        <span class="meta-item"><i class="fas fa-comment" style="color: var(--primary);"></i> {{ post.comments_count }}</span>
+                        <span class="meta-item"><i class="fas fa-eye" style="color: #64748b;"></i> {{ post.view_count }}</span>
+                    </div>
+                    <a href="{% url 'community:post_detail' post.pk %}" class="btn-primary btn-sm" style="padding: 6px 16px; border-radius: 12px;">
+                        {% trans "Read More" %} <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+            {% empty %}
+            <div class="empty-state glass-card">
+                <div class="empty-icon-wrap" style="background: var(--primary-bg); color: var(--primary);"><i class="fas fa-seedling"></i></div>
+                <h3 style="font-weight: 800;">{% trans "The fields are quiet..." %}</h3>
+                <p>{% trans "Be the first to share an update or ask a question!" %}</p>
+                <a href="{% url 'community:create_post' %}" class="btn-primary" style="margin-top: 16px; border-radius: 12px;">
+                    <i class="fas fa-plus"></i> {% trans "Create First Post" %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- SIDEBAR (Pro) -->
+    <aside class="feed-sidebar">
+        <div class="sidebar-card glass-card" style="padding: 12px; border-radius: 20px;">
+            <form action="{% url 'community:search' %}" method="GET" class="search-form">
+                <div class="search-input-wrapper-pro">
+                    <i class="fas fa-search" style="color: var(--primary);"></i>
+                    <input type="text" name="q" placeholder="{% trans 'Search community...' %}" class="search-input" autocomplete="off" style="border:none; outline:none; background:transparent; font-size:14px; width:100%;">
+                </div>
+            </form>
+        </div>
+
+        {% if trending_posts %}
+        <div class="sidebar-card glass-card" style="border-radius: 20px;">
+            <h3 class="sidebar-title"><i class="fas fa-fire"></i> {% trans "Trending" %}</h3>
+            <div class="trending-list" style="display: flex; flex-direction: column; gap: 8px;">
+                {% for tp in trending_posts %}
+                <a href="{% url 'community:post_detail' tp.pk %}" class="trending-item-pro">
+                    <div class="trending-rank-pro">{{ forloop.counter }}</div>
+                    <div class="trending-info">
+                        <span class="trending-title" style="font-weight: 700;">{{ tp.title|truncatechars:40 }}</span>
+                        <span class="trending-meta" style="font-size: 11px;">{{ tp.engagement }} engagement • {{ tp.created_at|time_ago }}</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="sidebar-card glass-card" style="border-radius: 20px;">
+            <h3 class="sidebar-title"><i class="fas fa-link"></i> {% trans "Quick Links" %}</h3>
+            <nav style="display: flex; flex-direction: column; gap: 4px;">
+                <a href="{% url 'community:bookmarks' %}" class="quick-link">
+                    <i class="fas fa-bookmark" style="color: var(--primary);"></i>
+                    <span>{% trans "My Bookmarks" %}</span>
+                </a>
+                <a href="{% url 'community:user_profile' request.user.pk %}" class="quick-link">
+                    <i class="fas fa-user-circle" style="color: var(--primary);"></i>
+                    <span>{% trans "My Profile" %}</span>
+                </a>
+                <a href="{% url 'companies:directory' %}" class="quick-link">
+                    <i class="fas fa-building" style="color: var(--primary);"></i>
+                    <span>{% trans "Companies" %}</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+</div>
+
+<!-- FAB -->
+<a href="{% url 'community:create_post' %}" class="fab" title="Create Post" style="background: var(--emerald-gradient); box-shadow: 0 10px 30px rgba(46, 125, 50, 0.4);">
+    <i class="fas fa-plus"></i>
+</a>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/community.js' %}"></script>
+{% endblock %}

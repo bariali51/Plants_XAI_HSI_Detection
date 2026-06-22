@@ -1,0 +1,417 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Expert Settings" %} — Nabtati{% endblock %}
+{% block header_title %}{% trans "Expert Settings" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/community.css' %}">
+<style>
+    /* ── Expert Settings Ultra-Pro Styles ── */
+    .settings-layout-ultra {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .settings-card-ultra {
+        background: #fff;
+        border-radius: 28px;
+        padding: 32px;
+        margin-bottom: 24px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .settings-title-pro {
+        font-size: 18px;
+        font-weight: 900;
+        color: var(--text-main);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .settings-title-pro i {
+        width: 36px;
+        height: 36px;
+        background: var(--primary-bg);
+        color: var(--primary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    /* Avatar UI */
+    .avatar-edit-wrap {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        background: #f8fafc;
+        padding: 24px;
+        border-radius: 24px;
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+
+    .avatar-preview-pro {
+        width: 100px;
+        height: 100px;
+        border-radius: 32px;
+        background: var(--emerald-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        border: 4px solid #fff;
+        flex-shrink: 0;
+    }
+
+    .avatar-preview-pro img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-init-pro {
+        font-size: 40px;
+        font-weight: 900;
+        color: #fff;
+    }
+
+    /* Form Elements */
+    .form-group-pro {
+        margin-bottom: 20px;
+    }
+
+    .label-pro {
+        display: block;
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        padding-left: 4px;
+    }
+
+    .input-pro {
+        width: 100%;
+        padding: 12px 18px;
+        border-radius: 16px;
+        border: 2px solid #f1f5f9;
+        background: #f8fafc;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-main);
+        transition: all 0.3s;
+        outline: none;
+    }
+
+    .input-pro:focus {
+        background: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+
+    .textarea-pro {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .grid-2-pro {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    /* Skill Tags */
+    .skills-input-ultra {
+        background: #f8fafc;
+        border: 2px solid #f1f5f9;
+        border-radius: 16px;
+        padding: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .skills-input-ultra:focus-within {
+        background: #fff;
+        border-color: var(--primary);
+    }
+
+    .tag-pill-pro {
+        background: var(--primary);
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        animation: scaleUp 0.3s ease;
+    }
+
+    .tag-pill-pro .remove-tag {
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .tag-pill-pro .remove-tag:hover {
+        opacity: 1;
+    }
+
+    .tag-input-pro {
+        flex: 1;
+        min-width: 120px;
+        border: none;
+        background: transparent;
+        padding: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        outline: none;
+        color: var(--text-main);
+    }
+
+    /* Buttons */
+    .btn-save-pro {
+        background: var(--emerald-gradient);
+        color: white !important;
+        border-radius: 18px;
+        padding: 16px 32px;
+        font-weight: 900;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(46, 125, 50, 0.2);
+        margin-top: 20px;
+    }
+
+    .btn-save-pro:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(46, 125, 50, 0.3);
+    }
+
+    [data-theme="dark"] .settings-card-ultra {
+        background: #1e293b;
+        border-color: rgba(255,255,255,0.05);
+    }
+
+    [data-theme="dark"] .avatar-edit-wrap,
+    [data-theme="dark"] .input-pro,
+    [data-theme="dark"] .skills-input-ultra {
+        background: rgba(255,255,255,0.03);
+        border-color: rgba(255,255,255,0.05);
+    }
+
+    [data-theme="dark"] .input-pro:focus,
+    [data-theme="dark"] .skills-input-ultra:focus-within {
+        background: #1e293b;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-layout-ultra">
+    
+    <!-- Navigation Link -->
+    <a href="{% url 'experts:public_profile' request.user.id %}" class="view-profile-link glass-card" style="margin-bottom: 24px;">
+        <i class="fas fa-external-link-alt"></i> {% trans "Preview Public Profile" %}
+    </a>
+
+    <!-- Profile Photo -->
+    <div class="settings-card-ultra fade-in-up">
+        <h3 class="settings-title-pro"><i class="fas fa-camera"></i> {% trans "Identity & Branding" %}</h3>
+        <div class="avatar-edit-wrap">
+            <div class="avatar-preview-pro" id="avatarPreview">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="Avatar" id="avatarImg">
+                {% else %}
+                    <span class="avatar-init-pro">{{ request.user.username|make_list|first|upper }}</span>
+                {% endif %}
+            </div>
+            <div style="flex: 1;">
+                <p style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 16px;">
+                    {% trans "Your photo helps users identify and trust your expert advice." %}
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <form method="POST" enctype="multipart/form-data" id="avatarForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_avatar">
+                        <input type="file" name="avatar" id="avatarInput" accept="image/*" style="display:none;" onchange="this.form.submit();">
+                        <button type="button" class="btn-chat-pro" style="padding: 10px 20px; font-size: 13px; min-width: auto; height: auto; border-radius: 12px; box-shadow: none;" onclick="document.getElementById('avatarInput').click();">
+                            <i class="fas fa-upload"></i> {% trans "Update Photo" %}
+                        </button>
+                    </form>
+                    {% if profile.avatar %}
+                    <form method="POST" onsubmit="return confirm('{% trans "Remove profile photo?" %}');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="remove_avatar">
+                        <button type="submit" class="btn-profile-pro" style="width: 44px; height: 44px; border-radius: 12px;">
+                            <i class="fas fa-trash-alt" style="color: #ef4444;"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- General Info -->
+    <div class="settings-card-ultra fade-in-up" style="animation-delay: 100ms">
+        <h3 class="settings-title-pro"><i class="fas fa-user-edit"></i> {% trans "Professional Profile" %}</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_profile">
+
+            <div class="grid-2-pro">
+                <div class="form-group-pro">
+                    <label class="label-pro">{% trans "First Name" %}</label>
+                    <input type="text" name="first_name" class="input-pro" value="{{ request.user.first_name }}">
+                </div>
+                <div class="form-group-pro">
+                    <label class="label-pro">{% trans "Last Name" %}</label>
+                    <input type="text" name="last_name" class="input-pro" value="{{ request.user.last_name }}">
+                </div>
+            </div>
+
+            <div class="form-group-pro">
+                <label class="label-pro">{% trans "Professional Title" %}</label>
+                <input type="text" name="title" class="input-pro" value="{{ profile.title }}" placeholder="e.g. Lead Pathologist">
+            </div>
+
+            <div class="form-group-pro">
+                <label class="label-pro">{% trans "Primary Specialization" %}</label>
+                <input type="text" name="specialization" class="input-pro" value="{{ profile.specialization }}">
+            </div>
+
+            <div class="form-group-pro">
+                <label class="label-pro">{% trans "Expert Biography" %}</label>
+                <textarea name="bio" class="input-pro textarea-pro" placeholder="{% trans 'Describe your background and expertise...' %}">{{ profile.bio }}</textarea>
+            </div>
+
+            <div class="form-group-pro">
+                <label class="label-pro">{% trans "Skills & Tags" %}</label>
+                <input type="hidden" name="skills" id="skillsHidden" value="{% for skill in profile.skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}">
+                <div class="skills-input-ultra" id="skillsWrap" onclick="document.getElementById('skillsInput').focus();">
+                    {% for skill in profile.skills %}
+                    <span class="tag-pill-pro" data-skill="{{ skill }}">
+                        {{ skill }}
+                        <i class="fas fa-times remove-tag" onclick="removeSkill(this);"></i>
+                    </span>
+                    {% endfor %}
+                    <input type="text" class="tag-input-pro" id="skillsInput" placeholder="{% trans 'Add a skill...' %}">
+                </div>
+            </div>
+
+            <div class="grid-2-pro">
+                <div class="form-group-pro">
+                    <label class="label-pro">{% trans "LinkedIn Profile" %}</label>
+                    <input type="url" name="linkedin_url" class="input-pro" value="{{ profile.linkedin_url }}" placeholder="https://...">
+                </div>
+                <div class="form-group-pro">
+                    <label class="label-pro">{% trans "Personal Website" %}</label>
+                    <input type="url" name="website_url" class="input-pro" value="{{ profile.website_url }}" placeholder="https://...">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-save-pro">
+                <i class="fas fa-save"></i> {% trans "Update Profile Settings" %}
+            </button>
+        </form>
+    </div>
+
+    <!-- Security -->
+    <div class="settings-card-ultra fade-in-up" style="animation-delay: 200ms">
+        <h3 class="settings-title-pro"><i class="fas fa-shield-alt"></i> {% trans "Security & Access" %}</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="change_password">
+            
+            <div class="form-group-pro">
+                <label class="label-pro">{% trans "Current Password" %}</label>
+                <input type="password" name="current_password" class="input-pro">
+            </div>
+            
+            <div class="grid-2-pro">
+                <div class="form-group-pro">
+                    <label class="label-pro">{% trans "New Password" %}</label>
+                    <input type="password" name="new_password" class="input-pro">
+                </div>
+                <div class="form-group-pro">
+                    <label class="label-pro">{% trans "Confirm New Password" %}</label>
+                    <input type="password" name="confirm_password" class="input-pro">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-save-pro" style="background: #1e293b;">
+                <i class="fas fa-key"></i> {% trans "Securely Update Password" %}
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const skillsInput = document.getElementById('skillsInput');
+    const skillsHidden = document.getElementById('skillsHidden');
+    const skillsWrap = document.getElementById('skillsWrap');
+
+    function updateHiddenSkills() {
+        const tags = skillsWrap.querySelectorAll('.tag-pill-pro');
+        const skills = Array.from(tags).map(t => t.dataset.skill);
+        skillsHidden.value = skills.join(', ');
+    }
+
+    function addSkill(text) {
+        text = text.trim();
+        if (!text) return;
+        const existing = skillsWrap.querySelectorAll('.tag-pill-pro');
+        for (const tag of existing) {
+            if (tag.dataset.skill.toLowerCase() === text.toLowerCase()) return;
+        }
+        const span = document.createElement('span');
+        span.className = 'tag-pill-pro';
+        span.dataset.skill = text;
+        span.innerHTML = `${text} <i class="fas fa-times remove-tag" onclick="removeSkill(this);"></i>`;
+        skillsWrap.insertBefore(span, skillsInput);
+        updateHiddenSkills();
+    }
+
+    function removeSkill(el) {
+        el.closest('.tag-pill-pro').remove();
+        updateHiddenSkills();
+    }
+
+    skillsInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            addSkill(this.value.replace(',', ''));
+            this.value = '';
+        }
+        if (e.key === 'Backspace' && this.value === '') {
+            const tags = skillsWrap.querySelectorAll('.tag-pill-pro');
+            if (tags.length > 0) {
+                tags[tags.length - 1].remove();
+                updateHiddenSkills();
+            }
+        }
+    });
+
+    skillsInput.addEventListener('blur', function() {
+        if (this.value.trim()) {
+            addSkill(this.value);
+            this.value = '';
+        }
+    });
+</script>
+{% endblock %}

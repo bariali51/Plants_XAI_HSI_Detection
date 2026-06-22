@@ -1,0 +1,18 @@
+{% comment %}
+  components/kpi_card.html — Reusable KPI Stat Card
+  Usage: include "analysis/components/kpi_card.html" with icon="fa-users" value="142" label="Total Users" trend="+12%" trend_dir="up" color="primary"
+{% endcomment %}
+<div class="card kpi-card" id="kpi-{{ label|slugify }}">
+    <div class="kpi-icon-wrap kpi-{{ color|default:'primary' }}">
+        <i class="fas {{ icon }}"></i>
+    </div>
+    <div class="kpi-body">
+        <span class="kpi-value" data-animate-counter>{{ value }}</span>
+        <span class="kpi-label">{{ label }}</span>
+    </div>
+    {% if trend %}
+    <span class="badge {% if trend_dir == 'down' %}badge-danger{% else %}badge-success{% endif %}">
+        <i class="fas fa-arrow-{{ trend_dir|default:'up' }}"></i> {{ trend }}
+    </span>
+    {% endif %}
+</div>

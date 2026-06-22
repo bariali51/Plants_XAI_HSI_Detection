@@ -1,0 +1,60 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Edit Post — Community{% endblock %}
+{% block header_title %}Edit Post{% endblock %}
+{% block nav_community %}active{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/community.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="create-post-layout">
+    <form method="POST" enctype="multipart/form-data" class="create-post-form glass-card">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="form-label"><i class="fas fa-tag"></i> Post Type</label>
+            {{ form.post_type }}
+        </div>
+        <div class="form-group">
+            <label class="form-label"><i class="fas fa-heading"></i> Title</label>
+            {{ form.title }}
+            {% if form.title.errors %}<span class="form-error">{{ form.title.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+            <label class="form-label"><i class="fas fa-align-left"></i> Description</label>
+            {{ form.body }}
+            {% if form.body.errors %}<span class="form-error">{{ form.body.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+            <label class="form-label"><i class="fas fa-tags"></i> Tags</label>
+            {{ form.tag_names }}
+            <span class="form-hint">Comma-separated</span>
+        </div>
+        <div class="form-group">
+            <label class="form-label"><i class="fas fa-images"></i> Replace Images (optional)</label>
+            <input type="file" name="images" multiple accept="image/*" class="form-input">
+            {% if post.images.all %}
+            <div class="current-images">
+                <span class="form-hint">Current images:</span>
+                <div class="image-previews">
+                    {% for img in post.images.all %}
+                    <img src="{{ img.image.url }}" alt="Current image" class="preview-thumb-sm">
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="form-actions">
+            <a href="{% url 'community:post_detail' post.pk %}" class="btn-secondary">Cancel</a>
+            <form method="POST" action="{% url 'community:delete_post' post.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger" onclick="return confirm('Delete this post?')"><i class="fas fa-trash"></i> Delete</button>
+            </form>
+            <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

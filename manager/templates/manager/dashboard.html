@@ -1,0 +1,980 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Admin Dashboard" %} | Nabtati{% endblock %}
+{% block meta_description %}{% trans "Nabtati Admin Dashboard — Platform Analytics" %}{% endblock %}
+{% block header_title %}{% trans "Admin Dashboard" %}{% endblock %}
+{% block header_subtitle %}{% trans "Platform analytics & management overview" %}{% endblock %}
+
+{% block nav_admin_dashboard %}active{% endblock %}
+
+{% block header_actions %}
+<span class="badge badge-info">
+    <i class="fas fa-shield-halved"></i> {% trans "Staff Access" %}
+</span>
+{% endblock %}
+
+{% block page_styles %}
+/* ===== PRO DASHBOARD STYLES ===== */
+.dash-welcome {
+    background: linear-gradient(135deg, var(--primary), #1b5e20 40%, #0d3d14);
+    border-radius: var(--radius-lg);
+    padding: 36px 40px;
+    color: white;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(27, 94, 32, 0.25);
+}
+.dash-welcome::before {
+    content: '';
+    position: absolute;
+    right: -30px;
+    top: -30px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+}
+.dash-welcome::after {
+    content: '';
+    position: absolute;
+    right: 60px;
+    bottom: -50px;
+    width: 140px;
+    height: 140px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+}
+.dash-welcome h2 {
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+}
+.dash-welcome p {
+    opacity: 0.85;
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0;
+}
+.dash-welcome .welcome-meta {
+    display: flex;
+    gap: 20px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
+.dash-welcome .meta-chip {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(6px);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-family: inherit;
+    box-shadow: var(--shadow-sm);
+}
+.quick-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.quick-action-btn i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Live Pulse Dot */
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse-glow 2s ease-in-out infinite;
+    margin-right: 4px;
+}
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
+}
+
+/* Chart Card Header Enhancement */
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.chart-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.chart-header h3 i { color: var(--primary); }
+.chart-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: var(--primary-bg);
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* Stat Mini Row */
+.stat-row {
+    display: flex;
+    justify-content: space-around;
+    padding: 16px 0 0;
+    border-top: 1px solid var(--border);
+    margin-top: 16px;
+}
+.stat-mini {
+    text-align: center;
+}
+.stat-mini-value {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text-main);
+    display: block;
+}
+.stat-mini-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Critical Alert Bar */
+.alert-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
+    font-weight: 600;
+    font-size: 14px;
+}
+.alert-bar-danger {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid rgba(239,68,68,0.2);
+}
+.alert-bar-success {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid rgba(34,197,94,0.2);
+}
+.alert-bar i { font-size: 18px; }
+.alert-bar a {
+    margin-left: auto;
+    color: inherit;
+    font-weight: 800;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.alert-bar a:hover { text-decoration: underline; }
+
+/* Section Label */
+.section-label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dash-welcome {
+        padding: 24px 20px;
+    }
+    .dash-welcome h2 { font-size: 20px; }
+    .quick-actions { flex-direction: column; }
+    .stat-row { flex-wrap: wrap; gap: 16px; }
+}
+
+/* ── Revenue Modal ── */
+.rev-modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.rev-modal-overlay.open { display: flex; }
+.rev-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    width: 100%; max-width: 820px;
+    max-height: 88vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+    animation: revModalIn 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes revModalIn {
+    from { opacity:0; transform: scale(0.95) translateY(16px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+}
+.rev-modal-head {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+}
+.rev-modal-head h2 {
+    font-size: 20px; font-weight: 900;
+    color: var(--text-main); margin: 0;
+    display: flex; align-items: center; gap: 10px;
+}
+.rev-modal-head h2 i { color: var(--primary); }
+.rev-modal-close {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: var(--bg-color);
+    color: var(--text-muted); font-size: 15px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+}
+.rev-modal-close:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+.rev-modal-summary {
+    display: flex; gap: 16px; padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap; flex-shrink: 0;
+}
+.rev-sum-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-color); border: 1px solid var(--border);
+    border-radius: 12px; padding: 8px 16px;
+    font-size: 13px; font-weight: 700; color: var(--text-main);
+}
+.rev-sum-chip i { color: var(--primary); }
+.rev-modal-search {
+    padding: 12px 28px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.rev-search-wrap {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-color); border: 2px solid var(--border);
+    border-radius: 12px; padding: 9px 14px;
+    transition: all .2s;
+}
+.rev-search-wrap:focus-within { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(46,125,50,.08); }
+.rev-search-wrap i { color: var(--primary); font-size: 14px; }
+.rev-search-wrap input { border:none; background:transparent; outline:none; font-size:14px; font-weight:600; color:var(--text-main); width:100%; }
+.rev-search-wrap input::placeholder { color: var(--text-muted); }
+.rev-modal-body { overflow-y: auto; flex: 1; padding: 0 28px 24px; }
+.sub-table { width:100%; border-collapse:collapse; margin-top:16px; }
+.sub-table th {
+    text-align:left; font-size:11px; font-weight:800;
+    color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;
+    padding:10px 12px; border-bottom:2px solid var(--border);
+    position:sticky; top:0; background:var(--surface); z-index:1;
+}
+.sub-table td {
+    padding:12px 12px; font-size:13px; font-weight:600;
+    color:var(--text-main); border-bottom:1px solid var(--border);
+    vertical-align:middle;
+}
+.sub-table tr:last-child td { border-bottom:none; }
+.sub-table tr:hover td { background:var(--bg-color); }
+.sub-table tr.hidden-row { display:none; }
+.days-pill {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:3px 10px; border-radius:8px; font-size:12px; font-weight:800;
+}
+.days-ok    { background:rgba(34,197,94,.12);  color:#16a34a; }
+.days-warn  { background:rgba(245,158,11,.12); color:#d97706; }
+.days-crit  { background:rgba(239,68,68,.12);  color:#dc2626; }
+.rev-card-clickable {
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.rev-card-clickable:hover {
+    box-shadow: 0 8px 32px rgba(46,125,50,0.15), 0 0 0 2px var(--primary);
+    transform: translateY(-2px);
+}
+{% endblock %}
+
+{% block content %}
+    {# ===== WELCOME BANNER ===== #}
+    <div class="dash-welcome">
+        <h2><i class="fas fa-leaf" style="margin-right:8px;"></i> {% trans "Welcome back" %}, {{ user.username }}</h2>
+        <p>{% trans "Here's what's happening with Nabtati today." %}</p>
+        <div class="welcome-meta">
+            <span class="meta-chip"><span class="pulse-dot"></span> {% trans "System Online" %}</span>
+            <span class="meta-chip"><i class="fas fa-users"></i> {{ stats.total_users }} {% trans "Users" %}</span>
+            <span class="meta-chip"><i class="fas fa-microscope"></i> {{ stats.total_scans }} {% trans "Scans" %}</span>
+            <span class="meta-chip"><i class="fas fa-calendar-day"></i> {{ stats.scans_today }} {% trans "Today" %}</span>
+        </div>
+    </div>
+
+    {# ===== CRITICAL ALERT BAR ===== #}
+    {% if stats.critical_scans > 0 %}
+    <div class="alert-bar alert-bar-danger">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{% blocktrans count counter=stats.critical_scans %}{{ counter }} critical case detected — immediate attention needed{% plural %}{{ counter }} critical cases detected — immediate attention needed{% endblocktrans %}</span>
+        <a href="{% url 'manager:scans' %}?sort=-disease_ratio"><i class="fas fa-arrow-right"></i> {% trans "View All" %}</a>
+    </div>
+    {% else %}
+    <div class="alert-bar alert-bar-success">
+        <i class="fas fa-shield-check"></i>
+        <span>{% trans "All clear — no critical cases detected" %}</span>
+    </div>
+    {% endif %}
+
+    {# ===== QUICK ACTIONS ===== #}
+    <div class="quick-actions">
+        <a href="{% url 'manager:upload_scan' %}" class="quick-action-btn">
+            <i class="fas fa-upload" style="color:var(--primary);"></i> {% trans "Upload Scan" %}
+        </a>
+        <a href="{% url 'manager:users' %}" class="quick-action-btn">
+            <i class="fas fa-users-gear"></i> {% trans "Manage Users" %}
+        </a>
+        <a href="{% url 'manager:scans' %}" class="quick-action-btn">
+            <i class="fas fa-microscope"></i> {% trans "View All Scans" %}
+        </a>
+        <a href="{% url 'manager:audit_log' %}" class="quick-action-btn">
+            <i class="fas fa-clipboard-list"></i> {% trans "Audit Log" %}
+        </a>
+    </div>
+
+    {# ===== KPI CARDS ===== #}
+    <div class="section-label">{% trans "Key Performance Indicators" %}</div>
+    <div class="kpi-grid">
+        {% trans "Total Users" as lbl_users %}{% include "analysis/components/kpi_card.html" with icon="fa-users" value=stats.total_users label=lbl_users color="primary" %}
+        {% trans "Total Scans" as lbl_scans %}{% include "analysis/components/kpi_card.html" with icon="fa-microscope" value=stats.total_scans label=lbl_scans color="info" %}
+        {% trans "Scans Today" as lbl_today %}{% include "analysis/components/kpi_card.html" with icon="fa-bolt" value=stats.scans_today label=lbl_today color="success" %}
+        {% trans "Critical Cases" as lbl_crit %}{% include "analysis/components/kpi_card.html" with icon="fa-triangle-exclamation" value=stats.critical_scans label=lbl_crit color="danger" %}
+    </div>
+
+    <div class="kpi-grid">
+        {% trans "New Users (7d)" as lbl_new %}{% include "analysis/components/kpi_card.html" with icon="fa-user-plus" value=stats.new_users_7d label=lbl_new trend=stats.new_users_7d trend_dir="up" color="primary" %}
+        {% trans "Scans (7d)" as lbl_s7d %}{% include "analysis/components/kpi_card.html" with icon="fa-chart-line" value=stats.scans_7d label=lbl_s7d color="info" %}
+        {% trans "Avg Confidence %" as lbl_conf %}{% include "analysis/components/kpi_card.html" with icon="fa-bullseye" value=stats.avg_confidence label=lbl_conf color="success" %}
+        {% trans "Follow-ups" as lbl_fu %}{% include "analysis/components/kpi_card.html" with icon="fa-arrows-rotate" value=stats.total_followups label=lbl_fu color="warning" %}
+    </div>
+
+    {# ===== CHARTS ===== #}
+    <div class="section-label">{% trans "Analytics" %}</div>
+    <div class="chart-grid">
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h3><i class="fas fa-chart-pie"></i> {% trans "Disease Distribution" %}</h3>
+                <span class="chart-badge">{% trans "Top 10" %}</span>
+            </div>
+            <canvas id="diseaseChart"></canvas>
+            <div class="stat-row">
+                <div class="stat-mini">
+                    <span class="stat-mini-value">{{ stats.total_scans }}</span>
+                    <span class="stat-mini-label">{% trans "Total Scans" %}</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-mini-value">{{ stats.critical_scans }}</span>
+                    <span class="stat-mini-label">{% trans "Critical" %}</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-mini-value">{{ stats.avg_confidence }}%</span>
+                    <span class="stat-mini-label">{% trans "Avg Conf." %}</span>
+                </div>
+            </div>
+        </div>
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h3><i class="fas fa-chart-area"></i> {% trans "Scan Volume" %}</h3>
+                <span class="chart-badge">{% trans "Last 30 Days" %}</span>
+            </div>
+            <canvas id="trendChart"></canvas>
+            <div class="stat-row">
+                <div class="stat-mini">
+                    <span class="stat-mini-value">{{ stats.scans_7d }}</span>
+                    <span class="stat-mini-label">{% trans "This Week" %}</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-mini-value">{{ stats.new_users_7d }}</span>
+                    <span class="stat-mini-label">{% trans "New Users" %}</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-mini-value">{{ stats.total_followups }}</span>
+                    <span class="stat-mini-label">{% trans "Follow-ups" %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ===== SUBSCRIPTION KPIs ===== #}
+    <div class="section-label">{% trans "Subscription Analytics" %}</div>
+    <div class="kpi-grid">
+        {% trans "Free Users" as lbl_free %}{% include "analysis/components/kpi_card.html" with icon="fa-seedling" value=sub_stats.free_count label=lbl_free color="success" %}
+        {% trans "Basic Users" as lbl_basic %}{% include "analysis/components/kpi_card.html" with icon="fa-star" value=sub_stats.basic_count label=lbl_basic color="info" %}
+        {% trans "Premium Users" as lbl_prem %}{% include "analysis/components/kpi_card.html" with icon="fa-crown" value=sub_stats.premium_count label=lbl_prem color="warning" %}
+        {% trans "Active Subs" as lbl_active %}{% include "analysis/components/kpi_card.html" with icon="fa-check-circle" value=sub_stats.active_subscriptions label=lbl_active color="primary" %}
+    </div>
+
+    {# ===== REVENUE & PLAN DISTRIBUTION ===== #}
+    <div class="chart-grid">
+        <!-- Revenue Overview Card → links to full Revenue page -->
+        <div class="card chart-card rev-card-clickable" id="revenueCard"
+             onclick="window.location.href='{% url 'manager:revenue_overview' %}'"
+             title="Click to open Revenue Overview page">
+            <div class="chart-header">
+                <h3><i class="fas fa-coins"></i> {% trans "Revenue Overview" %}</h3>
+                <span class="chart-badge" style="display:flex;align-items:center;gap:6px;">
+                    <i class="fas fa-users" style="font-size:10px;"></i>
+                    {{ paid_subscribers|length }} {% trans "paid" %}
+                </span>
+            </div>
+            <div style="padding: 8px 0;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 36px; font-weight: 900; color: var(--text-main);">
+                        {{ revenue_stats.total_monthly_revenue|default:"0" }} <span style="font-size: 18px; color: var(--text-muted);">DA</span>
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">{% trans "Total Monthly Revenue" %}</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-mini">
+                        <span class="stat-mini-value">{{ revenue_stats.revenue_basic|default:"0" }} DA</span>
+                        <span class="stat-mini-label">{% trans "Basic" %}</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-value">{{ revenue_stats.revenue_premium|default:"0" }} DA</span>
+                        <span class="stat-mini-label">{% trans "Premium" %}</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-value" style="color:#8b5cf6;">{{ revenue_stats.revenue_promotions|default:"0" }} DA</span>
+                        <span class="stat-mini-label"><i class="fas fa-bullhorn" style="font-size:9px;"></i> {% trans "Ads" %}</span>
+                    </div>
+                </div>
+                <div style="margin-top:14px;text-align:center;">
+                    <span style="font-size:12px;color:var(--primary);font-weight:700;">
+                        <i class="fas fa-arrow-up-right-from-square" style="font-size:10px;"></i>
+                        {% trans "Click to view full Revenue page" %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h3><i class="fas fa-users"></i> {% trans "Plan Distribution" %}</h3>
+                <span class="chart-badge">{% trans "All Users" %}</span>
+            </div>
+            <canvas id="planChart"></canvas>
+            <div class="stat-row">
+                <div class="stat-mini">
+                    <span class="stat-mini-value">{{ usage_stats.total_scans_today }}</span>
+                    <span class="stat-mini-label">{% trans "Scans Today" %}</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-mini-value">{{ usage_stats.avg_scans_per_user }}</span>
+                    <span class="stat-mini-label">{% trans "Avg/User" %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ===== PAID SUBSCRIBER MODAL ===== #}
+    <div class="rev-modal-overlay" id="revModal" onclick="if(event.target===this)this.classList.remove('open')">
+        <div class="rev-modal" role="dialog" aria-modal="true" aria-labelledby="revModalTitle">
+
+            <!-- Header -->
+            <div class="rev-modal-head">
+                <h2 id="revModalTitle">
+                    <i class="fas fa-coins"></i>
+                    {% trans "Paid Subscribers" %}
+                    <span class="badge badge-success" style="font-size:12px;padding:3px 10px;">{{ paid_subscribers|length }}</span>
+                </h2>
+                <button class="rev-modal-close" onclick="document.getElementById('revModal').classList.remove('open')" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Summary chips -->
+            <div class="rev-modal-summary">
+                <div class="rev-sum-chip">
+                    <i class="fas fa-coins"></i>
+                    <span>{{ revenue_stats.total_monthly_revenue|default:"0" }} DA {% trans "/ month" %}</span>
+                </div>
+                <div class="rev-sum-chip">
+                    <i class="fas fa-star" style="color:#6366f1;"></i>
+                    <span>{{ revenue_stats.active_basic }} {% trans "Basic" %}</span>
+                </div>
+                <div class="rev-sum-chip">
+                    <i class="fas fa-crown" style="color:#f59e0b;"></i>
+                    <span>{{ revenue_stats.active_premium }} {% trans "Premium" %}</span>
+                </div>
+                <div class="rev-sum-chip">
+                    <i class="fas fa-chart-line"></i>
+                    <span>{{ revenue_stats.revenue_basic }} + {{ revenue_stats.revenue_premium }} DA</span>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="rev-modal-search">
+                <div class="rev-search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="subSearch" placeholder="{% trans 'Search subscriber name or email…' %}" oninput="filterSubs()">
+                </div>
+            </div>
+
+            <!-- Subscriber table -->
+            <div class="rev-modal-body">
+                {% if paid_subscribers %}
+                <table class="sub-table" id="subTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>{% trans "User" %}</th>
+                            <th>{% trans "Plan" %}</th>
+                            <th>{% trans "Expires" %}</th>
+                            <th>{% trans "Days Left" %}</th>
+                            <th>{% trans "Scans" %}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="subTbody">
+                        {% for u in paid_subscribers %}
+                        {% now "Y-m-d H:i:s" as right_now %}
+                        <tr class="sub-row"
+                            data-name="{{ u.username|lower }}"
+                            data-email="{{ u.email|lower }}">
+                            <td style="color:var(--text-muted);font-size:12px;">{{ forloop.counter }}</td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <span class="cell-avatar" style="width:32px;height:32px;font-size:13px;
+                                        {% if u.plan_type == 'premium' %}background:linear-gradient(135deg,#f59e0b,#b45309);{% else %}background:linear-gradient(135deg,#6366f1,#4338ca);{% endif %}">
+                                        {{ u.username|make_list|first|upper }}
+                                    </span>
+                                    <div>
+                                        <div style="font-weight:800;font-size:13px;">{{ u.username }}</div>
+                                        <div style="font-size:11px;color:var(--text-muted);">{{ u.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if u.plan_type == 'premium' %}
+                                <span class="badge badge-warning" style="font-size:11px;"><i class="fas fa-crown"></i> Premium</span>
+                                {% else %}
+                                <span class="badge badge-info" style="font-size:11px;"><i class="fas fa-star"></i> Basic</span>
+                                {% endif %}
+                            </td>
+                            <td style="font-size:12px;white-space:nowrap;">{{ u.subscription_end|date:"M d, Y" }}</td>
+                            <td>
+                                {% if u.subscription_end %}
+                                {% with days=u.subscription_end|timeuntil %}
+                                <span class="days-pill
+                                    {% if u.subscription_end|date:'U'|add:0 > 0 %}days-ok{% endif %}">
+                                    <i class="fas fa-clock" style="font-size:9px;"></i>
+                                    {{ days }}
+                                </span>
+                                {% endwith %}
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ u.scan_count }}</strong></td>
+                            <td>
+                                <a href="{% url 'manager:user_detail' u.pk %}"
+                                   class="detail-link" style="font-size:11px;"
+                                   onclick="document.getElementById('revModal').classList.remove('open')">
+                                    <i class="fas fa-arrow-right"></i> {% trans "View" %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <tr id="subNoResults" style="display:none;">
+                            <td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);">
+                                <i class="fas fa-search" style="margin-right:6px;"></i>{% trans "No subscribers match your search." %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% else %}
+                <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+                    <i class="fas fa-coins" style="font-size:40px;margin-bottom:12px;opacity:.3;"></i>
+                    <h3 style="color:var(--text-main);margin-bottom:8px;">{% trans "No active paid subscribers" %}</h3>
+                    <p>{% trans "No users currently have an active Basic or Premium subscription." %}</p>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    {# ===== TOP USERS TABLE ===== #}
+    {% if top_users %}
+    <div class="section-label">{% trans "Top Users by Scan Count" %}</div>
+    <div class="card" style="overflow-x:auto;">
+        <table class="data-table" role="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">{% trans "User" %}</th>
+                    <th scope="col">{% trans "Plan" %}</th>
+                    <th scope="col">{% trans "Total Scans" %}</th>
+                    <th scope="col">{% trans "Today" %}</th>
+                    <th scope="col">{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in top_users %}
+                <tr>
+                    <td style="font-weight: 700; color: var(--text-muted);">{{ forloop.counter }}</td>
+                    <td>
+                        <div class="cell-user">
+                            <span class="cell-avatar">{{ u.username|make_list|first|upper }}</span>
+                            <a href="{% url 'manager:user_detail' u.id %}" style="color:var(--primary);text-decoration:none;font-weight:600;">
+                                {{ u.username }}
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge {% if u.plan_type == 'premium' %}badge-warning{% elif u.plan_type == 'basic' %}badge-info{% else %}badge-success{% endif %}" style="text-transform: capitalize;">
+                            {{ u.plan_type }}
+                        </span>
+                    </td>
+                    <td><strong>{{ u.total_scans_count }}</strong></td>
+                    <td>{{ u.daily_scan_count }}</td>
+                    <td class="cell-actions">
+                        <a href="{% url 'manager:user_detail' u.id %}" class="btn btn-sm btn-secondary" title="{% trans 'View details' %}">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {# ===== FAKE PAYMENT ANALYTICS ===== #}
+    {% if payment_stats.total_payments > 0 %}
+    <div class="section-label">{% trans "Payment Upgrades (Demo)" %}</div>
+    <div class="kpi-grid">
+        {% trans "Total Upgrades" as lbl_total %}{% include "analysis/components/kpi_card.html" with icon="fa-credit-card" value=payment_stats.total_payments label=lbl_total color="info" %}
+        {% trans "Approved" as lbl_approved %}{% include "analysis/components/kpi_card.html" with icon="fa-check-circle" value=payment_stats.approved_payments label=lbl_approved color="success" %}
+        {% trans "Basic Upgrades" as lbl_bu %}{% include "analysis/components/kpi_card.html" with icon="fa-star" value=payment_stats.upgrades_basic label=lbl_bu color="info" %}
+        {% trans "Premium Upgrades" as lbl_pu %}{% include "analysis/components/kpi_card.html" with icon="fa-crown" value=payment_stats.upgrades_premium label=lbl_pu color="warning" %}
+    </div>
+
+    {% if recent_payments %}
+    <div class="card" style="overflow-x:auto;">
+        <div class="table-toolbar">
+            <h3 class="card-title" style="margin:0;">
+                <i class="fas fa-receipt" style="color:var(--info);"></i>
+                {% trans "Recent Payments" %}
+                <span class="badge badge-info" style="margin-left:8px;">{{ recent_payments|length }}</span>
+            </h3>
+        </div>
+        <table class="data-table" role="table">
+            <thead>
+                <tr>
+                    <th scope="col">{% trans "User" %}</th>
+                    <th scope="col">{% trans "Full Name" %}</th>
+                    <th scope="col">{% trans "Plan" %}</th>
+                    <th scope="col">{% trans "Amount" %}</th>
+                    <th scope="col">{% trans "Status" %}</th>
+                    <th scope="col">{% trans "Date" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in recent_payments %}
+                <tr>
+                    <td>
+                        <div class="cell-user">
+                            <span class="cell-avatar">{{ p.user.username|make_list|first|upper }}</span>
+                            <a href="{% url 'manager:user_detail' p.user.pk %}" style="color:var(--primary);text-decoration:none;font-weight:600;">
+                                {{ p.user.username }}
+                            </a>
+                        </div>
+                    </td>
+                    <td>{{ p.full_name }}</td>
+                    <td>
+                        <span class="badge {% if p.plan_requested == 'premium' %}badge-warning{% else %}badge-info{% endif %}" style="text-transform:capitalize;">
+                            {% if p.plan_requested == 'premium' %}<i class="fas fa-crown"></i>{% else %}<i class="fas fa-star"></i>{% endif %}
+                            {{ p.plan_requested }}
+                        </span>
+                    </td>
+                    <td><strong>{{ p.amount }} DA</strong></td>
+                    <td>
+                        <span class="badge {% if p.status == 'approved' %}badge-success{% elif p.status == 'rejected' %}badge-danger{% else %}badge-warning{% endif %}" style="text-transform:capitalize;">
+                            {{ p.status }}
+                        </span>
+                    </td>
+                    <td style="white-space:nowrap;">{{ p.created_at|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {# Critical Cases section removed (#14) #}
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+/* ── Revenue Modal live search ── */
+function filterSubs() {
+    var q = document.getElementById('subSearch').value.toLowerCase().trim();
+    var rows = document.querySelectorAll('.sub-row');
+    var shown = 0;
+    rows.forEach(function(row) {
+        var match = !q || row.dataset.name.includes(q) || row.dataset.email.includes(q);
+        row.style.display = match ? '' : 'none';
+        if (match) shown++;
+    });
+    var noRes = document.getElementById('subNoResults');
+    if (noRes) noRes.style.display = shown === 0 ? '' : 'none';
+}
+
+/* Close modal on Escape */
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.getElementById('revModal').classList.remove('open');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const chartData = JSON.parse('{{ chart_data|escapejs }}');
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    const colors = {
+        primary: '#2e7d32',
+        primaryLight: '#4caf50',
+        danger: '#ef4444',
+        warning: '#f59e0b',
+        success: '#22c55e',
+        info: '#6366f1',
+        textMuted: isDark ? '#94a3b8' : '#64748b',
+        border: isDark ? '#334155' : '#e2e8f0',
+        surface: isDark ? '#1e293b' : '#ffffff',
+    };
+
+    const chartPalette = [
+        '#2e7d32', '#6366f1', '#ef4444', '#f59e0b', '#22c55e',
+        '#ec4899', '#14b8a6', '#f97316', '#8b5cf6', '#06b6d4',
+    ];
+
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+    Chart.defaults.color = colors.textMuted;
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.padding = 16;
+
+    // Disease Distribution (Doughnut)
+    if (chartData.disease_labels.length > 0) {
+        new Chart(document.getElementById('diseaseChart'), {
+            type: 'doughnut',
+            data: {
+                labels: chartData.disease_labels,
+                datasets: [{
+                    data: chartData.disease_counts,
+                    backgroundColor: chartPalette,
+                    borderWidth: 3,
+                    borderColor: colors.surface,
+                    hoverBorderWidth: 4,
+                    hoverOffset: 12,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '68%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 12, weight: '600' }, padding: 14 }
+                    },
+                    tooltip: {
+                        backgroundColor: isDark ? '#334155' : '#1e293b',
+                        titleFont: { weight: '700', size: 14 },
+                        bodyFont: { weight: '500', size: 13 },
+                        cornerRadius: 12,
+                        padding: 14,
+                        displayColors: true,
+                        boxPadding: 6,
+                        callbacks: {
+                            label: function(ctx) {
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const pct = ((ctx.raw / total) * 100).toFixed(1);
+                                return `${ctx.label}: ${ctx.raw} (${pct}%)`;
+                            }
+                        }
+                    }
+                },
+                animation: { animateRotate: true, duration: 1200, easing: 'easeOutQuart' }
+            }
+        });
+    }
+
+    // Scan Volume Trend (Line)
+    if (chartData.trend_labels.length > 0) {
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        const fill = ctx.createLinearGradient(0, 0, 0, 300);
+        fill.addColorStop(0, 'rgba(46, 125, 50, 0.20)');
+        fill.addColorStop(1, 'rgba(46, 125, 50, 0.01)');
+
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: chartData.trend_labels.map(d => {
+                    const date = new Date(d);
+                    return date.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+                }),
+                datasets: [{
+                    label: 'Scans',
+                    data: chartData.trend_counts,
+                    borderColor: colors.primary,
+                    backgroundColor: fill,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: colors.primary,
+                    pointBorderColor: colors.surface,
+                    pointBorderWidth: 3,
+                    fill: true,
+                    tension: 0.45,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: isDark ? '#334155' : '#1e293b',
+                        titleFont: { weight: '700', size: 14 },
+                        bodyFont: { weight: '500', size: 13 },
+                        cornerRadius: 12,
+                        padding: 14,
+                        displayColors: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: colors.border, drawBorder: false, lineWidth: 0.5 },
+                        ticks: { font: { size: 11, weight: '600' }, maxRotation: 0 }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: colors.border, drawBorder: false, lineWidth: 0.5 },
+                        ticks: { font: { size: 11, weight: '600' }, stepSize: 1, padding: 8 }
+                    }
+                },
+                interaction: { intersect: false, mode: 'index' },
+                animation: { duration: 1400, easing: 'easeOutQuart' }
+            }
+        });
+    }
+
+    // Plan Distribution (Doughnut)
+    if (chartData.plan_labels && chartData.plan_labels.length > 0) {
+        const planColors = ['#22c55e', '#6366f1', '#f59e0b'];
+        new Chart(document.getElementById('planChart'), {
+            type: 'doughnut',
+            data: {
+                labels: chartData.plan_labels,
+                datasets: [{
+                    data: chartData.plan_counts,
+                    backgroundColor: planColors,
+                    borderWidth: 3,
+                    borderColor: colors.surface,
+                    hoverBorderWidth: 4,
+                    hoverOffset: 12,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '68%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 12, weight: '600' }, padding: 14 }
+                    },
+                    tooltip: {
+                        backgroundColor: isDark ? '#334155' : '#1e293b',
+                        titleFont: { weight: '700', size: 14 },
+                        bodyFont: { weight: '500', size: 13 },
+                        cornerRadius: 12,
+                        padding: 14,
+                        callbacks: {
+                            label: function(ctx) {
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const pct = ((ctx.raw / total) * 100).toFixed(1);
+                                return `${ctx.label}: ${ctx.raw} (${pct}%)`;
+                            }
+                        }
+                    }
+                },
+                animation: { animateRotate: true, duration: 1200, easing: 'easeOutQuart' }
+            }
+        });
+    }
+
+    // Animate KPI counters
+    document.querySelectorAll('.kpi-value').forEach(el => {
+        const target = parseInt(el.textContent) || 0;
+        if (target === 0) return;
+        let current = 0;
+        const increment = Math.max(1, Math.ceil(target / 40));
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) { current = target; clearInterval(timer); }
+            el.textContent = current;
+        }, 30);
+    });
+});
+</script>
+{% endblock %}

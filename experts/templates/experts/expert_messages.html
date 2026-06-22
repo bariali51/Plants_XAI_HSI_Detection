@@ -1,0 +1,205 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Messages" %} | Nabtati{% endblock %}
+{% block header_title %}{% trans "Consultation Inbox" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/community.css' %}">
+<style>
+    /* ── Expert Messages Ultra-Pro Styles ── */
+    .messages-layout-ultra {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .inbox-header-ultra {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        padding: 0 4px;
+    }
+
+    .unread-indicator-main {
+        background: var(--primary-bg);
+        color: var(--primary);
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .inbox-list-ultra {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .inbox-item-ultra {
+        background: #fff;
+        border-radius: 24px;
+        padding: 20px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid rgba(0,0,0,0.04);
+        text-decoration: none !important;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        position: relative;
+    }
+
+    .inbox-item-ultra:hover {
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+        border-color: var(--primary);
+    }
+
+    .inbox-item-ultra.has-unread {
+        border-left: 5px solid var(--primary);
+    }
+
+    .inbox-user-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .inbox-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 18px;
+        background: var(--primary-bg);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 900;
+        flex-shrink: 0;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    }
+
+    .has-unread .inbox-avatar {
+        background: var(--emerald-gradient);
+        color: #fff;
+    }
+
+    .inbox-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .inbox-name {
+        font-size: 17px;
+        font-weight: 900;
+        color: var(--text-main);
+        margin-bottom: 4px;
+    }
+
+    .inbox-preview {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.4;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .inbox-meta {
+        text-align: right;
+        margin-left: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    .inbox-time {
+        font-size: 12px;
+        font-weight: 700;
+        color: #94a3b8;
+    }
+
+    .unread-count-pro {
+        background: #ef4444;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 900;
+        padding: 3px 10px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+    }
+
+    [data-theme="dark"] .inbox-item-ultra {
+        background: #1e293b;
+        border-color: rgba(255,255,255,0.05);
+    }
+
+    [data-theme="dark"] .inbox-name { color: #f1f5f9; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="messages-layout-ultra">
+    
+    <div class="inbox-header-ultra fade-in-down">
+        <h2 style="font-size: 24px; font-weight: 950; color: var(--text-main);">{% trans "Recent Consultations" %}</h2>
+        {% if total_unread > 0 %}
+        <div class="unread-indicator-main">
+            <i class="fas fa-bell-exclamation"></i>
+            {{ total_unread }} {% trans "New Message" %}{{ total_unread|pluralize:"s" }}
+        </div>
+        {% endif %}
+    </div>
+
+    {% if conversations %}
+    <div class="inbox-list-ultra">
+        {% for item in conversations %}
+        <a href="{% url 'experts:conversation' item.conversation.id %}" class="inbox-item-ultra fade-in-up {% if item.unread > 0 %}has-unread{% endif %}" style="animation-delay: {{ forloop.counter0 }}00ms">
+            <div class="inbox-user-info">
+                <div class="inbox-avatar">{{ item.conversation.user.username|make_list|first|upper }}</div>
+                <div class="inbox-details">
+                    <div class="inbox-name">{{ item.conversation.user.get_full_name|default:item.conversation.user.username }}</div>
+                    <div class="inbox-preview">
+                        {% if item.last_msg %}
+                            <span style="font-weight: 700; color: var(--primary);">
+                                {% if item.last_msg.sender == request.user %}{% trans "You" %}:{% endif %}
+                            </span>
+                            {{ item.last_msg.text|truncatechars:100 }}
+                        {% else %}
+                            <em style="opacity: 0.6;">{% trans "Open this consultation to start the dialogue..." %}</em>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="inbox-meta">
+                {% if item.last_msg %}
+                <div class="inbox-time">{{ item.last_msg.created_at|timesince }} {% trans "ago" %}</div>
+                {% endif %}
+                {% if item.unread > 0 %}
+                <span class="unread-count-pro">{{ item.unread }}</span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state glass-card fade-in-up" style="padding: 100px 40px; text-align: center; border-radius: 32px;">
+        <div style="width: 120px; height: 120px; background: var(--primary-bg); color: var(--primary); border-radius: 40px; display: flex; align-items: center; justify-content: center; font-size: 48px; margin: 0 auto 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+            <i class="fas fa-comments"></i>
+        </div>
+        <h3 style="font-size: 28px; font-weight: 900; color: var(--text-main); margin-bottom: 12px;">{% trans "Your inbox is empty" %}</h3>
+        <p style="color: var(--text-muted); font-size: 16px; max-width: 450px; margin: 0 auto;">{% trans "Consultations will appear here once users are assigned to you for plant health monitoring." %}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

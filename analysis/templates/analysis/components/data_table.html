@@ -1,0 +1,18 @@
+{% comment %}
+  components/data_table.html — Reusable Data Table Wrapper
+  Usage: include "analysis/components/data_table.html" with table_id="scansTable"
+  Note: The actual thead and tbody content is provided by the parent
+        template. This component wraps a table inside a card with consistent styling.
+{% endcomment %}
+<div class="card" style="overflow-x:auto;">
+    {% if table_title %}
+    <h3 class="card-title">
+        {% if table_icon %}<i class="fas {{ table_icon }}"></i>{% endif %}
+        {{ table_title }}
+        {% if table_count %}<span style="font-weight:500;font-size:13px;color:var(--text-muted);margin-left:8px;">({{ table_count }})</span>{% endif %}
+    </h3>
+    {% endif %}
+    <table class="data-table" id="{{ table_id|default:'dataTable' }}" role="table">
+        {{ table_content }}
+    </table>
+</div>

@@ -1,0 +1,308 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Plans & Pricing" %} | Nabtati{% endblock %}
+{% block meta_description %}{% trans "Choose your Nabtati plan — Free, Basic, or Premium" %}{% endblock %}
+{% block header_title %}{% trans "Plans & Pricing" %}{% endblock %}
+{% block header_subtitle %}{% trans "Choose the plan that fits your needs" %}{% endblock %}
+
+{% block page_styles %}
+/* ===== PRICING PAGE STYLES ===== */
+.pricing-hero {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px 0;
+}
+.pricing-hero h2 {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+.pricing-hero p {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.plan-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 36px 28px;
+    border: 2px solid var(--border);
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+.plan-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+}
+.plan-card.current {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+}
+.plan-card.featured {
+    border-color: #f59e0b;
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.15);
+    background: linear-gradient(180deg, var(--surface) 0%, rgba(245, 158, 11, 0.03) 100%);
+}
+.plan-card.featured::before {
+    content: 'MOST POPULAR';
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.plan-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+.plan-icon.free {
+    background: var(--primary-bg, #e8f5e9);
+    color: var(--primary, #2e7d32);
+}
+.plan-icon.basic {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+}
+.plan-icon.premium {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.plan-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+
+.plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+.plan-price .amount {
+    font-size: 40px;
+    font-weight: 900;
+    color: var(--text-main);
+}
+.plan-price .currency {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+.plan-price .period {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.plan-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+}
+.plan-features li i {
+    width: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+.plan-features li i.check {
+    color: var(--success, #22c55e);
+}
+.plan-features li i.cross {
+    color: var(--text-muted);
+    opacity: 0.4;
+}
+.plan-features li.disabled {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.plan-cta {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.plan-cta.current-btn {
+    background: var(--primary-bg, #e8f5e9);
+    color: var(--primary, #2e7d32);
+    cursor: default;
+}
+.plan-cta.upgrade-btn {
+    background: linear-gradient(135deg, var(--primary), #1b5e20);
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+.plan-cta.upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+}
+.plan-cta.premium-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+.plan-cta.premium-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.plan-note {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 32px;
+}
+
+@media (max-width: 900px) {
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+}
+{% endblock %}
+
+{% block content %}
+<div class="pricing-hero">
+    <h2><i class="fas fa-crown" style="color: #f59e0b; margin-right: 8px;"></i>{% trans "Choose Your Plan" %}</h2>
+    <p>{% trans "Get the most out of Nabtati with the right plan for your farming needs" %}</p>
+</div>
+
+<div class="pricing-grid">
+    {# ===== FREE PLAN ===== #}
+    <div class="plan-card {% if plan_type == 'free' %}current{% endif %}">
+        <div class="plan-icon free"><i class="fas fa-seedling"></i></div>
+        <div class="plan-name">{% trans "Free" %}</div>
+        <div class="plan-price">
+            <span class="amount">0</span>
+            <span class="currency">DA</span>
+        </div>
+        <p class="plan-desc">{% trans "Get started with basic disease detection" %}</p>
+        <ul class="plan-features">
+            <li><i class="fas fa-check check"></i> {% trans "3 scans per day" %}</li>
+            <li><i class="fas fa-check check"></i> {% trans "AI disease detection" %}</li>
+            <li><i class="fas fa-check check"></i> {% trans "Grad-CAM heatmaps" %}</li>
+            <li><i class="fas fa-check check"></i> {% trans "Save scan reports" %}</li>
+            <li class="disabled"><i class="fas fa-times cross"></i> {% trans "AI Assistant chat" %}</li>
+            <li class="disabled"><i class="fas fa-times cross"></i> {% trans "Priority support" %}</li>
+        </ul>
+        {% if plan_type == 'free' %}
+        <span class="plan-cta current-btn"><i class="fas fa-check-circle"></i> {% trans "Current Plan" %}</span>
+        {% else %}
+        <span class="plan-cta current-btn">{% trans "Free Tier" %}</span>
+        {% endif %}
+    </div>
+
+    {# ===== BASIC PLAN ===== #}
+    <div class="plan-card {% if plan_type == 'basic' %}current{% endif %}">
+        <div class="plan-icon basic"><i class="fas fa-star"></i></div>
+        <div class="plan-name">{% trans "Basic" %}</div>
+        <div class="plan-price">
+            <span class="amount">1,000</span>
+            <span class="currency">DA</span>
+            <span class="period">/ {% trans "month" %}</span>
+        </div>
+        <p class="plan-desc">{% trans "Extended scanning for active farmers" %}</p>
+        <ul class="plan-features">
+            <li><i class="fas fa-check check"></i> {% trans "50 scans per day" %}</li>
+            <li><i class="fas fa-check check"></i> {% trans "AI disease detection" %}</li>
+            <li><i class="fas fa-check check"></i> {% trans "Grad-CAM heatmaps" %}</li>
+            <li><i class="fas fa-check check"></i> {% trans "Save scan reports" %}</li>
+            <li class="disabled"><i class="fas fa-times cross"></i> {% trans "AI Assistant chat" %}</li>
+            <li><i class="fas fa-check check"></i> {% trans "Email support" %}</li>
+        </ul>
+        {% if plan_type == 'basic' %}
+        <span class="plan-cta current-btn"><i class="fas fa-check-circle"></i> {% trans "Current Plan" %}</span>
+        {% else %}
+        <a href="{% url 'upgrade_plan' %}?plan=basic" class="plan-cta upgrade-btn">{% trans "Upgrade to Basic" %}</a>
+        {% endif %}
+    </div>
+
+    {# ===== PREMIUM PLAN ===== #}
+    <div class="plan-card featured {% if plan_type == 'premium' %}current{% endif %}">
+        <div class="plan-icon premium"><i class="fas fa-crown"></i></div>
+        <div class="plan-name">{% trans "Premium" %}</div>
+        <div class="plan-price">
+            <span class="amount">2,500</span>
+            <span class="currency">DA</span>
+            <span class="period">/ {% trans "month" %}</span>
+        </div>
+        <p class="plan-desc">{% trans "Unlimited access with full AI power" %}</p>
+        <ul class="plan-features">
+            <li><i class="fas fa-check check"></i> <strong>{% trans "Unlimited scans" %}</strong></li>
+            <li><i class="fas fa-check check"></i> {% trans "AI disease detection" %}</li>
+            <li><i class="fas fa-check check"></i> {% trans "Grad-CAM heatmaps" %}</li>
+            <li><i class="fas fa-check check"></i> {% trans "Save scan reports" %}</li>
+            <li><i class="fas fa-check check"></i> <strong>{% trans "AI Assistant chat" %}</strong></li>
+            <li><i class="fas fa-check check"></i> {% trans "Priority support" %}</li>
+        </ul>
+        {% if plan_type == 'premium' %}
+        <span class="plan-cta current-btn"><i class="fas fa-crown"></i> {% trans "Current Plan" %}</span>
+        {% else %}
+        <a href="{% url 'upgrade_plan' %}?plan=premium" class="plan-cta premium-btn"><i class="fas fa-crown"></i> {% trans "Upgrade to Premium" %}</a>
+        {% endif %}
+    </div>
+</div>
+
+<p class="plan-note">
+    <i class="fas fa-info-circle"></i>
+    {% trans "To upgrade your plan, please contact the administrator. Plans are activated immediately upon confirmation." %}
+</p>
+{% endblock %}

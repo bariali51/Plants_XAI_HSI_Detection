@@ -1,0 +1,37 @@
+{% comment %}
+  components/filters.html — Reusable Filter Bar
+  Usage: include "analysis/components/filters.html" with search_value=search search_placeholder="Search..." filters=filter_list
+  filter_list = [{"name": "stage", "label": "Stage", "options": [("", "All"), ("Early", "Early")], "selected": "Early"}]
+{% endcomment %}
+<div class="filter-bar">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text"
+               name="q"
+               value="{{ search_value|default:'' }}"
+               placeholder="{{ search_placeholder|default:'Search...' }}"
+               form="filterForm"
+               aria-label="Search">
+    </div>
+
+    <form id="filterForm" method="GET" style="display:contents;">
+        {% if search_value %}
+        <input type="hidden" name="q" value="{{ search_value }}">
+        {% endif %}
+
+        {% for filter in filters %}
+        <select name="{{ filter.name }}"
+                class="filter-select"
+                onchange="this.form.submit()"
+                aria-label="{{ filter.label }}">
+            {% for val, display in filter.options %}
+            <option value="{{ val }}" {% if val == filter.selected %}selected{% endif %}>
+                {{ display }}
+            </option>
+            {% endfor %}
+        </select>
+        {% endfor %}
+
+        <noscript><button type="submit" class="btn btn-sm btn-secondary">Apply</button></noscript>
+    </form>
+</div>

@@ -1,0 +1,623 @@
+# French translations for Nabtati
+# Copyright (C) 2026
+# This file is distributed under the same license as the Nabtati package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Nabtati 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-20 22:00+0000\n"
+"PO-Revision-Date: 2026-06-20 22:00+0000\n"
+"Last-Translator: Nabtati Team\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# ============================================================
+# Navigation (base.html)
+# ============================================================
+msgid "Skip to main content"
+msgstr "Aller au contenu principal"
+
+msgid "Open menu"
+msgstr "Ouvrir le menu"
+
+msgid "Toggle dark mode"
+msgstr "Basculer le mode sombre"
+
+msgid "Main navigation"
+msgstr "Navigation principale"
+
+msgid "Toggle sidebar"
+msgstr "Basculer la barre latérale"
+
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Diagnosis"
+msgstr "Diagnostic"
+
+msgid "Model Info"
+msgstr "Infos du Modèle"
+
+msgid "History"
+msgstr "Historique"
+
+msgid "My Files"
+msgstr "Mes Fichiers"
+
+msgid "AI Assistant"
+msgstr "Assistant IA"
+
+msgid "AI Chat"
+msgstr "Chat IA"
+
+msgid "Model"
+msgstr "Modèle"
+
+msgid "Social"
+msgstr "Social"
+
+msgid "Community"
+msgstr "Communauté"
+
+msgid "Companies"
+msgstr "Entreprises"
+
+msgid "My Experts"
+msgstr "Mes Experts"
+
+msgid "Complaints"
+msgstr "Réclamations"
+
+msgid "Company"
+msgstr "Entreprise"
+
+msgid "Company Dashboard"
+msgstr "Tableau de Bord Entreprise"
+
+msgid "Company Inbox"
+msgstr "Boîte de Réception Entreprise"
+
+msgid "Products"
+msgstr "Produits"
+
+msgid "Services"
+msgstr "Services"
+
+msgid "Messages"
+msgstr "Messages"
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Expert"
+msgstr "Expert"
+
+msgid "Expert Dashboard"
+msgstr "Tableau de Bord Expert"
+
+msgid "Admin Messages"
+msgstr "Messages Admin"
+
+msgid "Expert Complaints"
+msgstr "Réclamations Experts"
+
+msgid "User Complaints"
+msgstr "Réclamations Utilisateurs"
+
+# Admin Section
+msgid "Admin"
+msgstr "Administration"
+
+msgid "Dashboard"
+msgstr "Tableau de Bord"
+
+msgid "Users"
+msgstr "Utilisateurs"
+
+msgid "All Scans"
+msgstr "Tous les Scans"
+
+msgid "Experts"
+msgstr "Experts"
+
+msgid "Audit Log"
+msgstr "Journal d'Audit"
+
+msgid "ADMIN"
+msgstr "ADMIN"
+
+# ============================================================
+# Auth
+# ============================================================
+msgid "Sign Out"
+msgstr "Déconnexion"
+
+msgid "Login"
+msgstr "Connexion"
+
+msgid "Logout"
+msgstr "Déconnexion"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Yes, Logout"
+msgstr "Oui, Déconnecter"
+
+msgid "Are you sure you want to sign out of Nabtati?"
+msgstr "Êtes-vous sûr de vouloir vous déconnecter de Nabtati ?"
+
+# ============================================================
+# Header
+# ============================================================
+msgid "System Online"
+msgstr "Système en ligne"
+
+msgid "Change language"
+msgstr "Changer de langue"
+
+msgid "Mobile navigation"
+msgstr "Navigation mobile"
+
+msgid "Analyzing..."
+msgstr "Analyse en cours..."
+
+msgid "scans"
+msgstr "scans"
+
+# ============================================================
+# Login Page
+# ============================================================
+msgid "Smart Plant Disease Detection Platform"
+msgstr "Plateforme Intelligente de Détection des Maladies Végétales"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Invalid username or password"
+msgstr "Nom d'utilisateur ou mot de passe invalide"
+
+msgid "Login to Dashboard"
+msgstr "Se connecter au Tableau de Bord"
+
+msgid "Don't have an account?"
+msgstr "Vous n'avez pas de compte ?"
+
+msgid "Create one"
+msgstr "Créer un compte"
+
+# ============================================================
+# Signup Page
+# ============================================================
+msgid "Create Account"
+msgstr "Créer un Compte"
+
+msgid "Create your Nabtati account — Smart Plant Disease Detection Platform"
+msgstr "Créez votre compte Nabtati — Plateforme Intelligente de Détection des Maladies Végétales"
+
+msgid "Create your diagnostic account"
+msgstr "Créez votre compte de diagnostic"
+
+msgid "Draft restored — your progress was saved!"
+msgstr "Brouillon restauré — votre progression a été sauvegardée !"
+
+msgid "First Name"
+msgstr "Prénom"
+
+msgid "John"
+msgstr "Jean"
+
+msgid "Last Name"
+msgstr "Nom de famille"
+
+msgid "Doe"
+msgstr "Dupont"
+
+msgid "Date of Birth"
+msgstr "Date de naissance"
+
+msgid "Email Address"
+msgstr "Adresse e-mail"
+
+msgid "john@example.com"
+msgstr "jean@example.com"
+
+msgid "Enter username"
+msgstr "Entrez le nom d'utilisateur"
+
+msgid "Min 8 characters"
+msgstr "8 caractères minimum"
+
+msgid "Confirm"
+msgstr "Confirmer"
+
+msgid "Re-enter password"
+msgstr "Confirmer le mot de passe"
+
+msgid "Purpose"
+msgstr "Objectif"
+
+msgid "Choose Purpose"
+msgstr "Choisir l'Objectif"
+
+msgid "Farmer"
+msgstr "Agriculteur"
+
+msgid "Other"
+msgstr "Autre"
+
+msgid "Form data auto-saved locally"
+msgstr "Données du formulaire sauvegardées localement"
+
+msgid "Already have an account?"
+msgstr "Vous avez déjà un compte ?"
+
+# ============================================================
+# Dashboard (Diagnosis Page)
+# ============================================================
+msgid "Premium Diagnostic Dashboard"
+msgstr "Tableau de Bord Diagnostic Premium"
+
+msgid "AI-Powered Plant Disease Detection Dashboard"
+msgstr "Tableau de Bord de Détection des Maladies Végétales par IA"
+
+msgid "Disease Diagnostics"
+msgstr "Diagnostic des Maladies"
+
+msgid "Upload a leaf image to detect plant diseases with AI precision"
+msgstr "Téléchargez une image de feuille pour détecter les maladies végétales avec la précision de l'IA"
+
+msgid "scans remaining today"
+msgstr "scans restants aujourd'hui"
+
+msgid "Unlimited"
+msgstr "Illimité"
+
+msgid "Upgrade"
+msgstr "Améliorer"
+
+msgid "Daily scan limit reached"
+msgstr "Limite quotidienne de scans atteinte"
+
+msgid "Upgrade your plan"
+msgstr "Améliorez votre forfait"
+
+msgid "for more scans."
+msgstr "pour plus de scans."
+
+msgid "Scan limit reached"
+msgstr "Limite de scans atteinte"
+
+msgid "Upgrade to continue scanning"
+msgstr "Améliorez pour continuer les scans"
+
+msgid "Drop image here"
+msgstr "Déposez l'image ici"
+
+msgid "or click to browse"
+msgstr "ou cliquez pour parcourir"
+
+msgid "JPG, PNG up to 10MB"
+msgstr "JPG, PNG jusqu'à 10 Mo"
+
+msgid "Original Image"
+msgstr "Image Originale"
+
+msgid "Input"
+msgstr "Entrée"
+
+msgid "No image uploaded"
+msgstr "Aucune image téléchargée"
+
+msgid "Grad-CAM Analysis"
+msgstr "Analyse Grad-CAM"
+
+msgid "Heatmap"
+msgstr "Carte thermique"
+
+msgid "Waiting for analysis..."
+msgstr "En attente d'analyse..."
+
+msgid "Model Confidence"
+msgstr "Confiance du Modèle"
+
+msgid "Disease Progression"
+msgstr "Progression de la Maladie"
+
+msgid "View Detailed Analytics"
+msgstr "Voir les Analyses Détaillées"
+
+msgid "Immediate Treatment Recommendations"
+msgstr "Recommandations de Traitement Immédiates"
+
+msgid "AI Agronomic Intelligence Report"
+msgstr "Rapport d'Intelligence Agronomique IA"
+
+msgid "Medical Diagnosis"
+msgstr "Diagnostic Médical"
+
+msgid "Treatment Strategy"
+msgstr "Stratégie de Traitement"
+
+msgid "Irrigation Plan"
+msgstr "Plan d'Irrigation"
+
+msgid "Economic Risk"
+msgstr "Risque Économique"
+
+msgid "Yield Loss Prediction"
+msgstr "Prédiction de Perte de Rendement"
+
+msgid "Estimated production reduction based on AI disease severity analysis."
+msgstr "Réduction de production estimée basée sur l'analyse de sévérité de la maladie par IA."
+
+msgid "Name this scan (e.g., Field A - Row 2)"
+msgstr "Nommez ce scan (ex : Champ A - Rang 2)"
+
+msgid "Scan folder name"
+msgstr "Nom du dossier de scan"
+
+msgid "Save Report"
+msgstr "Sauvegarder le Rapport"
+
+msgid "Discard"
+msgstr "Supprimer"
+
+msgid "Save AI Report"
+msgstr "Sauvegarder le Rapport IA"
+
+msgid "Do you want to securely save this diagnostic report to your files for future reference?"
+msgstr "Voulez-vous sauvegarder ce rapport de diagnostic dans vos fichiers pour référence future ?"
+
+msgid "Yes, Save Report"
+msgstr "Oui, Sauvegarder le Rapport"
+
+msgid "Discard Analysis"
+msgstr "Supprimer l'Analyse"
+
+msgid "This will remove the current results. You will need to re-upload to scan again."
+msgstr "Cela supprimera les résultats actuels. Vous devrez télécharger à nouveau pour scanner."
+
+msgid "Discard Results"
+msgstr "Supprimer les Résultats"
+
+# ============================================================
+# Scan Detail Page
+# ============================================================
+msgid "Scan Report"
+msgstr "Rapport de Scan"
+
+msgid "AI Medical Scan Report"
+msgstr "Rapport de Scan Médical IA"
+
+msgid "AI Medical Diagnostic Report"
+msgstr "Rapport de Diagnostic Médical IA"
+
+msgid "Export PDF"
+msgstr "Exporter en PDF"
+
+msgid "Back to Files"
+msgstr "Retour aux Fichiers"
+
+msgid "Original"
+msgstr "Original"
+
+msgid "Grad-CAM"
+msgstr "Grad-CAM"
+
+msgid "Confidence"
+msgstr "Confiance"
+
+msgid "Disease Stage"
+msgstr "Stade de la Maladie"
+
+msgid "Infection Ratio"
+msgstr "Taux d'Infection"
+
+msgid "Analyzed on"
+msgstr "Analysé le"
+
+msgid "Yield Loss"
+msgstr "Perte de Rendement"
+
+msgid "AI Agronomic Intelligence"
+msgstr "Intelligence Agronomique IA"
+
+msgid "Disease Evolution History"
+msgstr "Historique de l'Évolution de la Maladie"
+
+msgid "Severity"
+msgstr "Sévérité"
+
+msgid "Medical"
+msgstr "Médical"
+
+msgid "Treatment"
+msgstr "Traitement"
+
+msgid "Irrigation"
+msgstr "Irrigation"
+
+msgid "Economic"
+msgstr "Économique"
+
+msgid "Compare Disease Evolution"
+msgstr "Comparer l'Évolution de la Maladie"
+
+msgid "Upload a new leaf photo of the same plant to track disease progression with AI."
+msgstr "Téléchargez une nouvelle photo de feuille de la même plante pour suivre la progression de la maladie avec l'IA."
+
+msgid "Drop your image here"
+msgstr "Déposez votre image ici"
+
+msgid "or"
+msgstr "ou"
+
+msgid "click to browse"
+msgstr "cliquez pour parcourir"
+
+msgid "JPG, PNG up to 10 MB"
+msgstr "JPG, PNG jusqu'à 10 Mo"
+
+msgid "No file chosen"
+msgstr "Aucun fichier sélectionné"
+
+msgid "Analyze New Image"
+msgstr "Analyser la Nouvelle Image"
+
+msgid "Saved Progress Reports"
+msgstr "Rapports de Progrès Sauvegardés"
+
+msgid "Stage"
+msgstr "Stade"
+
+# ============================================================
+# Admin Dashboard
+# ============================================================
+msgid "Admin Dashboard"
+msgstr "Tableau de Bord Admin"
+
+msgid "PlantGuard AI Admin Dashboard — Platform Analytics"
+msgstr "Tableau de Bord Nabtati — Analytique de la Plateforme"
+
+msgid "Platform analytics & management overview"
+msgstr "Vue d'ensemble de l'analytique et de la gestion"
+
+msgid "Staff Access"
+msgstr "Accès Staff"
+
+msgid "Welcome back"
+msgstr "Bienvenue"
+
+msgid "Here's what's happening with PlantGuard AI today."
+msgstr "Voici ce qui se passe avec Nabtati aujourd'hui."
+
+msgid "Today"
+msgstr "Aujourd'hui"
+
+msgid "Scans"
+msgstr "Scans"
+
+msgid "View All"
+msgstr "Voir Tout"
+
+msgid "All clear — no critical cases detected"
+msgstr "Tout est clair — aucun cas critique détecté"
+
+msgid "Manage Users"
+msgstr "Gérer les Utilisateurs"
+
+msgid "View All Scans"
+msgstr "Voir Tous les Scans"
+
+msgid "Critical Cases"
+msgstr "Cas Critiques"
+
+# KPI Labels
+msgid "Key Performance Indicators"
+msgstr "Indicateurs Clés de Performance"
+
+msgid "Total Users"
+msgstr "Total Utilisateurs"
+
+msgid "Total Scans"
+msgstr "Total Scans"
+
+msgid "Scans Today"
+msgstr "Scans Aujourd'hui"
+
+msgid "New Users (7d)"
+msgstr "Nouveaux Utilisateurs (7j)"
+
+msgid "Scans (7d)"
+msgstr "Scans (7j)"
+
+msgid "Avg Confidence %"
+msgstr "Confiance Moy. %"
+
+msgid "Follow-ups"
+msgstr "Suivis"
+
+# Charts
+msgid "Analytics"
+msgstr "Analytique"
+
+msgid "Disease Distribution"
+msgstr "Distribution des Maladies"
+
+msgid "Top 10"
+msgstr "Top 10"
+
+msgid "Critical"
+msgstr "Critique"
+
+msgid "Avg Conf."
+msgstr "Conf. Moy."
+
+msgid "Scan Volume"
+msgstr "Volume de Scans"
+
+msgid "Last 30 Days"
+msgstr "30 Derniers Jours"
+
+msgid "This Week"
+msgstr "Cette Semaine"
+
+msgid "New Users"
+msgstr "Nouveaux Utilisateurs"
+
+# Tables
+msgid "Recent Critical Cases"
+msgstr "Cas Critiques Récents"
+
+msgid "Attention Required"
+msgstr "Attention Requise"
+
+msgid "User"
+msgstr "Utilisateur"
+
+msgid "Disease"
+msgstr "Maladie"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "View details"
+msgstr "Voir les détails"
+
+msgid "No Critical Cases"
+msgstr "Aucun Cas Critique"
+
+msgid "All scans are within safe severity thresholds."
+msgstr "Tous les scans sont dans les seuils de sévérité sûrs."
+
+# Plurals
+msgid "%(counter)s critical case detected — immediate attention needed"
+msgid_plural "%(counter)s critical cases detected — immediate attention needed"
+msgstr[0] "%(counter)s cas critique détecté — attention immédiate nécessaire"
+msgstr[1] "%(counter)s cas critiques détectés — attention immédiate nécessaire"
+
+# Empty State
+msgid "No Data Found"
+msgstr "Aucune Donnée Trouvée"
+
+msgid "There's nothing to display at the moment."
+msgstr "Il n'y a rien à afficher pour le moment."
+
+msgid "Go Back"
+msgstr "Retour"
+
+# Search
+msgid "Search..."
+msgstr "Rechercher..."

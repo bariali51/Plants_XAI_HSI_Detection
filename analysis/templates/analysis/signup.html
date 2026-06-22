@@ -1,34 +1,43 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE|default:'en' }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PlantGuard AI | Create Account</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1b5e20">
+<meta name="description" content="{% trans 'Create your Nabtati account — Smart Plant Disease Detection Platform' %}">
+<title>Nabtati | {% trans "Create Account" %}</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(46, 125, 50, 0.25); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(46, 125, 50, 0.45); }
+* { scrollbar-width: thin; scrollbar-color: rgba(46, 125, 50, 0.25) transparent; }
+
 body {
-    font-family: 'Inter', system-ui, sans-serif;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    font-family: 'Inter', 'Noto Sans Arabic', system-ui, sans-serif;
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; justify-content: center; align-items: center;
     background: #eef7f0;
-    overflow: hidden;
-    color: #2d3748;
+    overflow-y: auto; overflow-x: hidden;
+    color: #2d3748; padding: 16px;
     -webkit-font-smoothing: antialiased;
 }
 
 .bg {
-    position: absolute;
-    width: 150vw;
-    height: 150vh;
+    position: fixed; inset: 0;
+    width: 150vw; height: 150vh;
     background:
         radial-gradient(circle at 15% 50%, rgba(165, 214, 167, 0.6), transparent 50%),
         radial-gradient(circle at 85% 30%, rgba(129, 199, 132, 0.5), transparent 50%),
@@ -43,8 +52,7 @@ body {
 }
 
 .card {
-    width: 100%;
-    max-width: 460px;
+    width: 100%; max-width: 480px;
     padding: 40px 36px;
     border-radius: 24px;
     background: rgba(255, 255, 255, 0.65);
@@ -53,8 +61,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.6);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
     text-align: center;
-    position: relative;
-    z-index: 5;
+    position: relative; z-index: 5;
     animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -66,64 +73,171 @@ body {
 .logo { font-size: 26px; font-weight: 800; color: #1b5e20; letter-spacing: -0.5px; }
 .subtitle { margin-top: 6px; color: #64748b; font-size: 14px; font-weight: 500; margin-bottom: 28px; }
 
-.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+/* Draft Restored Toast */
+.draft-toast {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    background: linear-gradient(135deg, #2e7d32, #43a047);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(46, 125, 50, 0.3);
+    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    align-items: center;
+    gap: 8px;
+}
 
-.input-group { margin-bottom: 12px; }
+.draft-toast.show { display: flex; }
+
+.draft-toast i { font-size: 16px; }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Step indicator */
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.step-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(46, 125, 50, 0.2);
+    transition: all 0.3s ease;
+}
+
+.step-dot.active {
+    background: #2e7d32;
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.15);
+}
+
+.step-dot.completed {
+    background: #43a047;
+}
+
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.input-group { margin-bottom: 14px; text-align: left; position: relative; }
+
+.input-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+}
 
 input, select {
-    width: 100%;
-    padding: 14px 16px;
+    width: 100%; padding: 14px 16px;
     border-radius: 12px;
     border: 1.5px solid rgba(200, 200, 200, 0.8);
     background: rgba(255, 255, 255, 0.9);
-    font-size: 14px;
-    font-family: inherit;
-    font-weight: 500;
-    color: #1e293b;
+    font-size: 14px; font-family: inherit;
+    font-weight: 500; color: #1e293b;
     transition: all 0.3s ease;
 }
 
 input::placeholder { color: #94a3b8; font-weight: 400; }
 
 input:focus, select:focus {
-    outline: none;
-    border-color: #43a047;
+    outline: none; border-color: #43a047;
     background: #ffffff;
     box-shadow: 0 0 0 4px rgba(67, 160, 71, 0.15);
     transform: translateY(-1px);
 }
 
-select { color: #64748b; cursor: pointer; }
-
-button {
-    width: 100%;
-    margin-top: 8px;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #2e7d32, #43a047);
-    color: white;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+/* Validation states */
+input.valid {
+    border-color: #22c55e;
+    background: rgba(240, 253, 244, 0.9);
 }
 
-button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(46, 125, 50, 0.35); }
-button:active { transform: translateY(1px); }
+input.invalid {
+    border-color: #ef4444;
+    background: rgba(254, 242, 242, 0.9);
+}
+
+.field-error {
+    font-size: 11px;
+    color: #ef4444;
+    font-weight: 600;
+    margin-top: 4px;
+    display: none;
+    animation: shake 0.3s ease-in-out;
+}
+
+.field-error.show { display: block; }
+
+.field-success {
+    position: absolute;
+    right: 12px;
+    top: 38px;
+    color: #22c55e;
+    font-size: 14px;
+    display: none;
+}
+
+.field-success.show { display: block; }
+
+/* Password strength */
+.password-strength {
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 10px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.password-strength-fill {
+    height: 100%;
+    border-radius: 10px;
+    width: 0;
+    transition: all 0.4s ease;
+}
+
+.strength-weak { width: 30%; background: #ef4444; }
+.strength-medium { width: 60%; background: #f59e0b; }
+.strength-strong { width: 100%; background: #22c55e; }
+
+select { color: #64748b; cursor: pointer; }
+
+button[type="submit"] {
+    width: 100%; margin-top: 8px; padding: 14px;
+    border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #2e7d32, #43a047);
+    color: white; font-family: inherit;
+    font-weight: 700; font-size: 15px;
+    cursor: pointer; transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+button[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(46, 125, 50, 0.35); }
+button[type="submit"]:active { transform: translateY(1px); }
+button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
 
 .error {
-    background: rgba(254, 226, 226, 0.8);
-    color: #dc2626;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    border: 1px solid #fca5a5;
+    background: rgba(254, 226, 226, 0.8); color: #dc2626;
+    padding: 10px; border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    margin-bottom: 12px; border: 1px solid #fca5a5;
     animation: shake 0.4s ease-in-out;
+    text-align: left;
 }
 
 @keyframes shake {
@@ -135,78 +249,439 @@ button:active { transform: translateY(1px); }
 .link { margin-top: 20px; font-size: 14px; color: #64748b; font-weight: 500; }
 .link a { color: #2e7d32; text-decoration: none; font-weight: 700; transition: color 0.2s; }
 .link a:hover { color: #1b5e20; text-decoration: underline; }
+
+/* Auto-save indicator */
+.autosave-indicator {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.autosave-indicator.saving { color: #f59e0b; }
+.autosave-indicator.saved { color: #22c55e; }
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+    .card { padding: 28px 20px; border-radius: 20px; }
+    .logo { font-size: 22px; }
+    .input-row { grid-template-columns: 1fr; }
+    input, select { padding: 12px 14px; font-size: 13px; }
+    button[type="submit"] { padding: 12px; font-size: 14px; }
+    .draft-toast { top: 10px; right: 10px; left: 10px; }
+}
 </style>
 </head>
 
 <body>
 <div class="bg"></div>
 
-<div class="card">
-    <div class="logo">🌿 PlantGuard AI</div>
-    <div class="subtitle">Create your diagnostic account</div>
+<!-- Draft Restored Toast -->
+<div class="draft-toast" id="draftToast">
+    <i class="fas fa-save"></i>
+    <span>{% trans "Draft restored — your progress was saved!" %}</span>
+</div>
 
-    <form method="POST">
+<div class="card">
+    <div class="logo">🌿 Nabtati</div>
+    <div class="subtitle">{% trans "Create your diagnostic account" %}</div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+        <div class="step-dot active" id="step1"></div>
+        <div class="step-dot" id="step2"></div>
+        <div class="step-dot" id="step3"></div>
+    </div>
+
+    <form method="POST" id="signupForm" novalidate>
         {% csrf_token %}
 
         <div class="input-row">
             <div class="input-group">
-                <input type="text" name="first_name" placeholder="First Name" required>
+                <label class="input-label" for="id_first_name">{% trans "First Name" %}</label>
+                <input type="text" id="id_first_name" name="first_name" placeholder="{% trans 'John' %}" required data-autosave>
+                <i class="fas fa-check field-success" id="check_first_name"></i>
+                <div class="field-error" id="error_first_name"></div>
             </div>
             <div class="input-group">
-                <input type="text" name="last_name" placeholder="Last Name" required>
+                <label class="input-label" for="id_last_name">{% trans "Last Name" %}</label>
+                <input type="text" id="id_last_name" name="last_name" placeholder="{% trans 'Doe' %}" required data-autosave>
+                <i class="fas fa-check field-success" id="check_last_name"></i>
+                <div class="field-error" id="error_last_name"></div>
             </div>
         </div>
 
         <div class="input-group">
-            <input type="date" name="birth_date" required>
+            <label class="input-label" for="id_birth_date">{% trans "Date of Birth" %}</label>
+            <input type="date" id="id_birth_date" name="birth_date" required data-autosave>
+            <i class="fas fa-check field-success" id="check_birth_date"></i>
+            <div class="field-error" id="error_birth_date"></div>
         </div>
 
         <div class="input-group">
-            <input type="email" name="email" placeholder="Email address" required>
+            <label class="input-label" for="id_email">{% trans "Email Address" %}</label>
+            <input type="email" id="id_email" name="email" placeholder="{% trans 'john@example.com' %}" required data-autosave>
+            <i class="fas fa-check field-success" id="check_email"></i>
+            <div class="field-error" id="error_email"></div>
         </div>
 
         <div class="input-group">
-            <input type="text" name="username" placeholder="Username (8+ chars, A-Z, a-z, 0-9)" required autocomplete="username">
+            <label class="input-label" for="id_username">{% trans "Username" %}</label>
+            <input type="text" id="id_username" name="username" placeholder="{% trans 'Enter username' %}" required autocomplete="username" data-autosave>
+            <i class="fas fa-check field-success" id="check_username"></i>
+            <div class="field-error" id="error_username"></div>
         </div>
 
         <div class="input-row">
             <div class="input-group">
-                <input type="password" name="password1" placeholder="Password" required autocomplete="new-password">
+                <label class="input-label" for="id_password1">{% trans "Password" %}</label>
+                <input type="password" id="id_password1" name="password1" placeholder="{% trans 'Min 8 characters' %}" required autocomplete="new-password">
+                <div class="password-strength" id="pwStrength"><div class="password-strength-fill" id="pwStrengthFill"></div></div>
+                <div class="field-error" id="error_password1"></div>
             </div>
             <div class="input-group">
-                <input type="password" name="password2" placeholder="Confirm" required autocomplete="new-password">
+                <label class="input-label" for="id_password2">{% trans "Confirm" %}</label>
+                <input type="password" id="id_password2" name="password2" placeholder="{% trans 'Re-enter password' %}" required autocomplete="new-password">
+                <i class="fas fa-check field-success" id="check_password2"></i>
+                <div class="field-error" id="error_password2"></div>
             </div>
         </div>
 
         <div class="input-group">
-            <select name="purpose" required>
-                <option value="">Choose Purpose</option>
-                <option value="farmer">Farmer</option>
-                <option value="company">Company</option>
-                <option value="other">Other</option>
+            <label class="input-label" for="id_purpose">{% trans "Purpose" %}</label>
+            <select id="id_purpose" name="purpose" required data-autosave>
+                <option value="">{% trans "Choose Purpose" %}</option>
+                <option value="farmer">{% trans "Farmer" %}</option>
+                <option value="company">{% trans "Company" %}</option>
+                <option value="other">{% trans "Other" %}</option>
             </select>
+            <div class="field-error" id="error_purpose"></div>
         </div>
 
         {% if form.errors %}
         <div class="error">
             {% for field in form %}
                 {% for error in field.errors %}
-                    {{ error }}<br>
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}<br>
                 {% endfor %}
             {% endfor %}
             {% for error in form.non_field_errors %}
-                {{ error }}<br>
+                <i class="fas fa-exclamation-circle"></i> {{ error }}<br>
             {% endfor %}
         </div>
         {% endif %}
 
-        <button type="submit">Create Account</button>
+        <button type="submit" id="submitBtn">
+            <i class="fas fa-user-plus"></i>
+            {% trans "Create Account" %}
+        </button>
+
+        <!-- Auto-save Indicator -->
+        <div class="autosave-indicator" id="autosaveIndicator">
+            <i class="fas fa-cloud"></i>
+            <span>{% trans "Form data auto-saved locally" %}</span>
+        </div>
     </form>
 
     <div class="link">
-        Already have an account? <a href="{% url 'login' %}">Login</a>
+        {% trans "Already have an account?" %} <a href="{% url 'login' %}">{% trans "Login" %}</a>
     </div>
 </div>
 
+<script>
+(function() {
+    'use strict';
+
+    const STORAGE_KEY = 'nabtati_signup_draft';
+    const AUTOSAVE_FIELDS = ['first_name', 'last_name', 'birth_date', 'email', 'username', 'purpose'];
+
+    // ── Auto-Save: Save form data to localStorage ──
+    function saveDraft() {
+        const draft = {};
+        AUTOSAVE_FIELDS.forEach(name => {
+            const el = document.querySelector(`[name="${name}"]`);
+            if (el) draft[name] = el.value;
+        });
+        draft._timestamp = Date.now();
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+            showAutosaveStatus('saved');
+        } catch (e) { /* localStorage full or disabled */ }
+    }
+
+    // ── Auto-Save: Restore form data from localStorage ──
+    function restoreDraft() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return false;
+
+            const draft = JSON.parse(raw);
+
+            // Expire drafts older than 7 days
+            if (draft._timestamp && Date.now() - draft._timestamp > 7 * 24 * 60 * 60 * 1000) {
+                localStorage.removeItem(STORAGE_KEY);
+                return false;
+            }
+
+            let restored = false;
+            AUTOSAVE_FIELDS.forEach(name => {
+                const el = document.querySelector(`[name="${name}"]`);
+                if (el && draft[name]) {
+                    el.value = draft[name];
+                    restored = true;
+                }
+            });
+
+            return restored;
+        } catch (e) { return false; }
+    }
+
+    function clearDraft() {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    }
+
+    function showAutosaveStatus(status) {
+        const indicator = document.getElementById('autosaveIndicator');
+        const icon = indicator.querySelector('i');
+        const text = indicator.querySelector('span');
+
+        indicator.className = 'autosave-indicator ' + status;
+        if (status === 'saving') {
+            icon.className = 'fas fa-spinner fa-spin';
+            text.textContent = 'Saving...';
+        } else if (status === 'saved') {
+            icon.className = 'fas fa-cloud-arrow-up';
+            text.textContent = 'Draft auto-saved';
+            setTimeout(() => {
+                icon.className = 'fas fa-cloud';
+                text.textContent = 'Form data auto-saved locally';
+                indicator.className = 'autosave-indicator';
+            }, 2000);
+        }
+    }
+
+    // ── Real-time Validation ──
+    const validators = {
+        first_name(val) {
+            if (!val.trim()) return 'First name is required';
+            if (val.trim().length < 2) return 'Must be at least 2 characters';
+            return '';
+        },
+        last_name(val) {
+            if (!val.trim()) return 'Last name is required';
+            if (val.trim().length < 2) return 'Must be at least 2 characters';
+            return '';
+        },
+        birth_date(val) {
+            if (!val) return 'Date of birth is required';
+            const d = new Date(val);
+            const now = new Date();
+            if (d >= now) return 'Invalid date';
+            const age = (now - d) / (365.25 * 24 * 60 * 60 * 1000);
+            if (age < 13) return 'Must be at least 13 years old';
+            return '';
+        },
+        email(val) {
+            if (!val.trim()) return 'Email is required';
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'Enter a valid email address';
+            return '';
+        },
+        username(val) {
+            if (!val.trim()) return 'Username is required';
+            return '';
+        },
+        password1(val) {
+            if (!val) return 'Password is required';
+            if (val.length < 8) return 'Must be at least 8 characters';
+            return '';
+        },
+        password2(val) {
+            const pw1 = document.getElementById('id_password1').value;
+            if (!val) return 'Please confirm your password';
+            if (val !== pw1) return 'Passwords do not match';
+            return '';
+        },
+        purpose(val) {
+            if (!val) return 'Please select a purpose';
+            return '';
+        }
+    };
+
+    function validateField(name) {
+        const el = document.querySelector(`[name="${name}"]`);
+        if (!el) return true;
+
+        const errEl = document.getElementById('error_' + name);
+        const checkEl = document.getElementById('check_' + name);
+        const fn = validators[name];
+
+        if (!fn) return true;
+
+        const err = fn(el.value);
+
+        if (err) {
+            el.classList.add('invalid');
+            el.classList.remove('valid');
+            if (errEl) { errEl.textContent = err; errEl.classList.add('show'); }
+            if (checkEl) checkEl.classList.remove('show');
+            return false;
+        } else {
+            el.classList.remove('invalid');
+            el.classList.add('valid');
+            if (errEl) errEl.classList.remove('show');
+            if (checkEl) checkEl.classList.add('show');
+            return true;
+        }
+    }
+
+    // ── Password Strength Meter ──
+    function updatePasswordStrength() {
+        const pw = document.getElementById('id_password1').value;
+        const fill = document.getElementById('pwStrengthFill');
+
+        if (!pw) { fill.className = 'password-strength-fill'; return; }
+
+        let score = 0;
+        if (pw.length >= 8) score++;
+        if (/[A-Z]/.test(pw)) score++;
+        if (/[a-z]/.test(pw)) score++;
+        if (/[0-9]/.test(pw)) score++;
+        if (/[^a-zA-Z0-9]/.test(pw)) score++;
+
+        if (score <= 2) fill.className = 'password-strength-fill strength-weak';
+        else if (score <= 3) fill.className = 'password-strength-fill strength-medium';
+        else fill.className = 'password-strength-fill strength-strong';
+    }
+
+    // ── Step indicator update ──
+    function updateSteps() {
+        const s1 = document.getElementById('step1');
+        const s2 = document.getElementById('step2');
+        const s3 = document.getElementById('step3');
+
+        const fname = document.querySelector('[name="first_name"]').value;
+        const lname = document.querySelector('[name="last_name"]').value;
+        const bdate = document.querySelector('[name="birth_date"]').value;
+
+        const email = document.querySelector('[name="email"]').value;
+        const uname = document.querySelector('[name="username"]').value;
+
+        const pw1 = document.getElementById('id_password1').value;
+        const pw2 = document.getElementById('id_password2').value;
+        const purpose = document.querySelector('[name="purpose"]').value;
+
+        // Step 1: personal info
+        if (fname && lname && bdate) {
+            s1.classList.add('completed');
+            s2.classList.add('active');
+        } else {
+            s1.classList.remove('completed');
+            s2.classList.remove('active');
+        }
+
+        // Step 2: account info
+        if (email && uname) {
+            s2.classList.add('completed');
+            s3.classList.add('active');
+        } else {
+            s2.classList.remove('completed');
+            s3.classList.remove('active');
+        }
+
+        // Step 3: security
+        if (pw1 && pw2 && purpose) {
+            s3.classList.add('completed');
+        } else {
+            s3.classList.remove('completed');
+        }
+    }
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('signupForm');
+        let saveTimer = null;
+
+        // Restore draft on load
+        const wasRestored = restoreDraft();
+        if (wasRestored) {
+            const toast = document.getElementById('draftToast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+
+            // Validate restored fields
+            AUTOSAVE_FIELDS.forEach(name => {
+                const el = document.querySelector(`[name="${name}"]`);
+                if (el && el.value) validateField(name);
+            });
+            updateSteps();
+        }
+
+        // Auto-save on input (debounced)
+        form.addEventListener('input', function(e) {
+            const name = e.target.name;
+
+            // Validate on input (delayed for UX)
+            if (validators[name]) {
+                clearTimeout(e.target._validateTimer);
+                e.target._validateTimer = setTimeout(() => validateField(name), 400);
+            }
+
+            // Password strength
+            if (name === 'password1') updatePasswordStrength();
+
+            // Auto-save (exclude passwords)
+            if (e.target.hasAttribute('data-autosave')) {
+                showAutosaveStatus('saving');
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(saveDraft, 500);
+            }
+
+            updateSteps();
+        });
+
+        // Validate on blur
+        form.addEventListener('focusout', function(e) {
+            if (e.target.name && validators[e.target.name]) {
+                validateField(e.target.name);
+            }
+        });
+
+        // Change event for selects
+        form.addEventListener('change', function(e) {
+            if (e.target.hasAttribute('data-autosave')) {
+                saveDraft();
+            }
+            if (e.target.name && validators[e.target.name]) {
+                validateField(e.target.name);
+            }
+            updateSteps();
+        });
+
+        // Submit validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+
+            Object.keys(validators).forEach(name => {
+                if (!validateField(name)) isValid = false;
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                // Scroll to first error
+                const firstErr = form.querySelector('.invalid');
+                if (firstErr) firstErr.focus();
+                return;
+            }
+
+            // Clear draft on successful submit
+            clearDraft();
+        });
+    });
+})();
+</script>
 </body>
 </html>

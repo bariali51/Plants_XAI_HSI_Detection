@@ -1,0 +1,422 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ profile.display_name }} — {% trans "Expert Profile" %} | Nabtati{% endblock %}
+{% block meta_description %}{{ profile.display_name }} — {{ profile.specialization }} expert on Nabtati{% endblock %}
+{% block header_title %}{% trans "Expert Profile" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/community.css' %}">
+<style>
+    /* ── Expert Profile Ultra-Pro Styles ── */
+    .profile-layout-ultra {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .profile-card-ultra {
+        background: #fff;
+        border-radius: 36px;
+        overflow: hidden;
+        box-shadow: 0 30px 70px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.04);
+        position: relative;
+    }
+
+    .profile-banner-pro {
+        height: 200px;
+        background: var(--emerald-gradient);
+        position: relative;
+    }
+
+    .banner-overlay {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.15), transparent);
+    }
+
+    .profile-main-pro {
+        padding: 0 40px 48px;
+        position: relative;
+    }
+
+    .profile-avatar-pro {
+        width: 140px;
+        height: 140px;
+        border-radius: 42px;
+        background: #fff;
+        margin-top: -70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        border: 6px solid #fff;
+        overflow: hidden;
+        margin-bottom: 24px;
+        position: relative;
+    }
+
+    .profile-avatar-pro img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .avatar-placeholder-pro {
+        font-size: 56px;
+        font-weight: 900;
+        color: var(--primary);
+    }
+
+    .verified-badge-main {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: #3b82f6;
+        color: #fff;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        border: 3px solid #fff;
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    }
+
+    .profile-header-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 24px;
+    }
+
+    .name-badge-wrap {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .profile-name-pro {
+        font-size: 32px;
+        font-weight: 900;
+        color: var(--text-main);
+        letter-spacing: -0.5px;
+        margin-bottom: 4px;
+    }
+
+    .profile-title-pro {
+        font-size: 16px;
+        color: var(--primary);
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .spec-capsule-pro {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        background: var(--primary-bg);
+        color: var(--primary);
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .profile-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card-pro {
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 24px;
+        border: 1px solid rgba(0,0,0,0.02);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: all 0.3s;
+    }
+
+    .stat-card-pro:hover {
+        background: #fff;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+        transform: translateY(-4px);
+    }
+
+    .stat-val-pro {
+        font-size: 24px;
+        font-weight: 900;
+        color: var(--text-main);
+        margin-bottom: 4px;
+    }
+
+    .stat-lbl-pro {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .section-label-pro {
+        font-size: 14px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-label-pro::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(0,0,0,0.05);
+    }
+
+    .bio-content-pro {
+        font-size: 16px;
+        line-height: 1.8;
+        color: #475569;
+        margin-bottom: 40px;
+    }
+
+    .skills-flex-pro {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 40px;
+    }
+
+    .skill-badge-pro {
+        padding: 8px 18px;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 14px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #64748b;
+        transition: all 0.3s;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    }
+
+    .skill-badge-pro:hover {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .social-actions-pro {
+        display: flex;
+        gap: 16px;
+        margin-top: 40px;
+    }
+
+    .btn-social-pro {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 24px;
+        border-radius: 18px;
+        background: #f1f5f9;
+        color: #475569;
+        font-weight: 800;
+        font-size: 14px;
+        text-decoration: none !important;
+        transition: all 0.3s;
+        border: 1px solid transparent;
+    }
+
+    .btn-social-pro:hover {
+        background: #fff;
+        color: var(--primary);
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .private-info-ultra {
+        margin-top: 48px;
+        padding: 32px;
+        background: rgba(46, 125, 50, 0.03);
+        border-radius: 28px;
+        border: 1px dashed rgba(46, 125, 50, 0.2);
+    }
+
+    .info-row-pro {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .info-row-pro i {
+        width: 32px;
+        height: 32px;
+        background: #fff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+
+    [data-theme="dark"] .profile-card-ultra {
+        background: #1e293b;
+        border-color: rgba(255,255,255,0.05);
+    }
+
+    [data-theme="dark"] .stat-card-pro {
+        background: rgba(255,255,255,0.03);
+    }
+
+    [data-theme="dark"] .skill-badge-pro, 
+    [data-theme="dark"] .btn-social-pro {
+        background: rgba(255,255,255,0.05);
+        color: #cbd5e1;
+    }
+
+    [data-theme="dark"] .bio-content-pro {
+        color: #94a3b8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-layout-ultra">
+    <div class="profile-card-ultra fade-in-up">
+        
+        <!-- Cinematic Banner -->
+        <div class="profile-banner-pro">
+            <div class="banner-overlay"></div>
+        </div>
+
+        <div class="profile-main-pro">
+            
+            <!-- Avatar Area -->
+            <div class="profile-avatar-pro">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="{{ profile.display_name }}">
+                {% else %}
+                    <span class="avatar-placeholder-pro">{{ expert_user.username|make_list|first|upper }}</span>
+                {% endif %}
+                <div class="verified-badge-main" title="Verified Expert">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+
+            <!-- Header Info -->
+            <div class="profile-header-info">
+                <div class="name-badge-wrap">
+                    <h1 class="profile-name-pro">{{ profile.display_name }}</h1>
+                    <p class="profile-title-pro">{{ profile.title|default:"Senior Agricultural Consultant" }}</p>
+                    <div class="spec-capsule-pro">
+                        <i class="fas fa-certificate"></i> {{ profile.specialization }}
+                    </div>
+                </div>
+
+                <!-- Owner Actions -->
+                {% if is_owner or is_admin %}
+                <div style="display: flex; gap: 12px;">
+                    {% if is_owner %}
+                    <a href="{% url 'experts:settings' %}" class="btn-chat-pro" style="padding: 12px 24px; min-width: auto; height: 52px; border-radius: 18px;">
+                        <i class="fas fa-edit"></i> {% trans "Edit Profile" %}
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="profile-stats-grid">
+                <div class="stat-card-pro">
+                    <div class="stat-val-pro">{{ profile.assigned_users_count }}</div>
+                    <div class="stat-lbl-pro">{% trans "Assignments" %}</div>
+                </div>
+                <div class="stat-card-pro">
+                    <div class="stat-val-pro">{{ profile.created_at|timesince }}</div>
+                    <div class="stat-lbl-pro">{% trans "Experience" %}</div>
+                </div>
+                <div class="stat-card-pro">
+                    <div class="stat-val-pro" style="color: #10b981;">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="stat-lbl-pro">{% trans "Verified" %}</div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            {% if profile.bio %}
+            <div class="section-label-pro">{% trans "Professional Bio" %}</div>
+            <div class="bio-content-pro">
+                {{ profile.bio|linebreaksbr }}
+            </div>
+            {% endif %}
+
+            <!-- Expertise Section -->
+            {% if profile.skills %}
+            <div class="section-label-pro">{% trans "Core Expertise" %}</div>
+            <div class="skills-flex-pro">
+                {% for skill in profile.skills %}
+                <span class="skill-badge-pro">{{ skill }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- External Links -->
+            {% if profile.linkedin_url or profile.website_url %}
+            <div class="section-label-pro">{% trans "Connect Externally" %}</div>
+            <div class="social-actions-pro">
+                {% if profile.linkedin_url %}
+                <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener" class="btn-social-pro">
+                    <i class="fab fa-linkedin" style="color: #0077b5; font-size: 20px;"></i> LinkedIn
+                </a>
+                {% endif %}
+                {% if profile.website_url %}
+                <a href="{{ profile.website_url }}" target="_blank" rel="noopener" class="btn-social-pro">
+                    <i class="fas fa-globe" style="color: var(--primary); font-size: 18px;"></i> {% trans "Website" %}
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Private Admin Info -->
+            {% if show_sensitive %}
+            <div class="private-info-ultra">
+                <div class="section-label-pro" style="color: var(--primary); margin-bottom: 24px;">{% trans "System Information" %}</div>
+                <div class="info-row-pro">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ expert_user.email }}</span>
+                </div>
+                <div class="info-row-pro">
+                    <i class="fas fa-id-badge"></i>
+                    <span>{% trans "User ID:" %} {{ expert_user.username }}</span>
+                </div>
+                <div class="info-row-pro">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>{% trans "Account Type: Verified Professional" %}</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

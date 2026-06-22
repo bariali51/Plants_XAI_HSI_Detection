@@ -1,0 +1,221 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Expert Management | Nabtati{% endblock %}
+{% block header_title %}{% trans "Expert Management" %}{% endblock %}
+{% block header_subtitle %}{% trans "Create and manage expert accounts" %}{% endblock %}
+
+{% block nav_admin_experts %}active{% endblock %}
+
+{% block page_styles %}
+    .experts-page { max-width: 960px; margin: 0 auto; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .create-btn {
+        padding: 10px 24px; border-radius: var(--radius-md); border: none;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white; font-weight: 700; font-size: 14px; cursor: pointer;
+        text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        transition: all 0.2s;
+    }
+    .create-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(46, 125, 50, 0.3); }
+    .expert-table {
+        width: 100%; background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .expert-table th {
+        text-align: left; padding: 14px 18px; font-size: 12px; font-weight: 700;
+        color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+        background: var(--bg-color); border-bottom: 1px solid var(--border);
+    }
+    .expert-table td {
+        padding: 14px 18px; font-size: 14px; color: var(--text-main);
+        border-bottom: 1px solid var(--border);
+    }
+    .expert-table tr:last-child td { border-bottom: none; }
+    .expert-table tr:hover td { background: var(--bg-color); }
+    .status-active { color: #10b981; font-weight: 700; }
+    .status-inactive { color: #ef4444; font-weight: 700; }
+    .detail-link {
+        padding: 6px 14px; border-radius: var(--radius-full);
+        background: var(--primary-bg); color: var(--primary-dark);
+        font-size: 12px; font-weight: 700; text-decoration: none;
+        transition: all 0.2s;
+    }
+    .detail-link:hover { background: var(--primary); color: white; }
+    .delete-link {
+        padding: 6px 14px; border-radius: var(--radius-full);
+        background: rgba(239, 68, 68, 0.1); color: #ef4444;
+        font-size: 12px; font-weight: 700; border: none;
+        cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .delete-link:hover { background: #ef4444; color: white; }
+    .action-cell { display: flex; gap: 6px; align-items: center; }
+    .count-badge {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 700;
+    }
+    .count-badge.ok { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .count-badge.full { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+    /* ── Premium Search Card ── */
+    .search-card-pro{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px 24px;margin-bottom:24px;box-shadow:0 4px 20px rgba(0,0,0,.04)}
+    .search-row-pro{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .search-input-pro{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;background:var(--bg-color);border:2px solid var(--border);border-radius:14px;padding:10px 16px;transition:all .2s}
+    .search-input-pro:focus-within{border-color:var(--primary);box-shadow:0 0 0 4px rgba(46,125,50,.08)}
+    .search-input-pro i{color:var(--primary);font-size:15px;flex-shrink:0}
+    .search-input-pro input{border:none;background:transparent;font-size:14px;font-weight:600;color:var(--text-main);outline:none;width:100%}
+    .search-input-pro input::placeholder{color:var(--text-muted);font-weight:500}
+    .filter-pill-pro{background:var(--bg-color);border:1.5px solid var(--border);border-radius:12px;padding:9px 32px 9px 14px;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all .2s;appearance:none;font-family:inherit;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+    .filter-pill-pro:focus{outline:none;border-color:var(--primary)}
+    .results-chip{display:inline-flex;align-items:center;gap:6px;background:var(--primary-bg);color:var(--primary);border-radius:10px;padding:4px 12px;font-size:12px;font-weight:800;margin-top:10px}
+    .no-results-row td{text-align:center;padding:40px;color:var(--text-muted);font-style:italic}
+{% endblock %}
+
+{% block content %}
+<div class="experts-page">
+
+    <!-- Top bar: title + create button -->
+    <div class="top-bar">
+        <h3 style="font-size: 17px; font-weight: 800; color: var(--text-main);">
+            <i class="fas fa-user-tie" style="color: var(--primary);"></i>
+            {% trans "All Experts" %} <span id="expertCount">({{ experts|length }})</span>
+        </h3>
+        <a href="{% url 'manager:create_expert' %}" class="create-btn">
+            <i class="fas fa-plus"></i> {% trans "Create Expert" %}
+        </a>
+    </div>
+
+    <!-- Premium Search Card (live client-side) -->
+    <div class="search-card-pro">
+        <div class="search-row-pro">
+            <div class="search-input-pro">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" id="expertSearch"
+                       placeholder="{% trans 'Search name, email or specialization…' %}"
+                       autocomplete="off" oninput="filterExperts()">
+            </div>
+            <select class="filter-pill-pro" id="statusFilter" onchange="filterExperts()">
+                <option value="">{% trans "All Statuses" %}</option>
+                <option value="active">{% trans "Active" %}</option>
+                <option value="inactive">{% trans "Inactive" %}</option>
+            </select>
+        </div>
+        <div id="searchChip" style="display:none;margin-top:10px;">
+            <span class="results-chip">
+                <i class="fas fa-filter"></i>
+                <span id="chipText"></span>
+            </span>
+        </div>
+    </div>
+
+     {% if experts %}
+    <table class="expert-table" id="expertsTable">
+        <thead>
+            <tr>
+                <th>{% trans "Expert" %}</th>
+                <th>{% trans "Specialization" %}</th>
+                <th>{% trans "Users" %}</th>
+                <th>{% trans "Status" %}</th>
+                <th>{% trans "Created" %}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="expertsBody">
+            {% for item in experts %}
+            <tr class="expert-row"
+                data-name="{{ item.user.get_full_name|default:item.user.username|lower }}"
+                data-email="{{ item.user.email|lower }}"
+                data-spec="{{ item.profile.specialization|lower }}"
+                data-status="{% if item.profile.is_active %}active{% else %}inactive{% endif %}">
+                <td>
+                    <strong>{{ item.user.get_full_name|default:item.user.username }}</strong>
+                    <div style="font-size: 12px; color: var(--text-muted);">{{ item.user.email }}</div>
+                </td>
+                <td>{{ item.profile.specialization }}</td>
+                <td>
+                    <span class="count-badge {% if item.can_accept %}ok{% else %}full{% endif %}">
+                        <i class="fas fa-users"></i> {{ item.user_count }}/10
+                    </span>
+                </td>
+                <td>
+                    {% if item.profile.is_active %}
+                    <span class="status-active"><i class="fas fa-circle" style="font-size: 8px;"></i> {% trans "Active" %}</span>
+                    {% else %}
+                    <span class="status-inactive"><i class="fas fa-circle" style="font-size: 8px;"></i> {% trans "Inactive" %}</span>
+                    {% endif %}
+                </td>
+                <td style="font-size: 13px; color: var(--text-muted);">{{ item.profile.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <div class="action-cell">
+                        <a href="{% url 'manager:expert_detail' item.user.id %}" class="detail-link"><i class="fas fa-arrow-right"></i> {% trans "Manage" %}</a>
+                        <form method="POST" action="{% url 'manager:delete_expert' item.user.id %}" style="margin:0;"
+                              onsubmit="return confirm('&#9888;&#65039; Permanently delete expert {{ item.user.username }}? All data will be lost. This CANNOT be undone.')">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-link"><i class="fas fa-trash-alt"></i> {% trans "Delete" %}</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr class="no-results-row" id="noResultsRow" style="display:none;">
+                <td colspan="6"><i class="fas fa-search" style="margin-right:8px;"></i>{% trans "No experts match your search." %}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 64px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);">
+        <i class="fas fa-user-tie" style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;"></i>
+        <h3 style="color: var(--text-main); margin-bottom: 8px;">{% trans "No experts created yet" %}</h3>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">{% trans "Create expert accounts to connect them with your users." %}</p>
+        <a href="{% url 'manager:create_expert' %}" class="create-btn"><i class="fas fa-plus"></i> {% trans "Create First Expert" %}</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterExperts() {
+    var q      = document.getElementById('expertSearch').value.toLowerCase().trim();
+    var status = document.getElementById('statusFilter').value;
+    var rows   = document.querySelectorAll('.expert-row');
+    var shown  = 0;
+
+    rows.forEach(function(row) {
+        var name   = row.dataset.name  || '';
+        var email  = row.dataset.email || '';
+        var spec   = row.dataset.spec  || '';
+        var rStatus= row.dataset.status|| '';
+
+        var matchQ      = !q      || name.includes(q) || email.includes(q) || spec.includes(q);
+        var matchStatus = !status || rStatus === status;
+
+        if (matchQ && matchStatus) {
+            row.style.display = '';
+            shown++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // no-results row
+    var noRow = document.getElementById('noResultsRow');
+    noRow.style.display = shown === 0 ? '' : 'none';
+
+    // count chip
+    var total = rows.length;
+    document.getElementById('expertCount').textContent = '(' + shown + ')';
+    var chip  = document.getElementById('searchChip');
+    var chips = document.getElementById('chipText');
+    if (q || status) {
+        chip.style.display = 'inline-flex';
+        var parts = [shown + ' result' + (shown !== 1 ? 's' : '')];
+        if (q)      parts.push('"' + q + '"');
+        if (status) parts.push(status.charAt(0).toUpperCase() + status.slice(1));
+        chips.textContent = parts.join(' · ');
+    } else {
+        chip.style.display = 'none';
+        document.getElementById('expertCount').textContent = '(' + total + ')';
+    }
+}
+</script>
+{% endblock %}

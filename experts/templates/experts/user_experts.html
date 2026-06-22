@@ -1,0 +1,335 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "My Experts" %} — Nabtati{% endblock %}
+{% block header_title %}👨‍🔬 {% trans "My Experts" %}{% endblock %}
+{% block header_subtitle %}{% trans "Your dedicated agricultural consultants and plant health specialists" %}{% endblock %}
+{% block nav_experts %}active{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/community.css' %}">
+<style>
+    /* ── My Experts Ultra-Pro Styles ── */
+    .experts-layout-ultra {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .experts-hero-ultra {
+        background: var(--emerald-gradient);
+        border-radius: 24px;
+        padding: 24px 32px;
+        color: white;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(46, 125, 50, 0.15);
+    }
+
+    .hero-glass-overlay {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.15), transparent);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .expert-grid-ultra {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 24px;
+    }
+
+    .expert-card-ultra {
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 24px;
+        padding: 24px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .expert-card-ultra:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        border-color: rgba(46, 125, 50, 0.2);
+    }
+
+    .expert-card-header {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+
+    .expert-avatar-wrap {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        background: var(--primary-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .expert-avatar-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 18px;
+    }
+
+    .expert-avatar-init {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .verified-badge-pro {
+        position: absolute;
+        bottom: -6px;
+        right: -6px;
+        background: #fff;
+        color: #3b82f6;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border: 2px solid #fff;
+    }
+
+    .expert-info-ultra {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .expert-name-pro {
+        font-size: 17px;
+        font-weight: 850;
+        color: var(--text-main);
+        margin-bottom: 2px;
+    }
+
+    .expert-title-pro {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .expert-spec-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--primary-bg);
+        color: var(--primary);
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .expert-bio-pro {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: 20px;
+        flex: 1;
+    }
+
+    .skills-grid-pro {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 20px;
+    }
+
+    .skill-tag-pro {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        background: #f8fafc;
+        border: 1px solid rgba(0,0,0,0.03);
+        border-radius: 10px;
+        color: #64748b;
+    }
+
+    .expert-actions-pro {
+        display: flex;
+        gap: 12px;
+        margin-top: auto;
+    }
+
+    .btn-chat-pro {
+        flex: 1;
+        background: var(--emerald-gradient);
+        color: white !important;
+        border-radius: 16px;
+        padding: 12px;
+        font-weight: 800;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s;
+        box-shadow: 0 8px 16px rgba(46, 125, 50, 0.15);
+        border: none;
+        text-decoration: none !important;
+        height: 46px;
+    }
+
+    .btn-chat-pro:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(46, 125, 50, 0.3);
+    }
+
+    .btn-profile-pro {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+        background: #f8fafc;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        border: 1px solid rgba(0,0,0,0.05);
+        text-decoration: none !important;
+    }
+
+    .btn-profile-pro:hover {
+        background: #fff;
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .unread-pill-pro {
+        background: #ef4444;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 900;
+        margin-left: 4px;
+    }
+
+    [data-theme="dark"] .expert-card-ultra {
+        background: #1e293b;
+        border-color: rgba(255,255,255,0.05);
+    }
+
+    [data-theme="dark"] .skill-tag-pro {
+        background: rgba(255,255,255,0.05);
+        color: #94a3b8;
+    }
+
+    [data-theme="dark"] .btn-profile-pro {
+        background: rgba(255,255,255,0.05);
+        color: #cbd5e1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="experts-layout-ultra">
+    
+    <!-- Hero Header -->
+    <div class="experts-hero-ultra fade-in-down">
+        <div class="hero-glass-overlay"></div>
+        <div class="hero-content">
+            <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 8px;">{% trans "Expert Consultations" %}</h1>
+            <p style="font-size: 14px; font-weight: 600; opacity: 0.9; max-width: 600px; line-height: 1.5;">
+                {% trans "Connect with verified plant pathologists, agronomists, and soil health experts to optimize your yields." %}
+            </p>
+        </div>
+    </div>
+
+    {% if experts %}
+    <div class="expert-grid-ultra">
+        {% for item in experts %}
+        <div class="expert-card-ultra fade-in-up" style="animation-delay: {{ forloop.counter0|add:1 }}00ms">
+            <div class="expert-card-header">
+                <div class="expert-avatar-wrap">
+                    {% if item.profile.avatar %}
+                        <img src="{{ item.profile.avatar.url }}" alt="{{ item.profile.display_name }}">
+                    {% else %}
+                        <span class="expert-avatar-init">{{ item.expert.username|make_list|first|upper }}</span>
+                    {% endif %}
+                    <div class="verified-badge-pro" title="Verified Expert">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+                <div class="expert-info-ultra">
+                    <h3 class="expert-name-pro">{{ item.profile.display_name }}</h3>
+                    <p class="expert-title-pro">{{ item.profile.title|default:"Senior Agricultural Specialist" }}</p>
+                    <div class="expert-spec-chip">
+                        <i class="fas fa-microscope"></i> {{ item.profile.specialization }}
+                    </div>
+                </div>
+            </div>
+
+            <p class="expert-bio-pro">
+                {{ item.profile.bio|truncatechars:140|default:"Dedicated expert focused on providing sustainable agricultural solutions and precision plant health monitoring." }}
+            </p>
+
+            {% if item.profile.skills %}
+            <div class="skills-grid-pro">
+                {% for skill in item.profile.skills|slice:":4" %}
+                <span class="skill-tag-pro">{{ skill }}</span>
+                {% endfor %}
+                {% if item.profile.skills|length > 4 %}
+                <span class="skill-tag-pro" style="background: var(--primary-bg); color: var(--primary);">+{{ item.profile.skills|length|add:"-4" }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="expert-actions-pro">
+                <a href="{% url 'experts:user_conversation' item.conversation.id %}" class="btn-chat-pro">
+                    <i class="fas fa-comment-dots"></i>
+                    {% if item.unread > 0 %}
+                        {% trans "Open Chat" %} <span class="unread-pill-pro">{{ item.unread }}</span>
+                    {% else %}
+                        {% trans "Send Message" %}
+                    {% endif %}
+                </a>
+                <a href="{% url 'experts:public_profile' item.expert.id %}" class="btn-profile-pro" title="{% trans 'View Full Profile' %}">
+                    <i class="fas fa-user-circle" style="font-size: 20px;"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state glass-card fade-in-up" style="padding: 80px 40px; text-align: center; border-radius: 32px;">
+        <div style="width: 100px; height: 100px; background: var(--primary-bg); color: var(--primary); border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 24px;">
+            <i class="fas fa-user-md"></i>
+        </div>
+        <h2 style="font-size: 28px; font-weight: 900; color: var(--text-main); margin-bottom: 16px;">{% trans "The experts are in the field..." %}</h2>
+        <p style="color: var(--text-muted); font-size: 16px; max-width: 450px; margin: 0 auto 32px; line-height: 1.6;">
+            {% trans "You don't have any experts assigned yet. Contact support or your organization lead to connect with a plant health specialist." %}
+        </p>
+        <a href="mailto:support@nabtati.ai" class="btn-chat-pro" style="max-width: 250px; margin: 0 auto;">
+            <i class="fas fa-envelope"></i> {% trans "Contact Support" %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

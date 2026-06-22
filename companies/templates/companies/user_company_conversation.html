@@ -1,0 +1,414 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Chat with" %} {{ company.company_name }} — Nabtati{% endblock %}
+{% block header_title %}💬 {% trans "Messages" %}{% endblock %}
+{% block nav_companies %}active{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/companies.css' %}">
+<style>
+/* ── GUARANTEED layout: input always pinned at bottom ── */
+.messaging-layout-ultra {
+    display: flex !important;
+    flex-direction: row !important;
+    height: calc(100vh - 80px) !important;
+    overflow: hidden !important;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.08);
+    border: 1px solid var(--border, rgba(0,0,0,.06));
+}
+.chat-main-ultra {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-height: 0 !important;      /* critical for nested flex scroll */
+    overflow: hidden !important;
+}
+.chat-header-ultra {
+    flex-shrink: 0 !important;
+}
+.chat-messages-ultra {
+    flex: 1 1 0 !important;        /* grow + shrink, base 0 */
+    min-height: 0 !important;      /* allow shrinking below content size */
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+.chat-input-area-ultra {
+    flex-shrink: 0 !important;     /* NEVER shrink — always visible */
+    flex-grow: 0 !important;
+    position: relative !important; /* NOT inside scroll area */
+    z-index: 10 !important;
+    border-top: 1px solid var(--border, rgba(0,0,0,.07));
+    background: var(--card-bg, #fff) !important;
+    padding: 12px 16px !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="messaging-layout-ultra fade-in-up">
+    <!-- Inbox Sidebar (Persistent) -->
+    <div class="inbox-sidebar-ultra">
+        <div class="inbox-header-ultra" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="font-size: 18px; font-weight: 900; color: var(--text-main); margin: 0;">{% trans "Inbox" %}</h2>
+            <a href="{% url 'companies:user_messages' %}" class="btn-secondary" style="padding: 6px 12px; border-radius: 8px; font-size: 12px;">
+                <i class="fas fa-chevron-left"></i> {% trans "All" %}
+            </a>
+        </div>
+        <div class="inbox-list-ultra">
+            <!-- Simplified sidebar for mobile/tablet or just a list if needed -->
+            <div class="inbox-item-ultra active">
+                <div class="inbox-avatar-ultra">
+                    {% if company.logo %}
+                    <img src="{{ company.logo.url }}" alt="{{ company.company_name }}">
+                    {% else %}
+                    {{ company.company_name|make_list|first|upper }}
+                    {% endif %}
+                </div>
+                <div class="inbox-info-ultra">
+                    <div class="inbox-name-row">
+                        <span class="inbox-name-ultra">{{ company.company_name }}</span>
+                    </div>
+                    <p class="inbox-preview-ultra">{% trans "Active conversation" %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Main Section -->
+    <div class="chat-main-ultra">
+        <div class="chat-header-ultra">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="inbox-avatar-ultra" style="width: 44px; height: 44px; border-radius: 12px;">
+                    {% if company.logo %}
+                    <img src="{{ company.logo.url }}" alt="{{ company.company_name }}">
+                    {% else %}
+                    {{ company.company_name|make_list|first|upper }}
+                    {% endif %}
+                </div>
+                <div>
+                    <h3 style="font-size: 17px; font-weight: 850; color: var(--text-main); margin: 0;">{{ company.company_name }}</h3>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span class="status-dot online" style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></span>
+                        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">{% trans "Online" %}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-header-actions">
+                <a href="{% url 'companies:profile' company.pk %}" class="btn-secondary" style="border-radius: 12px; padding: 8px 16px; font-size: 13px;">
+                    <i class="fas fa-building"></i> {% trans "View Profile" %}
+                </a>
+            </div>
+        </div>
+
+        <div class="chat-messages-ultra" id="chatMessages">
+            {% if messages_list %}
+                {% for msg in messages_list %}
+                <div class="msg-ultra-wrap {% if msg.sender == request.user %}msg-mine{% else %}msg-other{% endif %}" data-msg-id="{{ msg.pk }}">
+                    <div class="msg-avatar-pro">
+                        {% if msg.sender == request.user %}
+                            {{ request.user.username|make_list|first|upper }}
+                        {% else %}
+                            {{ conversation.company.company_name|make_list|first|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="msg-bubble-ultra">
+                        <div class="msg-text-pro">{{ msg.text }}</div>
+                        {% if msg.image %}
+                        <div class="msg-image-pro" onclick="openImageModal('{{ msg.image.url }}')">
+                            <img src="{{ msg.image.url }}" alt="Attachment">
+                        </div>
+                        {% endif %}
+                        {% if msg.file %}
+                        <div class="msg-file-pro">
+                            <i class="fas fa-file-alt"></i>
+                            <a href="{{ msg.file.url }}" target="_blank">{{ msg.file_name|default:"Document" }}</a>
+                        </div>
+                        {% endif %}
+                        <div class="msg-meta-ultra">
+                            {{ msg.created_at|date:"H:i" }}
+                            {% if msg.sender == request.user %}
+                            <i class="fas fa-check-double" style="margin-left: 4px; {% if msg.is_read %}color: #3b82f6;{% endif %}"></i>
+                            <button class="msg-delete-btn" onclick="_del({{ msg.pk }})" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="chat-empty-ultra">
+                    <i class="fas fa-comments"></i>
+                    <p>{% trans "Start a conversation with" %} {{ conversation.company.company_name }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="chat-input-area-ultra">
+            <!-- method/action/enctype are safety fallbacks if JS fails -->
+            <form id="chatForm" class="chat-input-wrapper-ultra"
+                  method="post" action="/companies/api/send-message/"
+                  enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="conversation_id" value="{{ conversation.pk }}">
+
+                <!-- Hidden File Inputs -->
+                <input type="file" id="chatImage" name="image" accept="image/*"
+                       style="display:none" onchange="handleFileSelect(this,'image')">
+                <input type="file" id="chatFile" name="file"
+                       style="display:none" onchange="handleFileSelect(this,'file')">
+
+                <div class="chat-actions-left">
+                    <button type="button" class="btn-chat-action"
+                            onclick="document.getElementById('chatImage').click()"
+                            title="{% trans 'Upload Image' %}">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <button type="button" class="btn-chat-action"
+                            onclick="document.getElementById('chatFile').click()"
+                            title="{% trans 'Attach File' %}">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                </div>
+
+                <textarea name="text" id="chatInput" class="chat-input-ultra"
+                          placeholder="{% trans 'Type a message...' %}"
+                          rows="1"></textarea>
+
+                <button type="submit" id="sendBtn" class="btn-publish"
+                        style="width:44px;height:44px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;border:none;flex-shrink:0;">
+                    <i class="fas fa-paper-plane" style="font-size:16px;"></i>
+                </button>
+            </form>
+            <div id="filePreview" style="display:none; margin-top: 12px; padding: 8px 16px; background: var(--primary-bg); border-radius: 12px; font-size: 13px; font-weight: 600; color: var(--primary); display: flex; justify-content: space-between; align-items: center;">
+                <span id="fileName"></span>
+                <i class="fas fa-times" style="cursor:pointer;" onclick="clearFileSelection()"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="modal-overlay" onclick="closeImageModal()">
+    <div class="modal-content-img">
+        <img id="modalImage" src="" alt="Full size">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/companies.js' %}?v=3{{ conversation.pk }}"></script>
+<script>
+/* ============================================================
+   CHAT — fully self-contained, works even if companies.js fails
+   ============================================================ */
+
+window.MY_USERNAME = "{{ request.user.username }}";
+window.OTHER_NAME  = "{{ conversation.company.company_name }}";
+var CONV_ID        = {{ conversation.pk }};
+
+/* -- CSRF -------------------------------------------------- */
+function _csrf() {
+    var el = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (el) return el.value;
+    var c = document.cookie.split(';').find(function(x){ return x.trim().startsWith('csrftoken='); });
+    return c ? c.trim().split('=')[1] : '';
+}
+
+/* -- Toast ------------------------------------------------- */
+function _toast(msg, type) {
+    var t = document.getElementById('_ct');
+    if (!t) {
+        t = document.createElement('div'); t.id = '_ct';
+        Object.assign(t.style, {position:'fixed',bottom:'24px',right:'24px',zIndex:'9999',
+            padding:'12px 20px',borderRadius:'12px',fontSize:'14px',fontWeight:'700',
+            color:'#fff',boxShadow:'0 8px 24px rgba(0,0,0,.2)',transition:'all .3s',
+            pointerEvents:'none',opacity:'0',transform:'translateY(8px)',maxWidth:'320px'});
+        document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.background = type === 'error' ? '#ef4444' : '#2e7d32';
+    t.style.opacity = '1'; t.style.transform = 'translateY(0)';
+    clearTimeout(t._ti);
+    t._ti = setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateY(8px)'; }, 3500);
+}
+
+/* -- Scroll ------------------------------------------------ */
+function _scroll() {
+    var c = document.getElementById('chatMessages');
+    if (c) c.scrollTop = c.scrollHeight;
+}
+
+/* -- Escape HTML ------------------------------------------- */
+function _esc(s) {
+    if (!s) return '';
+    var d = document.createElement('div'); d.textContent = s;
+    return d.innerHTML.replace(/\n/g, '<br>');
+}
+
+/* -- Append message to DOM --------------------------------- */
+function _append(msg) {
+    var box = document.getElementById('chatMessages');
+    if (!box) return;
+    var empty = box.querySelector('.chat-empty-ultra');
+    if (empty) empty.remove();
+    if (box.querySelector('[data-msg-id="' + msg.id + '"]')) return;
+
+    var wrap = document.createElement('div');
+    wrap.className = 'msg-ultra-wrap ' + (msg.is_me ? 'msg-mine' : 'msg-other');
+    wrap.setAttribute('data-msg-id', String(msg.id));
+
+    var av = msg.is_me ? (window.MY_USERNAME||'U')[0].toUpperCase()
+                       : (window.OTHER_NAME||'?')[0].toUpperCase();
+    var html = '<div class="msg-avatar-pro">' + av + '</div><div class="msg-bubble-ultra">';
+    if (msg.text)  html += '<div class="msg-text-pro">' + _esc(msg.text) + '</div>';
+    if (msg.image) html += '<div class="msg-image-pro" onclick="_imgModal(\'' + msg.image + '\')"><img src="' + msg.image + '" style="max-width:200px;border-radius:8px;cursor:pointer;display:block;"></div>';
+    if (msg.file)  html += '<div class="msg-file-pro"><i class="fas fa-file-alt"></i><a href="' + msg.file + '" target="_blank">' + _esc(msg.file_name||'File') + '</a></div>';
+    var del = msg.is_me ? '<button class="msg-delete-btn" onclick="_del(' + msg.id + ')"><i class="fas fa-trash-alt"></i></button>' : '';
+    html += '<div class="msg-meta-ultra">' + (msg.created_at||'') + del + '</div></div>';
+    wrap.innerHTML = html;
+
+    wrap.style.opacity = '0'; wrap.style.transform = 'translateY(8px)';
+    box.appendChild(wrap);
+    requestAnimationFrame(function(){
+        wrap.style.transition = 'all .2s ease';
+        wrap.style.opacity = '1'; wrap.style.transform = 'translateY(0)';
+    });
+}
+
+/* -- Delete message ---------------------------------------- */
+function _del(id) {
+    fetch('/companies/api/delete-message/' + id + '/', {
+        method: 'POST', headers: {'X-CSRFToken': _csrf()}
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+        if (d.status === 'ok') {
+            var el = document.querySelector('[data-msg-id="' + id + '"]');
+            if (el) { el.style.opacity='0'; el.style.transform='scale(.85)'; el.style.transition='all .25s'; setTimeout(function(){ el.remove(); }, 260); }
+            _toast('Deleted.', 'ok');
+        } else { _toast(d.error || 'Cannot delete.', 'error'); }
+    })
+    .catch(function(){ _toast('Network error.', 'error'); });
+}
+
+/* -- Image modal ------------------------------------------- */
+function _imgModal(src) {
+    var m = document.getElementById('imageModal');
+    var i = document.getElementById('modalImage');
+    if (m && i) { i.src = src; m.classList.add('active'); }
+}
+function closeImageModal() {
+    var m = document.getElementById('imageModal');
+    if (m) m.classList.remove('active');
+}
+
+/* -- Polling ----------------------------------------------- */
+var _pi = null;
+function _poll(convId) {
+    if (_pi) clearInterval(_pi);
+    _pi = setInterval(function(){
+        var box = document.getElementById('chatMessages');
+        if (!box) return;
+        var nodes = box.querySelectorAll('.msg-ultra-wrap[data-msg-id]');
+        var lastId = nodes.length ? nodes[nodes.length-1].getAttribute('data-msg-id') : '0';
+        fetch('/companies/api/messages/' + convId + '/?after=' + lastId)
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (d.status === 'ok' && d.messages && d.messages.length) {
+                var added = false;
+                d.messages.forEach(function(m){ if (!m.is_me){ _append(m); added=true; } });
+                if (added) {
+                    _scroll();
+                    fetch('/companies/api/mark-read/' + convId + '/', {
+                        method:'POST', headers:{'X-CSRFToken':_csrf()}
+                    }).catch(function(){});
+                }
+            }
+        }).catch(function(){});
+    }, 4000);
+}
+
+/* -- Send message ------------------------------------------ */
+function _doSend() {
+    var inp  = document.getElementById('chatInput');
+    var img  = document.getElementById('chatImage');
+    var fil  = document.getElementById('chatFile');
+    var btn  = document.getElementById('sendBtn');
+    var text = inp ? inp.value.trim() : '';
+    if (!text && !(img&&img.files.length) && !(fil&&fil.files.length)) return;
+
+    var fd = new FormData();
+    fd.append('conversation_id', CONV_ID);
+    fd.append('text', text);
+    if (img && img.files.length)  fd.append('image', img.files[0]);
+    if (fil && fil.files.length)  fd.append('file',  fil.files[0]);
+
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+
+    fetch('/companies/api/send-message/', {
+        method:'POST', headers:{'X-CSRFToken':_csrf()}, body:fd
+    })
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(d){
+        if (d.status === 'ok') {
+            _append(d.message);
+            if (inp) inp.value = '';
+            if (img) img.value = '';
+            if (fil) fil.value = '';
+            var fp = document.getElementById('filePreview');
+            var fn = document.getElementById('fileName');
+            if (fp) fp.style.display = 'none';
+            if (fn) fn.textContent = '';
+            _scroll();
+        } else { _toast(d.error || 'Failed.', 'error'); }
+    })
+    .catch(function(e){ console.error(e); _toast('Connection error.', 'error'); })
+    .finally(function(){ if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i>'; } });
+}
+
+/* -- File preview ------------------------------------------ */
+function handleFileSelect(fileInput, type) {
+    var file = fileInput.files[0]; if (!file) return;
+    var p = document.getElementById('filePreview');
+    var n = document.getElementById('fileName');
+    if (p) p.style.display = 'flex';
+    if (n) n.innerHTML = '<i class="fas fa-' + (type==='image'?'image':'file-alt') + '"></i> ' + file.name;
+    var other = document.getElementById(type==='image'?'chatFile':'chatImage');
+    if (other) other.value = '';
+}
+function clearFileSelection() {
+    ['chatImage','chatFile'].forEach(function(id){ var e=document.getElementById(id); if(e)e.value=''; });
+    var p=document.getElementById('filePreview'); if(p)p.style.display='none';
+    var n=document.getElementById('fileName'); if(n)n.textContent='';
+}
+
+/* -- Expose globals so companies.js hooks still work ------- */
+window.sendCompanyMessage = function(e){ if(e&&e.preventDefault)e.preventDefault(); _doSend(); };
+window.deleteMessage      = _del;
+window.appendMessage      = _append;
+window.scrollToBottom     = _scroll;
+window.getCsrfToken       = _csrf;
+window.showToast          = _toast;
+window.startMessagePolling= _poll;
+
+/* -- Init -------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', function(){
+    var form = document.getElementById('chatForm');
+    if (form) form.addEventListener('submit', function(e){ e.preventDefault(); e.stopPropagation(); _doSend(); });
+
+    var inp = document.getElementById('chatInput');
+    if (inp) {
+        inp.focus();
+        inp.style.resize = 'none'; inp.style.overflow = 'auto';
+        inp.addEventListener('keydown', function(e){
+            if (e.key==='Enter' && !e.shiftKey){ e.preventDefault(); _doSend(); }
+        });
+    }
+    _poll(CONV_ID);
+    _scroll();
+});
+</script>
+{% endblock %}
+

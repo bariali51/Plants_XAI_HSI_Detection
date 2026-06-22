@@ -1,0 +1,226 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Diagnostic Repository" %} — Nabtati{% endblock %}
+{% block header_title %}{% trans "Diagnostic Repository" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/companies.css' %}">
+<style>
+    /* ── Expert Files Ultra-Pro ── */
+    .files-layout-ultra {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .scan-grid-ultra {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
+    }
+
+    .scan-card-pro {
+        background: #fff;
+        border-radius: 28px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .scan-card-pro:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+        border-color: var(--primary-glow);
+    }
+
+    .scan-visual-pro {
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+        background: #f1f5f9;
+    }
+
+    .scan-img-pro {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s;
+    }
+
+    .scan-card-pro:hover .scan-img-pro {
+        transform: scale(1.1);
+    }
+
+    .confidence-badge-pro {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        background: rgba(255,255,255,0.9);
+        backdrop-filter: blur(8px);
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--primary);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .scan-info-pro {
+        padding: 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .scan-prediction-pro {
+        font-size: 18px;
+        font-weight: 850;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+
+    .scan-meta-pro {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .meta-chip-pro {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        background: #f1f5f9;
+        padding: 3px 10px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .scan-footer-pro {
+        margin-top: auto;
+        padding-top: 16px;
+        border-top: 1px solid rgba(0,0,0,0.03);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .scan-time-pro {
+        font-size: 11px;
+        font-weight: 600;
+        color: #94a3b8;
+    }
+
+    .btn-view-pro {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        background: var(--primary-bg);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none !important;
+    }
+
+    .btn-view-pro:hover {
+        background: var(--primary);
+        color: #fff;
+        transform: rotate(45deg);
+    }
+
+    [data-theme="dark"] .scan-card-pro { background: #1e293b; border-color: rgba(255,255,255,0.05); }
+    [data-theme="dark"] .confidence-badge-pro { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255,255,255,0.1); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="files-layout-ultra">
+    
+    <div class="section-header-pro fade-in-down" style="margin-bottom: 32px;">
+        <h3 class="section-title-pro"><i class="fas fa-microscope"></i> {% trans "Diagnostic History" %}</h3>
+        <div class="search-input-wrapper" style="width: 300px;">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="{% trans 'Search findings...' %}" class="search-input" id="scanSearch" onkeyup="filterScans(this.value)">
+        </div>
+    </div>
+
+    {% if scans %}
+    <div class="scan-grid-ultra" id="scanGrid">
+        {% for scan in scans %}
+        <div class="scan-card-pro fade-in-up" style="animation-delay: {{ forloop.counter0 }}50ms" data-name="{{ scan.prediction|lower }}">
+            <div class="scan-visual-pro">
+                {% if scan.image_original %}
+                <img src="{{ scan.image_original.url }}" alt="{{ scan.prediction }}" class="scan-img-pro">
+                {% else %}
+                <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f1f5f9; color:#cbd5e1; font-size:48px;">
+                    <i class="fas fa-image"></i>
+                </div>
+                {% endif %}
+                <div class="confidence-badge-pro">
+                    <i class="fas fa-bullseye"></i>
+                    {{ scan.confidence }}%
+                </div>
+            </div>
+            <div class="scan-info-pro">
+                <h4 class="scan-prediction-pro">{{ scan.prediction }}</h4>
+                <div class="scan-meta-pro">
+                    <span class="meta-chip-pro"><i class="fas fa-chart-pie"></i> {{ scan.disease_ratio }}% Ratio</span>
+                    <span class="meta-chip-pro"><i class="fas fa-dna"></i> {{ scan.disease_stage }}</span>
+                </div>
+                
+                <div class="scan-footer-pro">
+                    <div class="scan-time-pro">
+                        <i class="far fa-calendar-alt" style="margin-right: 4px;"></i>
+                        {{ scan.created_at|date:"M d, Y" }}
+                    </div>
+                    <a href="{% url 'scan_detail' scan.photo_id %}" class="btn-view-pro" title="{% trans 'View Analysis' %}">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state glass-card fade-in-up" style="padding: 100px 40px; text-align: center; border-radius: 40px;">
+        <div style="width: 120px; height: 120px; background: var(--primary-bg); color: var(--primary); border-radius: 40px; display: flex; align-items: center; justify-content: center; font-size: 48px; margin: 0 auto 24px;">
+            <i class="fas fa-folder-open"></i>
+        </div>
+        <h2 style="font-size: 28px; font-weight: 950; color: var(--text-main); margin-bottom: 12px;">{% trans "Repository Empty" %}</h2>
+        <p style="color: var(--text-muted); font-size: 16px; max-width: 450px; margin: 0 auto;">{% trans "You haven't saved any diagnostic scans yet. All completed analyses will appear here for your records." %}</p>
+        <a href="{% url 'diagnosis' %}" class="btn-primary" style="margin-top: 32px; padding: 14px 40px; border-radius: 20px; display: inline-flex;">
+            {% trans "Start New Scan" %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterScans(query) {
+    const grid = document.getElementById('scanGrid');
+    const cards = grid.getElementsByClassName('scan-card-pro');
+    const q = query.toLowerCase();
+    
+    for (let card of cards) {
+        const name = card.getAttribute('data-name');
+        if (name.includes(q)) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    }
+}
+</script>
+{% endblock %}

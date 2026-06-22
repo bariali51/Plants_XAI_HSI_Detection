@@ -1,0 +1,93 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load community_tags %}
+
+{% block title %}Search: {{ query }} — Community{% endblock %}
+{% block header_title %}Search Results{% endblock %}
+{% block nav_community %}active{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/community.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="search-layout">
+    <div class="search-header glass-card">
+        <form method="GET" action="{% url 'community:search' %}" class="search-form-lg">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search posts..." class="search-input-lg" autofocus>
+            <button type="submit" class="btn-primary"><i class="fas fa-search"></i> Search</button>
+        </form>
+        {% if query %}
+        <p class="search-meta">Found <strong>{{ result_count }}</strong> result{{ result_count|pluralize }} for "<strong>{{ query }}</strong>"</p>
+        {% endif %}
+    </div>
+
+    {% if posts %}
+    <div class="posts-grid">
+        {% for post in posts %}
+        <article class="post-card glass-card {% if post.is_ad %}is-ad-card{% endif %}">
+            <div class="post-card-header">
+                <div class="post-author-info">
+                    <div class="author-avatar">{{ post.author.username|make_list|first|upper }}</div>
+                    <div>
+                        <span class="author-name">{{ post.author.get_display_name }}</span>
+                        <span class="post-time">{{ post.created_at|time_ago }}</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    {% if post.is_ad %}
+                    <span class="premium-ad-badge">
+                        <i class="fas fa-ad"></i> Ad
+                    </span>
+                    {% endif %}
+                    <span class="post-type-badge {{ post.post_type|post_type_class }}">{{ post.post_type|post_type_icon }} {{ post.get_post_type_display }}</span>
+                </div>
+            </div>
+            <a href="{% url 'community:post_detail' post.pk %}" class="post-card-body">
+                <h3 class="post-title" style="font-size: 20px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                    {% if post.is_ad %}
+                    <span class="premium-ad-badge-title" title="Sponsored Post">
+                        <i class="fas fa-ad"></i> Ad
+                    </span>
+                    {% endif %}
+                    {{ post.title }}
+                </h3>
+                <p class="post-excerpt" style="font-size: 15px; color: var(--text-muted); line-height: 1.6;">{{ post.body|truncate_body:160 }}</p>
+            </a>
+
+            {% if post.images.all %}
+            <div class="post-gallery-ultra" style="margin: 16px 20px; border-radius: 16px; overflow: hidden; border: 1px solid var(--border);">
+                {% with count=post.images.count %}
+                {% if count == 1 %}
+                    {% with img=post.images.first %}
+                    <img src="{{ img.image.url }}" alt="Post image" style="width: 100%; height: auto; max-height: 400px; object-fit: cover; display: block;">
+                    {% endwith %}
+                {% else %}
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;">
+                        {% for img in post.images.all|slice:":2" %}
+                        <img src="{{ img.image.url }}" alt="Post image" style="width: 100%; height: 180px; object-fit: cover;">
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+            {% endif %}
+            <div class="post-card-footer">
+                <div class="post-stats">
+                    <span class="stat"><i class="fas fa-heart"></i> {{ post.likes_count|default:"0" }}</span>
+                    <span class="stat"><i class="fas fa-comment"></i> {{ post.comments_count|default:"0" }}</span>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% elif query %}
+    <div class="empty-state glass-card">
+        <div class="empty-icon">🔍</div>
+        <h3>No results found</h3>
+        <p>Try different keywords or browse the <a href="{% url 'community:feed' %}">community feed</a>.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

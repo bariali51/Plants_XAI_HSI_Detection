@@ -1,0 +1,128 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% block title %}Promotions Admin | Nabtati{% endblock %}
+{% block header_title %}Promotions Admin Panel{% endblock %}
+{% block header_subtitle %}Approve, reject, and monitor all paid post boosts{% endblock %}
+
+{% block page_styles %}
+.admin-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+@media(max-width:640px){.admin-stats{grid-template-columns:1fr 1fr;}}
+.stat-card { text-align:center; padding:18px; }
+.stat-card .n  { font-size:32px; font-weight:900; }
+.stat-card .lb { font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; }
+.filter-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.filter-tab { padding:6px 16px; border-radius:var(--radius-full); font-size:13px; font-weight:600; text-decoration:none; border:1.5px solid var(--border); color:var(--text-muted); transition:var(--transition-fast); }
+.filter-tab.active, .filter-tab:hover { border-color:var(--primary); color:var(--primary-dark); background:var(--primary-bg); }
+.promo-row { padding:16px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.promo-row:last-child { border-bottom:none; }
+.sp { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:var(--radius-full); font-size:11px; font-weight:700; }
+.sp.active   { background:rgba(46,125,50,.12); color:var(--primary-dark); }
+.sp.pending  { background:rgba(245,158,11,.12); color:#b45309; }
+.sp.expired  { background:var(--border); color:var(--text-muted); }
+.sp.rejected { background:rgba(239,68,68,.1); color:var(--danger); }
+{% endblock %}
+
+{% block content %}
+<div style="max-width:1000px;margin:0 auto;">
+
+<!-- Stats -->
+<div class="admin-stats" data-animate>
+    <div class="card stat-card"><div class="n" style="color:var(--warning);">{{ stats.pending }}</div><div class="lb">Pending</div></div>
+    <div class="card stat-card"><div class="n" style="color:var(--primary);">{{ stats.active }}</div><div class="lb">Active</div></div>
+    <div class="card stat-card"><div class="n" style="color:var(--text-muted);">{{ stats.expired }}</div><div class="lb">Expired</div></div>
+    <div class="card stat-card"><div class="n" style="color:var(--danger);">{{ stats.rejected }}</div><div class="lb">Rejected</div></div>
+</div>
+
+<!-- Filter tabs -->
+<div class="filter-tabs">
+    {% for s in "pending,active,expired,rejected" %}
+    {% with sv=forloop.counter %}
+    {% endwith %}
+    {% endfor %}
+    <a href="?status=pending"  class="filter-tab {% if current_status == 'pending'  %}active{% endif %}">⏳ Pending ({{ stats.pending }})</a>
+    <a href="?status=active"   class="filter-tab {% if current_status == 'active'   %}active{% endif %}">✅ Active ({{ stats.active }})</a>
+    <a href="?status=expired"  class="filter-tab {% if current_status == 'expired'  %}active{% endif %}">📦 Expired ({{ stats.expired }})</a>
+    <a href="?status=rejected" class="filter-tab {% if current_status == 'rejected' %}active{% endif %}">❌ Rejected ({{ stats.rejected }})</a>
+</div>
+
+<div class="card" data-animate>
+{% if not promotions %}
+<p style="text-align:center;padding:40px;color:var(--text-muted);">No promotions in this category.</p>
+{% else %}
+{% for promo in promotions %}
+<div class="promo-row">
+    <div style="flex:1;min-width:220px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span class="sp {{ promo.status }}">{{ promo.get_status_display }}</span>
+            <span style="font-size:12px;color:var(--text-muted);">Score: <strong>{{ promo.boost_score|floatformat:1 }}</strong></span>
+        </div>
+        <a href="{% url 'community:post_detail' promo.post.pk %}" style="font-weight:700;color:var(--text-main);text-decoration:none;font-size:14px;">{{ promo.post.title|truncatechars:55 }}</a>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">
+            by <strong>{{ promo.promoted_by.username }}</strong> ({{ promo.promoted_by.role }}) &bull;
+            <strong>{{ promo.amount|floatformat:0 }} DA</strong> &bull;
+            {{ promo.duration_days }} days &bull;
+            {{ promo.get_payment_method_display }} &bull;
+            Account: <code>{{ promo.account_number|default:"—" }}</code>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+            Target: {{ promo.get_target_role_display }} / {{ promo.get_target_interest_display }}
+            {% if promo.target_country %} / {{ promo.target_country }}{% endif %}
+            {% if promo.target_city %} / {{ promo.target_city }}{% endif %}
+        </div>
+        {% if promo.status == 'active' %}
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+            👁 {{ promo.impressions }} impressions &bull; 🖱 {{ promo.clicks }} clicks &bull; CTR {{ promo.ctr }}%
+            &bull; Ends {{ promo.end_date|date:"M d, Y H:i" }}
+        </div>
+        {% endif %}
+        {% if promo.rejected_reason %}
+        <div style="font-size:12px;color:var(--danger);margin-top:4px;"><i class="fas fa-triangle-exclamation"></i> {{ promo.rejected_reason }}</div>
+        {% endif %}
+    </div>
+
+    {% if promo.status == 'pending' %}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="{% url 'community:admin_approve_promotion' promo.pk %}"
+           class="btn btn-primary btn-sm"
+           onclick="return confirm('Approve this promotion?')">
+            <i class="fas fa-check"></i> Approve
+        </a>
+        <form method="post" action="{% url 'community:admin_reject_promotion' promo.pk %}" style="display:flex;gap:6px;align-items:center;" onsubmit="return confirmReject(this)">
+            {% csrf_token %}
+            <input type="text" name="reason" placeholder="Rejection reason..." style="padding:6px 10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--bg-color);color:var(--text-main);font-size:12px;width:180px;">
+            <button type="submit" class="btn btn-sm" style="background:var(--danger);color:white;">
+                <i class="fas fa-xmark"></i> Reject
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
+{% endif %}
+</div>
+
+<!-- Pagination -->
+{% if promotions.paginator.num_pages > 1 %}
+<div style="display:flex;justify-content:center;gap:8px;margin-top:16px;">
+    {% if promotions.has_previous %}
+    <a href="?status={{ current_status }}&page={{ promotions.previous_page_number }}" class="btn btn-secondary btn-sm">← Prev</a>
+    {% endif %}
+    <span style="padding:6px 12px;font-size:14px;">{{ promotions.number }} / {{ promotions.paginator.num_pages }}</span>
+    {% if promotions.has_next %}
+    <a href="?status={{ current_status }}&page={{ promotions.next_page_number }}" class="btn btn-secondary btn-sm">Next →</a>
+    {% endif %}
+</div>
+{% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function confirmReject(form) {
+    const reason = form.querySelector('[name="reason"]').value.trim();
+    if (!reason) { alert('Please enter a rejection reason.'); return false; }
+    return confirm('Reject this promotion with reason: "' + reason + '"?');
+}
+</script>
+{% endblock %}

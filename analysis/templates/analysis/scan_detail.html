@@ -1,460 +1,515 @@
+{% extends "analysis/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI Medical Scan Report - PlantGuard">
-    <title>Scan Report | PlantGuard AI</title>
+{% load i18n %}
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% block title %}{% trans "Scan Report" %} | Nabtati{% endblock %}
+{% block meta_description %}{% trans "AI Medical Scan Report" %} - Nabtati{% endblock %}
+{% block header_title %}{% trans "Scan Report" %}{% endblock %}
+{% block header_subtitle %}{% trans "AI Medical Diagnostic Report" %}{% endblock %}
 
-    <style>
-        .report-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
+{% block nav_files %}active{% endblock %}
+{% block nav_files_aria %}aria-current="page"{% endblock %}
+{% block bnav_files %}active{% endblock %}
 
-        /* Images */
-        .images-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 768px) { .images-grid { grid-template-columns: 1fr; } }
-
-        .image-card img {
-            width: 100%;
-            border-radius: var(--radius-md);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-            object-fit: cover;
-            border: 1px solid var(--border);
-            transition: transform 0.3s ease;
-        }
-
-        .image-card:hover img { transform: scale(1.01); }
-
-        .image-card h4 {
-            margin: 0 0 14px 0;
-            font-size: 15px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-main);
-        }
-
-        .image-card h4 i { color: var(--text-muted); }
-
-        /* Info Section */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
-
-        .info-title {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--primary-dark);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        [data-theme="dark"] .info-title { color: var(--primary-light); }
-
-        .info-meta {
-            color: var(--text-muted);
-            line-height: 2;
-            font-size: 14px;
-        }
-
-        .info-meta strong { color: var(--text-main); }
-
-        .yield-header {
-            font-weight: 700;
-            color: var(--text-main);
-            margin-top: 24px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-        }
-
-        .yield-bar {
-            height: 10px;
-            background: var(--border);
-            border-radius: var(--radius-full);
-            overflow: hidden;
-        }
-
-        .yield-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--warning), var(--danger));
-            border-radius: var(--radius-full);
-            transition: width 1s ease;
-        }
-
-        /* AI Report */
-        .ai-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        @media (max-width: 768px) { .ai-grid { grid-template-columns: 1fr; } }
-
-        .ai-section {
-            padding: 20px;
-            background: var(--bg-color);
-            border-radius: var(--radius-md);
-            border-left: 4px solid var(--primary);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--primary);
-        }
-
-        .ai-section.risk { border-left-color: var(--danger); }
-
-        .ai-section h3 {
-            color: var(--text-main);
-            margin: 0 0 10px 0;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 700;
-        }
-
-        .ai-section h3 i { color: var(--primary); }
-        .ai-section.risk h3 i { color: var(--danger); }
-
-        .ai-section p {
-            margin: 0;
-            color: var(--text-muted);
-            line-height: 1.6;
-            font-size: 14px;
-        }
-
-        /* Fungicide Table */
-        .mode-badge {
-            background: var(--primary-bg);
-            color: var(--primary-dark);
-            padding: 5px 12px;
-            border-radius: var(--radius-full);
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        /* Evolution History */
-        .history-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .history-title i { color: var(--warning); }
-
-        .follow-card {
-            display: grid;
-            grid-template-columns: 120px 120px 1fr;
-            gap: 20px;
-            align-items: center;
-            padding: 20px;
-            border-left: 4px solid var(--warning);
-            transition: var(--transition-fast);
-        }
-
-        .follow-card:hover { transform: translateX(4px); }
-
-        @media (max-width: 768px) {
-            .follow-card { grid-template-columns: 1fr; }
-        }
-
-        .follow-card img {
-            width: 100%;
-            border-radius: var(--radius-sm);
-        }
-
-        .follow-details p { margin: 5px 0; color: var(--text-muted); font-size: 14px; }
-        .follow-details strong { color: var(--text-main); }
-
-        .evo-text {
-            background: var(--warning-bg);
-            padding: 14px;
-            border-radius: var(--radius-sm);
-            color: #92400e;
-            font-size: 13px;
-            margin-top: 10px;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        [data-theme="dark"] .evo-text { color: var(--warning); }
-
-        /* Compare Zone */
-        .compare-zone {
-            text-align: center;
-            padding: 40px;
-        }
-
-        .compare-input {
-            display: block;
-            margin: 20px auto;
-            padding: 12px;
-            border: 2px dashed var(--border);
-            border-radius: var(--radius-md);
-            background: var(--bg-color);
-            cursor: pointer;
-            max-width: 400px;
-            transition: var(--transition-fast);
-            font-family: inherit;
-            color: var(--text-main);
-        }
-
-        .compare-input:hover { border-color: var(--primary); }
-
-        .top-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-    </style>
-</head>
-
-<body>
-    <!-- Sidebar -->
-    <aside class="sidebar" role="navigation" aria-label="Main navigation">
-        <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-            <i class="fas fa-chevron-left"></i>
+{% block header_actions %}
+    <div class="top-actions">
+        <button onclick="window.print()" class="btn btn-primary btn-sm">
+            <i class="fas fa-file-pdf"></i> {% trans "Export PDF" %}
         </button>
+        <a href="{% url 'my_files' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> {% trans "Back to Files" %}
+        </a>
+    </div>
+{% endblock %}
 
-        <div class="logo">
-            <span class="logo-icon">🌿</span>
-            <span class="logo-text">PlantGuard AI</span>
-        </div>
+{% block page_styles %}
+    .report-container {
+        max-width: 1200px; margin: 0 auto;
+        display: flex; flex-direction: column; gap: 24px;
+    }
 
-        <div class="nav-section-label">Navigation</div>
-        <nav>
-            <a href="{% url 'home' %}" class="nav">
-                <i class="fas fa-home"></i>
-                <span class="nav-text">Diagnosis</span>
-            </a>
-            <a href="{% url 'model' %}" class="nav">
-                <i class="fas fa-brain"></i>
-                <span class="nav-text">Model Info</span>
-            </a>
-            <a href="{% url 'history' %}" class="nav">
-                <i class="fas fa-chart-line"></i>
-                <span class="nav-text">History</span>
-            </a>
-            <a href="{% url 'my_files' %}" class="nav active" aria-current="page">
-                <i class="fas fa-folder"></i>
-                <span class="nav-text">My Files</span>
-            </a>
-        </nav>
+    .images-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
 
-        <div class="sidebar-footer">
-            <button class="logout-btn" onclick="confirmLogout()" data-logout-url="{% url 'logout' %}">
-                <i class="fas fa-sign-out-alt"></i>
-                <span class="nav-text">Logout</span>
-            </button>
-        </div>
-    </aside>
+    @media (max-width: 768px) { .images-grid { grid-template-columns: 1fr; } }
 
-    <!-- Main Content -->
-    <div class="main-wrapper">
-        <header class="header">
-            <div>
-                <h1 class="header-title">Scan Report</h1>
-                <p class="header-subtitle">AI Medical Diagnostic Report</p>
-            </div>
-            <div class="header-actions">
-                <div class="top-actions">
-                    <button onclick="window.print()" class="btn btn-primary btn-sm">
-                        <i class="fas fa-file-pdf"></i> Export PDF
-                    </button>
-                    <a href="{% url 'my_files' %}" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to Files
-                    </a>
-                </div>
-                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
-                    <i class="fas fa-moon" id="theme-icon"></i>
-                </button>
-            </div>
-        </header>
+    .image-card img {
+        width: 100%; border-radius: var(--radius-md);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        object-fit: cover; border: 1px solid var(--border);
+        transition: transform 0.3s ease;
+    }
 
-        <main class="content" id="main-content">
-            <div class="report-container">
+    .image-card:hover img { transform: scale(1.01); }
 
-                <!-- Images + Info -->
-                <div class="info-grid" data-animate>
-                    <div class="card">
-                        <div class="images-grid">
-                            <div class="image-card">
-                                <h4><i class="fas fa-camera"></i> Original</h4>
-                                {% if scan %}
-                                <img src="{{ scan.image_original.url }}" alt="Original scan" loading="lazy">
-                                {% endif %}
-                            </div>
-                            <div class="image-card">
-                                <h4><i class="fas fa-fire"></i> Grad-CAM</h4>
-                                {% if scan %}
-                                <img src="{{ scan.image_gradcam.url }}" alt="Grad-CAM heatmap" loading="lazy">
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
+    .image-card h4 {
+        margin: 0 0 14px 0; font-size: 15px; font-weight: 700;
+        display: flex; align-items: center; gap: 8px; color: var(--text-main);
+    }
 
-                    <div class="card">
+    .image-card h4 i { color: var(--text-muted); }
+
+    .info-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+
+    @media (max-width: 900px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-title {
+        font-size: 24px; font-weight: 900; color: var(--primary-dark);
+        margin-bottom: 16px;
+        display: flex; align-items: center; gap: 10px;
+    }
+
+    [data-theme="dark"] .info-title { color: var(--primary-light); }
+
+    .info-meta { color: var(--text-muted); line-height: 2; font-size: 14px; }
+    .info-meta strong { color: var(--text-main); }
+
+    .yield-header {
+        font-weight: 700; color: var(--text-main); margin-top: 24px; margin-bottom: 10px;
+        display: flex; justify-content: space-between; font-size: 14px;
+    }
+
+    .yield-bar {
+        height: 10px; background: var(--border);
+        border-radius: var(--radius-full); overflow: hidden;
+    }
+
+    .yield-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--warning), var(--danger));
+        border-radius: var(--radius-full); transition: width 1s ease;
+    }
+
+    .ai-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+
+    @media (max-width: 768px) { .ai-grid { grid-template-columns: 1fr; } }
+
+    .ai-section {
+        padding: 20px; background: var(--bg-color);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--primary);
+    }
+
+    .ai-section.risk { border-left-color: var(--danger); }
+
+    .ai-section h3 {
+        color: var(--text-main); margin: 0 0 10px 0; font-size: 15px;
+        display: flex; align-items: center; gap: 8px; font-weight: 700;
+    }
+
+    .ai-section h3 i { color: var(--primary); }
+    .ai-section.risk h3 i { color: var(--danger); }
+
+    .ai-section p { margin: 0; color: var(--text-muted); line-height: 1.6; font-size: 14px; }
+
+    .mode-badge {
+        background: var(--primary-bg); color: var(--primary-dark);
+        padding: 5px 12px; border-radius: var(--radius-full);
+        font-size: 12px; font-weight: 700;
+    }
+
+    .history-title {
+        font-size: 22px; font-weight: 800; color: var(--text-main);
+        display: flex; align-items: center; gap: 10px;
+    }
+
+    .history-title i { color: var(--warning); }
+
+    .follow-card {
+        display: grid; grid-template-columns: 120px 120px 1fr; gap: 20px;
+        align-items: center; padding: 20px;
+        border-left: 4px solid var(--warning);
+        transition: var(--transition-fast);
+    }
+
+    .follow-card:hover { transform: translateX(4px); }
+
+    @media (max-width: 768px) { .follow-card { grid-template-columns: 1fr; } }
+
+    .follow-card img { width: 100%; border-radius: var(--radius-sm); }
+
+    .follow-details p { margin: 5px 0; color: var(--text-muted); font-size: 14px; }
+    .follow-details strong { color: var(--text-main); }
+
+    .evo-text {
+        background: var(--warning-bg); padding: 14px;
+        border-radius: var(--radius-sm); color: #92400e;
+        font-size: 13px; margin-top: 10px;
+        display: flex; align-items: flex-start; gap: 8px;
+    }
+
+    [data-theme="dark"] .evo-text { color: var(--warning); }
+
+    /* ── Compare Upload Zone ─────────────────────────────── */
+    .compare-zone { text-align: center; padding: 40px 32px; }
+
+    .compare-drop {
+        position: relative;
+        border: 2px dashed var(--border);
+        border-radius: var(--radius-lg);
+        padding: 40px 24px;
+        max-width: 480px;
+        margin: 0 auto 24px;
+        cursor: pointer;
+        transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+        background: var(--bg-color);
+        overflow: hidden;
+    }
+
+    .compare-drop:hover,
+    .compare-drop.drag-over {
+        border-color: var(--primary);
+        background: var(--primary-bg);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(46,125,50,0.15);
+    }
+
+    .compare-drop.drag-over {
+        border-style: solid;
+        animation: compareGlow 1.4s ease-in-out infinite;
+    }
+
+    @keyframes compareGlow {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(46,125,50,0.25); }
+        50%       { box-shadow: 0 0 0 14px rgba(46,125,50,0); }
+    }
+
+    /* Hidden native input fills the entire drop area */
+    .compare-drop input[type="file"] {
+        position: absolute; inset: 0;
+        width: 100%; height: 100%;
+        opacity: 0; cursor: pointer; z-index: 5;
+    }
+
+    .compare-drop-icon {
+        font-size: 48px;
+        color: var(--primary);
+        margin-bottom: 14px;
+        transition: transform 0.3s var(--ease-spring, cubic-bezier(.34,1.56,.64,1));
+        display: block;
+    }
+
+    .compare-drop:hover .compare-drop-icon { transform: translateY(-6px) scale(1.1); }
+
+    .compare-drop-title {
+        font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;
+    }
+
+    .compare-drop-hint {
+        font-size: 13px; color: var(--text-muted);
+    }
+
+    /* File chosen badge */
+    .compare-file-badge {
+        display: none;
+        align-items: center; gap: 10px;
+        margin: 16px auto 0;
+        max-width: 480px;
+        padding: 10px 16px;
+        background: var(--primary-bg);
+        border: 1px solid rgba(46,125,50,0.25);
+        border-radius: var(--radius-sm);
+        font-size: 13px; font-weight: 600; color: var(--primary-dark);
+    }
+
+    [data-theme="dark"] .compare-file-badge { color: var(--primary-light); }
+
+    .compare-file-badge.visible { display: flex; }
+
+    /* Preview thumbnail inside the badge */
+    .compare-thumb {
+        width: 48px; height: 48px;
+        object-fit: cover;
+        border-radius: var(--radius-sm);
+        border: 2px solid var(--primary);
+        flex-shrink: 0;
+        display: none;
+    }
+
+    .compare-thumb.visible { display: block; }
+
+    /* Analyze button */
+    .compare-analyze-btn {
+        display: inline-flex; align-items: center; gap: 10px;
+        padding: 14px 32px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none; border-radius: var(--radius-sm);
+        font-size: 15px; font-weight: 700;
+        font-family: inherit; cursor: pointer;
+        box-shadow: 0 4px 16px rgba(46,125,50,0.3);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        margin-top: 8px;
+    }
+
+    .compare-analyze-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(46,125,50,0.4);
+    }
+
+    .compare-analyze-btn:disabled {
+        opacity: 0.65; cursor: not-allowed; transform: none;
+    }
+
+    .top-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    @media (max-width: 640px) {
+        .info-title { font-size: 20px; }
+        .top-actions { flex-direction: column; }
+    }
+{% endblock %}
+
+{% block content %}
+    <div class="report-container">
+        <!-- Images + Info -->
+        <div class="info-grid" data-animate>
+            <div class="card">
+                <div class="images-grid">
+                    <div class="image-card">
+                        <h4><i class="fas fa-camera"></i> {% trans "Original" %}</h4>
                         {% if scan %}
-                        <div class="info-title">
-                            <i class="fas fa-leaf" style="color:var(--primary)"></i>
-                            {{ scan.prediction }}
-                        </div>
-                        <div class="info-meta">
-                            <strong>Confidence:</strong> {{ scan.confidence }}% <br>
-                            <strong>Disease Stage:</strong> {{ scan.disease_stage }} <br>
-                            <strong>Infection Ratio:</strong> {{ scan.disease_ratio }}% <br>
-                            <strong>Analyzed on:</strong> {{ scan.created_at|date:"M d, Y H:i" }}
-                        </div>
-
-                        <div class="yield-header">
-                            <span><i class="fas fa-arrow-trend-down"></i> Yield Loss</span>
-                            <span style="color:var(--danger)">{{ scan.yield_loss }}%</span>
-                        </div>
-                        <div class="yield-bar">
-                            <div class="yield-fill" style="width: {{ scan.yield_loss }}%"></div>
-                        </div>
+                        <img src="{{ scan.image_original.url }}" alt="Original scan" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="image-card">
+                        <h4><i class="fas fa-fire"></i> {% trans "Grad-CAM" %}</h4>
+                        {% if scan %}
+                        <img src="{{ scan.image_gradcam.url }}" alt="Grad-CAM heatmap" loading="lazy">
                         {% endif %}
                     </div>
                 </div>
-
-                <!-- AI Intelligence -->
-                {% if scan %}
-                <div class="card" data-animate>
-                    <h2 class="card-title" style="font-size: 20px; margin-bottom: 24px;">
-                        <i class="fas fa-brain"></i> AI Agronomic Intelligence
-                    </h2>
-
-                    <div class="ai-grid">
-                        <div class="ai-section">
-                            <h3><i class="fas fa-stethoscope"></i> Medical Diagnosis</h3>
-                            <p>{{ scan.ai_medical|default:"No data available" }}</p>
-                        </div>
-                        <div class="ai-section">
-                            <h3><i class="fas fa-prescription-bottle-medical"></i> Treatment Strategy</h3>
-                            <p>{{ scan.ai_treatment|default:"No data available" }}</p>
-                        </div>
-                        <div class="ai-section">
-                            <h3><i class="fas fa-droplet"></i> Irrigation Plan</h3>
-                            <p>{{ scan.ai_irrigation|default:"No data available" }}</p>
-                        </div>
-                        <div class="ai-section risk">
-                            <h3><i class="fas fa-chart-line"></i> Economic Risk</h3>
-                            <p>{{ scan.ai_economic|default:"No data available" }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Fungicides -->
-                <div class="card" data-animate>
-                    <h2 class="card-title" style="font-size: 20px;">
-                        <i class="fas fa-flask"></i> Recommended Fungicides
-                    </h2>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Product Name</th>
-                                <th>Action Mode</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for f in scan.fungicides_json %}
-                            <tr>
-                                <td><strong>{{ f.name }}</strong></td>
-                                <td><span class="mode-badge">{{ f.type }}</span></td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="2" style="color: var(--text-muted); text-align: center;">
-                                    No fungicides recorded.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Evolution History -->
-                {% if progress %}
-                <div class="card" data-animate>
-                    <h2 class="history-title" style="margin-bottom: 20px;">
-                        <i class="fas fa-clock-rotate-left"></i> Disease Evolution History
-                    </h2>
-                    {% for p in progress %}
-                    <div class="follow-card card" style="margin-bottom: 16px;">
-                        <img src="{{ p.new_image.url }}" alt="Past scan" loading="lazy">
-                        <img src="{{ p.new_gradcam.url }}" alt="Past Grad-CAM" loading="lazy">
-                        <div class="follow-details">
-                            <p><strong>Diagnosis:</strong> {{ p.disease }}</p>
-                            <p><strong>Severity:</strong> {{ p.ratio }}% | <strong>Yield Loss:</strong> {{ p.yield_loss }}%</p>
-                            <div class="evo-text">
-                                <i class="fas fa-robot"></i>
-                                <span>{{ p.evolution_text }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <!-- Compare Zone -->
-                <div class="card compare-zone" data-animate>
-                    <h2 class="card-title" style="font-size: 20px; justify-content: center;">
-                        <i class="fas fa-code-compare"></i> Compare Disease Evolution
-                    </h2>
-                    <p style="color: var(--text-muted); margin-bottom: 20px;">
-                        Upload a new scan of the same plant to analyze disease progression.
-                    </p>
-
-                    <input type="file" id="newImageInput" class="compare-input" accept="image/*">
-                    <button onclick="compareScan('{{ scan.photo_id }}')" class="btn btn-primary" id="compareBtn" style="margin-top: 16px;">
-                        <i class="fas fa-microscope"></i> Analyze New Image
-                    </button>
-                </div>
-                {% endif %}
-
-                <div id="compareResultsContainer"></div>
             </div>
-        </main>
+
+            <div class="card">
+                {% if scan %}
+                <div class="info-title">
+                    <i class="fas fa-leaf" style="color:var(--primary)"></i>
+                    {{ scan.prediction }}
+                </div>
+                <div class="info-meta">
+                    <strong>{% trans "Confidence" %}:</strong> {{ scan.confidence }}% <br>
+                    <strong>{% trans "Disease Stage" %}:</strong> {{ scan.disease_stage }} <br>
+                    <strong>{% trans "Infection Ratio" %}:</strong> {{ scan.disease_ratio }}% <br>
+                    <strong>{% trans "Analyzed on" %}:</strong> {{ scan.created_at|date:"M d, Y H:i" }}
+                </div>
+
+                <div class="yield-header">
+                    <span><i class="fas fa-arrow-trend-down"></i> {% trans "Yield Loss" %}</span>
+                    <span style="color:var(--danger)">{{ scan.yield_loss }}%</span>
+                </div>
+                <div class="yield-bar">
+                    <div class="yield-fill" style="width: {{ scan.yield_loss }}%"></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- AI Intelligence -->
+        {% if scan %}
+        <div class="card" data-animate>
+            <h2 class="card-title" style="font-size: 20px; margin-bottom: 24px;">
+                <i class="fas fa-brain"></i> {% trans "AI Agronomic Intelligence" %}
+            </h2>
+
+            <div class="ai-grid">
+                <div class="ai-section">
+                    <h3><i class="fas fa-stethoscope"></i> {% trans "Medical Diagnosis" %}</h3>
+                    <p>{{ scan.ai_medical|default:"No data available" }}</p>
+                </div>
+                <div class="ai-section">
+                    <h3><i class="fas fa-prescription-bottle-medical"></i> {% trans "Treatment Strategy" %}</h3>
+                    <p>{{ scan.ai_treatment|default:"No data available" }}</p>
+                </div>
+                <div class="ai-section">
+                    <h3><i class="fas fa-droplet"></i> {% trans "Irrigation Plan" %}</h3>
+                    <p>{{ scan.ai_irrigation|default:"No data available" }}</p>
+                </div>
+                <div class="ai-section risk">
+                    <h3><i class="fas fa-chart-line"></i> {% trans "Economic Risk" %}</h3>
+                    <p>{{ scan.ai_economic|default:"No data available" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fungicides section removed (#9) -->
+
+        <!-- Evolution History -->
+        {% if progress %}
+        <div class="card" data-animate>
+            <h2 class="history-title" style="margin-bottom: 20px;">
+                <i class="fas fa-clock-rotate-left"></i> {% trans "Disease Evolution History" %}
+            </h2>
+            {% for p in progress %}
+            <div class="follow-card card" style="margin-bottom: 16px;">
+                <img src="{{ p.new_image }}" alt="Past scan" loading="lazy">
+                <img src="{{ p.new_gradcam }}" alt="Past Grad-CAM" loading="lazy">
+                <div class="follow-details">
+                    <p><strong>{% trans "Diagnosis" %}:</strong> {{ p.disease }}</p>
+                    <p><strong>{% trans "Severity" %}:</strong> {{ p.ratio }}% | <strong>{% trans "Yield Loss" %}:</strong> {{ p.yield_loss }}%</p>
+                    <p><strong>{% trans "Medical" %}:</strong> {{ p.ai_medical }}</p>
+                    <p><strong>{% trans "Treatment" %}:</strong> {{ p.ai_treatment }}</p>
+                    <p><strong>{% trans "Irrigation" %}:</strong> {{ p.ai_irrigation }}</p>
+                    <p><strong>{% trans "Economic" %}:</strong> {{ p.ai_economic }}</p>
+                    <div class="evo-text">
+                        <i class="fas fa-robot"></i>
+                        <span>{{ p.evolution_text }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Compare Zone -->
+        <div class="card compare-zone" data-animate>
+            <h2 class="card-title" style="font-size: 20px; justify-content: center; margin-bottom: 8px;">
+                <i class="fas fa-code-compare"></i> {% trans "Compare Disease Evolution" %}
+            </h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 14px;">
+                {% trans "Upload a new leaf photo of the same plant to track disease progression with AI." %}
+            </p>
+
+            <!-- Drag-and-drop Upload Zone -->
+            <div class="compare-drop" id="compareDropZone">
+                <!-- Native input fills the entire area -->
+                <input type="file" id="newImageInput" accept="image/*" aria-label="Select new plant image for comparison">
+
+                <i class="fas fa-cloud-arrow-up compare-drop-icon"></i>
+                <div class="compare-drop-title">{% trans "Drop your image here" %}</div>
+                <div class="compare-drop-hint">{% trans "or" %} <u>{% trans "click to browse" %}</u> &bull; {% trans "JPG, PNG up to 10 MB" %}</div>
+            </div>
+
+            <!-- File chosen badge + preview thumbnail -->
+            <div class="compare-file-badge" id="compareFileBadge">
+                <img id="compareThumb" class="compare-thumb" alt="Preview" src="">
+                <span id="compareFileName">{% trans "No file chosen" %}</span>
+            </div>
+
+            <button onclick="compareScan('{{ scan.photo_id }}')" class="compare-analyze-btn" id="compareBtn">
+                <i class="fas fa-microscope"></i> {% trans "Analyze New Image" %}
+            </button>
+        </div>
+        {% endif %}
+
+        <div id="compareResultsContainer"></div>
+        <!-- 🔥 DISPLAY SAVED FOLLOWUPS -->
+{% if progress %}
+<div class="card" style="margin-top:24px;">
+    <h2 class="card-title">
+        <i class="fas fa-history"></i> {% trans "Saved Progress Reports" %}
+    </h2>
+
+    {% for p in progress %}
+    <div class="card" style="margin-top:16px; border-left:4px solid var(--primary);">
+
+        <h3>{{ p.disease }}</h3>
+
+        <p><b>{% trans "Confidence" %}:</b> {{ p.confidence }}</p>
+        <p><b>{% trans "Stage" %}:</b> {{ p.stage }}</p>
+        <p><b>{% trans "Severity" %}:</b> {{ p.ratio }}%</p>
+
+        <p><b>{% trans "Analyzed on" %}:</b> {{ p.created_at }}</p>
+
+        <hr>
+
+        <p>{{ p.evolution_text }}</p>
+
     </div>
+    {% endfor %}
+</div>
+{% endif %}
 
-    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+    </div>
+{% endblock %}
 
-    <script src="{% static 'js/main.js' %}"></script>
+{% block extra_scripts %}
+
+
     <script>
         {% if scan %}
-        const PHOTO_ID = "{{ scan.photo_id }}";
+        const PHOTO_ID = "{{ scan.photo_id|escapejs }}";
         {% else %}
         const PHOTO_ID = "";
         {% endif %}
         window.lastCompareData = null;
+
+        // ── Compare Upload Zone — Drag & Drop + Preview ───────────────
+        (function initCompareZone() {
+            const zone    = document.getElementById('compareDropZone');
+            const input   = document.getElementById('newImageInput');
+            const badge   = document.getElementById('compareFileBadge');
+            const thumb   = document.getElementById('compareThumb');
+            const nameEl  = document.getElementById('compareFileName');
+
+            if (!zone || !input) return;
+
+            // File chosen via click
+            input.addEventListener('change', () => handleFiles(input.files));
+
+            // Drag events
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+            ['dragleave', 'dragend'].forEach(evt =>
+                zone.addEventListener(evt, () => zone.classList.remove('drag-over'))
+            );
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                handleFiles(e.dataTransfer.files);
+            });
+
+            function handleFiles(files) {
+                if (!files || !files.length) return;
+                const file = files[0];
+
+                // Validate type & size
+                if (!file.type.startsWith('image/')) {
+                    showToast('Please select an image file', 'error');
+                    return;
+                }
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast('File too large — max 10 MB', 'error');
+                    return;
+                }
+
+                // Sync to native input (needed for FormData in compareScan)
+                if (files !== input.files) {
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                }
+
+                // Show badge + thumbnail
+                nameEl.textContent = file.name.length > 40
+                    ? file.name.substring(0, 38) + '…'
+                    : file.name;
+                badge.classList.add('visible');
+
+                const reader = new FileReader();
+                reader.onload = e => {
+                    thumb.src = e.target.result;
+                    thumb.classList.add('visible');
+                };
+                reader.readAsDataURL(file);
+
+                // Update zone icon to show selection
+                const icon = zone.querySelector('.compare-drop-icon');
+                if (icon) {
+                    icon.className = 'fas fa-circle-check compare-drop-icon';
+                    icon.style.color = 'var(--primary)';
+                }
+                const title = zone.querySelector('.compare-drop-title');
+                if (title) title.textContent = 'Image ready';
+            }
+        })();
 
         function compareScan(photoId) {
             const fileInput = document.getElementById("newImageInput");
@@ -487,6 +542,8 @@
                     showToast("Analysis complete!", "success");
                 } else {
                     showToast("Error analyzing image", "error");
+                    btn.innerHTML = '<i class="fas fa-microscope"></i> Analyze New Image';
+                    btn.disabled = false;
                 }
             })
             .catch(err => {
@@ -497,94 +554,160 @@
             });
         }
 
-        function renderCompareResults(data) {
-            const html = `
-            <div class="card" style="margin-top: 24px; border: 2px solid var(--primary);" data-animate>
-                <h2 class="card-title" style="font-size: 20px; justify-content: center; margin-bottom: 28px;">
-                    <i class="fas fa-chart-line"></i> Evolution Intelligence
-                </h2>
+ 
 
-                <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 28px; flex-wrap: wrap;">
-                    <div style="text-align: center; width: 30%; min-width: 120px;">
-                        <p style="color: var(--text-muted); font-weight: 700; font-size: 13px; margin-bottom: 10px;">Previous Scan</p>
-                        {% if scan %}<img src="{{ scan.image_gradcam.url }}" style="width:100%; border-radius: var(--radius-md);">{% endif %}
-                    </div>
-                    <div style="font-size: 32px; color: var(--warning);"><i class="fas fa-arrow-right"></i></div>
-                    <div style="text-align: center; width: 30%; min-width: 120px;">
-                        <p style="color: var(--text-muted); font-weight: 700; font-size: 13px; margin-bottom: 10px;">New Scan</p>
-                        <img src="${data.gradcam}" style="width:100%; border-radius: var(--radius-md);">
-                    </div>
-                </div>
+function renderCompareResults(data) {
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;">
-                    <div style="background: var(--bg-color); padding: 14px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border);">
-                        <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">Disease</span>
-                        <b style="color: var(--primary-dark);">${data.disease}</b>
-                    </div>
-                    <div style="background: var(--bg-color); padding: 14px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border);">
-                        <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">Confidence</span>
-                        <b style="color: var(--primary-dark);">${data.confidence}</b>
-                    </div>
-                    <div style="background: var(--bg-color); padding: 14px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border);">
-                        <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">Stage</span>
-                        <b style="color: var(--primary-dark);">${data.stage}</b>
-                    </div>
-                    <div style="background: var(--bg-color); padding: 14px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border);">
-                        <span style="font-size: 11px; color: var(--text-muted); display: block; font-weight: 700; text-transform: uppercase;">Severity</span>
-                        <b style="color: var(--danger);">${data.ratio}%</b>
-                    </div>
-                </div>
+    // ✅ مهم جدًا: تخزين البيانات
+    window.lastCompareData = data;
 
-                <div class="ai-section" style="border-left-color: var(--warning); margin-bottom: 24px;">
-                    <h3><i class="fas fa-robot" style="color: var(--warning);"></i> AI Evolution Interpretation</h3>
-                    <p>${data.evolution}</p>
-                </div>
+    const reportHtml = `
+    <div class="card" style="margin-top: 24px;" data-animate>
+        <h2 class="card-title">
+            <i class="fas fa-brain"></i> AI Agronomic Intelligence
+        </h2>
 
-                <div style="text-align: center;">
-                    <button id="saveFollowBtn" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Save Progress Report
-                    </button>
-                </div>
-            </div>`;
+        <div class="ai-grid">
+            <div class="ai-section">
+                <h3>Medical Diagnosis</h3>
+                <p>${data.ai_medical || "AI doctor unavailable"}</p>
+            </div>
 
-            document.getElementById("compareResultsContainer").innerHTML = html;
-            document.getElementById("compareResultsContainer").scrollIntoView({ behavior: 'smooth', block: 'start' });
+            <div class="ai-section">
+                <h3>Treatment Strategy</h3>
+                <p>${data.ai_treatment || "-"}</p>
+            </div>
+
+            <div class="ai-section">
+                <h3>Irrigation Plan</h3>
+                <p>${data.ai_irrigation || "-"}</p>
+            </div>
+
+            <div class="ai-section risk">
+                <h3>Economic Risk</h3>
+                <p>${data.ai_economic || "-"}</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <p><b>Confidence:</b> ${data.confidence}</p>
+        <p><b>Disease Stage:</b> ${data.stage}</p>
+        <p><b>Infection Ratio:</b> ${data.ratio}%</p>
+        <p><b>Analyzed on:</b> ${data.created_at}</p>
+
+        <img src="${data.gradcam}" style="width:100%; margin-top:10px;">
+    </div>
+    `;
+
+
+    const comparisonHtml = `
+    <div class="card" style="margin-top: 24px; border: 2px solid var(--primary);" data-animate>
+        <h2 class="card-title" style="font-size: 20px; justify-content: center; margin-bottom: 28px;">
+            <i class="fas fa-chart-line"></i> Evolution Intelligence
+        </h2>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 28px; flex-wrap: wrap;">
+            <div style="text-align: center; width: 30%;">
+                <p>Previous Scan</p>
+                {% if scan %}<img src="{{ scan.image_gradcam.url }}" style="width:100%;">{% endif %}
+            </div>
+
+            <div><i class="fas fa-arrow-right"></i></div>
+
+            <div style="text-align: center; width: 30%;">
+                <p>New Scan</p>
+                <img src="${data.gradcam}" style="width:100%;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+            <div><b>Disease:</b> ${data.disease}</div>
+            <div><b>Confidence:</b> ${data.confidence}</div>
+            <div><b>Stage:</b> ${data.stage}</div>
+            <div><b>Severity:</b> ${data.ratio}%</div>
+        </div>
+
+        <div class="ai-section" style="margin-top:20px;">
+            <h3>AI Evolution Interpretation</h3>
+            <p>${data.evolution}</p>
+        </div>
+
+        <div style="text-align: center; margin-top:20px;">
+            <button id="saveFollowBtn" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Progress Report
+            </button>
+        </div>
+    </div>
+    `;
+
+
+    document.getElementById("compareResultsContainer").innerHTML =
+        reportHtml + comparisonHtml;
+
+    document.getElementById("compareResultsContainer")
+        .scrollIntoView({ behavior: 'smooth' });
+}
+
+
+// 🔥 CSRF FIX
+
+function getCSRFToken() {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith("csrftoken=")) {
+                cookieValue = cookie.substring("csrftoken=".length);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+// 🔥 SAVE BUTTON
+document.addEventListener("click", function(e) {
+
+    if (e.target.closest("#saveFollowBtn")) {
+
+        console.log("🔥 CLICK SAVE");
+
+        if (!window.lastCompareData) {
+            alert("No data to save ❌");
+            return;
         }
 
-        document.addEventListener("click", function(e) {
-            if (e.target && (e.target.id === "saveFollowBtn" || e.target.closest('#saveFollowBtn'))) {
-                const btn = document.getElementById("saveFollowBtn");
-                if (!window.lastCompareData) {
-                    showToast("No comparison result available", "warning");
-                    return;
-                }
+        const btn = document.getElementById("saveFollowBtn");
+        const photoId = PHOTO_ID;
 
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-                btn.disabled = true;
+        console.log("PHOTO_ID:", photoId);
+        console.log("DATA:", window.lastCompareData);
 
-                fetch(`/save-followup/${PHOTO_ID}/`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": getCsrfToken()
-                    },
-                    body: JSON.stringify(window.lastCompareData)
-                })
-                .then(r => r.json())
-                .then(d => {
-                    btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                    btn.style.background = "#16a34a";
-                    showToast("Progress report saved!", "success");
-                    setTimeout(() => location.reload(), 1500);
-                })
-                .catch(err => {
-                    console.error("Save error:", err);
-                    showToast("Failed to save", "error");
-                    btn.innerHTML = '<i class="fas fa-save"></i> Save Progress Report';
-                    btn.disabled = false;
-                });
-            }
+        btn.innerHTML = "Saving...";
+        btn.disabled = true;
+
+        fetch(`/save-followupnew/${photoId}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: JSON.stringify(window.lastCompareData)
+        })
+        .then(res => res.json())
+        .then(res => {
+            console.log("SERVER RESPONSE:", res);
+            btn.innerHTML = "Saved ✅";
+            setTimeout(() => location.reload(), 1000);
+        })
+        .catch(err => {
+            console.error("SAVE ERROR:", err);
+            btn.innerHTML = "Error ❌";
+            btn.disabled = false;
         });
-    </script>
-</body>
-</html>
+    }
+
+});
+</script>
+{% endblock %}

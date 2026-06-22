@@ -1,0 +1,335 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Service Management" %} — {{ company.company_name }}{% endblock %}
+{% block header_title %}{% trans "Service Solutions" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/companies.css' %}">
+<style>
+    /* ── Service Management Ultra-Pro ── */
+    .catalog-layout-ultra {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .manage-hero-pro {
+        background: var(--emerald-gradient);
+        border-radius: 24px;
+        padding: 24px 32px;
+        color: #fff;
+        margin-bottom: 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 15px 35px rgba(46, 125, 50, 0.15);
+    }
+
+    .hero-info-pro h2 { font-size: 24px; font-weight: 900; margin-bottom: 4px; }
+    .hero-info-pro p { font-size: 14px; font-weight: 600; opacity: 0.9; }
+
+    /* Modern Add Form */
+    .form-card-ultra {
+        background: #fff;
+        border-radius: 28px;
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 40px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .form-header-pro {
+        padding: 20px 28px;
+        background: #f8fafc;
+        border-bottom: 1px solid rgba(0,0,0,0.03);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+    }
+
+    .form-title-pro {
+        font-size: 16px;
+        font-weight: 850;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .form-body-pro {
+        padding: 32px;
+        display: none;
+    }
+
+    .form-body-pro.show { display: block; }
+
+    /* Service Grid */
+    .catalog-grid-pro {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
+    }
+
+    .service-card-pro {
+        background: #fff;
+        border-radius: 24px;
+        padding: 24px;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .service-card-pro:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        border-color: var(--primary-glow);
+    }
+
+    .service-icon-wrap {
+        width: 56px;
+        height: 56px;
+        border-radius: 18px;
+        background: var(--primary-bg);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .service-name-pro {
+        font-size: 18px;
+        font-weight: 850;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+
+    .service-meta-pro {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .range-tag-pro {
+        font-size: 12px;
+        font-weight: 800;
+        color: #2563eb;
+        background: #eff6ff;
+        padding: 3px 12px;
+        border-radius: 30px;
+    }
+
+    .area-tag-pro {
+        font-size: 11px;
+        font-weight: 700;
+        color: #10b981;
+        background: #ecfdf5;
+        padding: 3px 12px;
+        border-radius: 30px;
+    }
+
+    .service-desc-pro {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 24px;
+        flex: 1;
+    }
+
+    .service-actions-pro {
+        display: flex;
+        gap: 12px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .btn-action-pro {
+        flex: 1;
+        height: 42px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 800;
+        transition: all 0.2s;
+        text-decoration: none !important;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-edit-pro { background: #f8fafc; color: #64748b; }
+    .btn-delete-pro { background: #fff1f2; color: #ef4444; }
+
+    [data-theme="dark"] .form-card-ultra,
+    [data-theme="dark"] .service-card-pro { background: #1e293b; border-color: rgba(255,255,255,0.05); }
+    [data-theme="dark"] .form-header-pro { background: rgba(255,255,255,0.02); }
+
+    /* Search Design */
+    .search-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input-wrapper i {
+        position: absolute;
+        left: 16px;
+        color: #94a3b8;
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 12px 16px 12px 42px;
+        border-radius: 14px;
+        border: 2px solid #f1f5f9;
+        background: #f8fafc;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
+        transition: all 0.3s;
+        outline: none;
+    }
+
+    .search-input:focus {
+        border-color: var(--primary);
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(46, 125, 50, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="catalog-layout-ultra">
+    
+    <!-- Hero Section -->
+    <div class="manage-hero-pro fade-in-down">
+        <div class="hero-info-pro">
+            <h2>⚙️ {% trans "Service Operations" %}</h2>
+            <p>{% trans "Consultation and technical offerings for" %} {{ company.company_name }}</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <div class="hero-stats-pro" style="text-align: right;">
+                <div style="font-size: 28px; font-weight: 900;">{{ services|length }}</div>
+                <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; opacity: 0.8;">{% trans "Active Services" %}</div>
+            </div>
+            <a href="{% url 'companies:dashboard' %}"
+               style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:14px;background:rgba(255,255,255,0.2);color:#fff;font-size:13px;font-weight:800;text-decoration:none;border:1.5px solid rgba(255,255,255,0.35);backdrop-filter:blur(6px);transition:all .2s;"
+               onmouseover="this.style.background='rgba(255,255,255,0.32)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                <i class="fas fa-arrow-left"></i> {% trans "Dashboard" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Collapsible Add Form -->
+    <div class="form-card-ultra fade-in-up">
+        <div class="form-header-pro" onclick="document.getElementById('addServiceBody').classList.toggle('show')">
+            <div class="form-title-pro">
+                <i class="fas fa-plus-circle" style="color: var(--primary);"></i>
+                {% trans "Launch New Service Offering" %}
+            </div>
+            <i class="fas fa-chevron-down" style="color: #94a3b8;"></i>
+        </div>
+        <div class="form-body-pro" id="addServiceBody">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-pro-grid">
+                    {% for field in form %}
+                    <div class="form-field-pro {% if field.name == 'description' %}form-field-full{% endif %}">
+                        <label class="label-pro" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                        <div class="input-wrapper-pro">
+                            {{ field }}
+                        </div>
+                        {% if field.errors %}<span class="form-error">{{ field.errors.0 }}</span>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 32px; display: flex; justify-content: flex-end;">
+                    <button type="submit" class="btn-primary" style="padding: 14px 32px; border-radius: 16px; font-weight: 800;">
+                        <i class="fas fa-rocket" style="margin-right: 8px;"></i> {% trans "Launch Service" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Service Directory -->
+    <div class="section-header-pro fade-in-up" style="margin-bottom: 24px;">
+        <h3 class="section-title-pro"><i class="fas fa-handshake-angle"></i> {% trans "Professional Portfolio" %}</h3>
+        <div class="search-input-wrapper" style="width: 300px;">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="{% trans 'Search portfolio...' %}" class="search-input" id="serviceSearch" onkeyup="filterItems(this.value, 'serviceGrid')">
+        </div>
+    </div>
+
+    {% if services %}
+    <div class="catalog-grid-pro" id="serviceGrid">
+        {% for service in services %}
+        <div class="service-card-pro fade-in-up" style="animation-delay: {{ forloop.counter0 }}50ms" data-name="{{ service.name|lower }}">
+            <div class="service-icon-wrap">
+                <i class="fas fa-tools"></i>
+            </div>
+            <h4 class="service-name-pro">{{ service.name }}</h4>
+            <div class="service-meta-pro">
+                {% if service.price_range %}
+                <span class="range-tag-pro"><i class="fas fa-tag" style="margin-right:4px;"></i> {{ service.price_range }}</span>
+                {% endif %}
+                {% if service.service_area %}
+                <span class="area-tag-pro"><i class="fas fa-map-marker-alt" style="margin-right:4px;"></i> {{ service.service_area }}</span>
+                {% endif %}
+            </div>
+            <p class="service-desc-pro">{{ service.description|truncatewords:20 }}</p>
+            
+            <div class="service-actions-pro">
+                <a href="#" class="btn-action-pro btn-edit-pro">
+                    <i class="fas fa-pen-nib"></i> {% trans "Edit" %}
+                </a>
+                <form method="POST" action="{% url 'companies:delete_service' service.pk %}" style="flex: 1;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-action-pro btn-delete-pro" onclick="return confirm('{% trans "Confirm deletion?" %}')">
+                        <i class="fas fa-trash-alt"></i> {% trans "Delete" %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state glass-card fade-in-up" style="padding: 80px 40px; border-radius: 32px; border: 2px dashed rgba(0,0,0,0.05);">
+        <i class="fas fa-concierge-bell" style="font-size: 48px; color: var(--text-muted); margin-bottom: 20px;"></i>
+        <h4 style="font-weight: 850; color: var(--text-main); margin-bottom: 8px;">{% trans "Portfolio Empty" %}</h4>
+        <p style="color: var(--text-muted); font-size: 14px;">{% trans "You haven't listed any professional services yet. Start showcasing your expertise above." %}</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterItems(query, gridId) {
+    const grid = document.getElementById(gridId);
+    const cards = grid.children;
+    const q = query.toLowerCase();
+    
+    for (let card of cards) {
+        const name = card.getAttribute('data-name');
+        if (name && name.includes(q)) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    }
+}
+</script>
+{% endblock %}

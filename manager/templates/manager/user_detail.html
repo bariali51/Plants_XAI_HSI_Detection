@@ -1,0 +1,259 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+
+{% block title %}{{ profile.username }} | User Management | Nabtati{% endblock %}
+{% block header_title %}User Details{% endblock %}
+{% block header_subtitle %}{{ profile.username }} — {{ profile.email }}{% endblock %}
+
+{% block nav_admin_users %}active{% endblock %}
+
+{% block content %}
+    <div class="admin-section-header">
+        <div>
+            <h1>
+                <i class="fas fa-user"></i>
+                {{ profile.username }}
+                {% if profile.is_staff %}
+                <span class="badge badge-info">STAFF</span>
+                {% endif %}
+                {% if not profile.is_active %}
+                <span class="badge badge-danger">INACTIVE</span>
+                {% endif %}
+            </h1>
+            <p class="subtitle">Member since {{ profile.date_joined|date:"F d, Y" }}</p>
+        </div>
+        <div class="table-actions">
+            <a href="{% url 'manager:users' %}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Users
+            </a>
+        </div>
+    </div>
+
+    <!-- User Info Cards -->
+    <div class="detail-grid">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-id-card"></i> Profile Information</h3>
+            <div class="detail-field">
+                <div class="detail-label">Username</div>
+                <div class="detail-value">{{ profile.username }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">Email</div>
+                <div class="detail-value">{{ profile.email }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">User Code</div>
+                <div class="detail-value">
+                    <code style="font-size:14px;background:var(--bg-color);padding:4px 10px;border-radius:var(--radius-xs);">{{ profile.user_code }}</code>
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">Purpose</div>
+                <div class="detail-value">
+                    <span class="badge badge-{% if profile.purpose == 'farmer' %}success{% elif profile.purpose == 'company' %}info{% else %}primary{% endif %}">
+                        {{ profile.get_purpose_display }}
+                    </span>
+                </div>
+            </div>
+            {% if profile.birth_date %}
+            <div class="detail-field">
+                <div class="detail-label">Birth Date</div>
+                <div class="detail-value">{{ profile.birth_date|date:"F d, Y" }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-chart-bar"></i> Activity Summary</h3>
+            <div class="detail-field">
+                <div class="detail-label">Total Scans</div>
+                <div class="detail-value" style="font-size:32px;font-weight:900;color:var(--primary);">{{ profile.scan_count }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">Staff Status</div>
+                <div class="detail-value">
+                    {% if profile.is_staff %}
+                    <span class="badge badge-info"><i class="fas fa-shield-halved"></i> Staff Member</span>
+                    {% else %}
+                    <span class="badge badge-primary">Regular User</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">Account Status</div>
+                <div class="detail-value">
+                    {% if profile.is_active %}
+                    <span class="badge badge-success"><i class="fas fa-check"></i> Active</span>
+                    {% else %}
+                    <span class="badge badge-danger"><i class="fas fa-ban"></i> Deactivated</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">Last Login</div>
+                <div class="detail-value">
+                    {% if profile.last_login %}
+                    {{ profile.last_login|date:"M d, Y H:i" }}
+                    {% else %}
+                    <span style="color:var(--text-muted);">Never logged in</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Admin Actions -->
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap;">
+                {% if not profile.is_superuser %}
+                <form method="POST" action="{% url 'manager:toggle_staff' profile.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm {% if profile.is_staff %}btn-secondary{% else %}btn-primary{% endif %}"
+                            onclick="return confirm('Are you sure you want to {% if profile.is_staff %}remove staff status from{% else %}grant staff status to{% endif %} {{ profile.username }}?')">
+                        <i class="fas {% if profile.is_staff %}fa-user-minus{% else %}fa-user-shield{% endif %}"></i>
+                        {% if profile.is_staff %}Remove Staff{% else %}Make Staff{% endif %}
+                    </button>
+                </form>
+                <form method="POST" action="{% url 'manager:toggle_active' profile.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm {% if profile.is_active %}btn-danger{% else %}btn-primary{% endif %}"
+                            onclick="return confirm('Are you sure you want to {% if profile.is_active %}deactivate{% else %}activate{% endif %} {{ profile.username }}?')">
+                        <i class="fas {% if profile.is_active %}fa-ban{% else %}fa-check-circle{% endif %}"></i>
+                        {% if profile.is_active %}Deactivate{% else %}Activate{% endif %}
+                    </button>
+                </form>
+                <form method="POST" action="{% url 'manager:delete_user' profile.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger"
+                            onclick="return confirm('⚠️ PERMANENT DELETE: Are you sure you want to permanently delete {{ profile.username }}? This will remove ALL their data (scans, messages, complaints). This action CANNOT be undone.')">
+                        <i class="fas fa-trash-alt"></i> Delete User
+                    </button>
+                </form>
+                {% else %}
+                <span class="badge badge-warning"><i class="fas fa-crown"></i> Superuser — Cannot modify</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# ===== SUBSCRIPTION MANAGEMENT CARD ===== #}
+    <div class="card" style="margin-bottom: 20px;">
+        <h3 class="card-title"><i class="fas fa-credit-card"></i> Subscription & Plan</h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+            <div class="detail-field">
+                <div class="detail-label">Current Plan</div>
+                <div class="detail-value">
+                    <span class="badge {% if profile.plan_type == 'premium' %}badge-warning{% elif profile.plan_type == 'basic' %}badge-info{% else %}badge-success{% endif %}" style="font-size: 14px; padding: 6px 16px; text-transform: capitalize;">
+                        {% if profile.plan_type == 'premium' %}<i class="fas fa-crown"></i>
+                        {% elif profile.plan_type == 'basic' %}<i class="fas fa-star"></i>
+                        {% else %}<i class="fas fa-seedling"></i>{% endif %}
+                        {{ profile.get_plan_type_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">Total Scans (All Time)</div>
+                <div class="detail-value" style="font-size: 24px; font-weight: 900; color: var(--primary);">{{ profile.total_scans_count }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">Today's Scans</div>
+                <div class="detail-value" style="font-size: 24px; font-weight: 900; color: var(--text-main);">{{ profile.daily_scan_count }}</div>
+            </div>
+            {% if profile.subscription_start %}
+            <div class="detail-field">
+                <div class="detail-label">Subscription Started</div>
+                <div class="detail-value">{{ profile.subscription_start|date:"M d, Y H:i" }}</div>
+            </div>
+            {% endif %}
+            {% if profile.subscription_end %}
+            <div class="detail-field">
+                <div class="detail-label">Subscription Ends</div>
+                <div class="detail-value">
+                    {{ profile.subscription_end|date:"M d, Y H:i" }}
+                    {% if not profile.is_subscription_active %}
+                    <span class="badge badge-danger" style="margin-left: 6px;">EXPIRED</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if not profile.is_superuser %}
+        <div style="padding-top: 16px; border-top: 1px solid var(--border);">
+            <form method="POST" action="{% url 'manager:change_plan' profile.pk %}" style="display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;">
+                {% csrf_token %}
+                <div style="flex: 1; min-width: 140px;">
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">New Plan</label>
+                    <select name="plan" style="
+                        width: 100%; padding: 10px 14px; border-radius: 8px;
+                        border: 2px solid var(--border); background: var(--bg-color);
+                        color: var(--text-main); font-size: 14px; font-weight: 600;
+                        font-family: inherit; cursor: pointer;
+                    ">
+                        <option value="free" {% if profile.plan_type == 'free' %}selected{% endif %}>🌱 Free</option>
+                        <option value="basic" {% if profile.plan_type == 'basic' %}selected{% endif %}>⭐ Basic (1,000 DA)</option>
+                        <option value="premium" {% if profile.plan_type == 'premium' %}selected{% endif %}>👑 Premium (2,500 DA)</option>
+                    </select>
+                </div>
+                <div style="min-width: 120px;">
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Duration (days)</label>
+                    <input type="number" name="duration" value="30" min="1" max="365" style="
+                        width: 100%; padding: 10px 14px; border-radius: 8px;
+                        border: 2px solid var(--border); background: var(--bg-color);
+                        color: var(--text-main); font-size: 14px; font-weight: 600;
+                        font-family: inherit;
+                    ">
+                </div>
+                <button type="submit" class="btn btn-sm btn-primary" style="padding: 10px 20px;"
+                        onclick="return confirm('Change {{ profile.username }}\'s plan?')">
+                    <i class="fas fa-sync-alt"></i> Change Plan
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Scans -->
+    <div class="card" style="overflow-x:auto;">
+        <h3 class="card-title">
+            <i class="fas fa-microscope"></i>
+            Recent Scans
+            <span style="font-weight:500;font-size:13px;color:var(--text-muted);margin-left:8px;">({{ recent_scans|length }})</span>
+        </h3>
+
+        {% if recent_scans %}
+        <table class="data-table" role="table">
+            <thead>
+                <tr>
+                    <th scope="col">Disease</th>
+                    <th scope="col">Confidence</th>
+                    <th scope="col">Severity</th>
+                    <th scope="col">Stage</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in recent_scans %}
+                <tr class="{% if scan.disease_ratio >= 70 %}row-critical{% elif scan.disease_ratio >= 40 %}row-warning{% endif %}">
+                    <td><strong>{{ scan.prediction }}</strong></td>
+                    <td>{{ scan.confidence }}%</td>
+                    <td>
+                        <span class="badge {% if scan.disease_ratio >= 70 %}badge-danger{% elif scan.disease_ratio >= 40 %}badge-warning{% else %}badge-success{% endif %}">
+                            {{ scan.disease_ratio }}%
+                        </span>
+                    </td>
+                    <td>{{ scan.disease_stage }}</td>
+                    <td>{{ scan.created_at|date:"M d, Y" }}</td>
+                    <td class="cell-actions">
+                        <a href="{% url 'manager:scan_detail' scan.photo_id %}" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        {% include "analysis/components/empty_state.html" with icon="fa-microscope" title="No Scans" message="This user has not performed any scans yet." %}
+        {% endif %}
+    </div>
+{% endblock %}

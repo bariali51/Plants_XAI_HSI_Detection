@@ -1,0 +1,375 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Catalog Management" %} — {{ company.company_name }}{% endblock %}
+{% block header_title %}{% trans "Resource Management" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/companies.css' %}">
+<style>
+    /* ── Product Management Ultra-Pro ── */
+    .catalog-layout-ultra {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .manage-hero-pro {
+        background: var(--emerald-gradient);
+        border-radius: 24px;
+        padding: 24px 32px;
+        color: #fff;
+        margin-bottom: 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 15px 35px rgba(46, 125, 50, 0.15);
+    }
+
+    .hero-info-pro h2 { font-size: 24px; font-weight: 900; margin-bottom: 4px; }
+    .hero-info-pro p { font-size: 14px; font-weight: 600; opacity: 0.9; }
+
+    /* Modern Add Form */
+    .form-card-ultra {
+        background: #fff;
+        border-radius: 28px;
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 40px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .form-header-pro {
+        padding: 20px 28px;
+        background: #f8fafc;
+        border-bottom: 1px solid rgba(0,0,0,0.03);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+    }
+
+    .form-title-pro {
+        font-size: 16px;
+        font-weight: 850;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .form-body-pro {
+        padding: 32px;
+        display: none;
+    }
+
+    .form-body-pro.show { display: block; }
+
+    /* Catalog Grid */
+    .catalog-grid-pro {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+    }
+
+    .product-card-pro {
+        background: #fff;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card-pro:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        border-color: var(--primary-glow);
+    }
+
+    .product-visual-pro {
+        height: 180px;
+        position: relative;
+        overflow: hidden;
+        background: #f1f5f9;
+    }
+
+    .product-img-pro {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s;
+    }
+
+    .product-card-pro:hover .product-img-pro {
+        transform: scale(1.1);
+    }
+
+    .status-badge-pro {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        background: rgba(255,255,255,0.9);
+        backdrop-filter: blur(4px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .status-badge-pro.active { color: #10b981; }
+    .status-badge-pro.paused { color: #94a3b8; }
+
+    .product-info-pro {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-name-pro {
+        font-size: 17px;
+        font-weight: 850;
+        color: var(--text-main);
+        margin-bottom: 6px;
+    }
+
+    .product-meta-pro {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .price-tag-pro {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--primary);
+        background: var(--primary-bg);
+        padding: 2px 10px;
+        border-radius: 8px;
+    }
+
+    .category-tag-pro {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        background: #f1f5f9;
+        padding: 2px 10px;
+        border-radius: 8px;
+    }
+
+    .product-desc-pro {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: 20px;
+        flex: 1;
+    }
+
+    .product-actions-pro {
+        display: flex;
+        gap: 10px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .btn-action-pro {
+        flex: 1;
+        height: 38px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 800;
+        transition: all 0.2s;
+        text-decoration: none !important;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-edit-pro { background: #f8fafc; color: #64748b; border: 1px solid rgba(0,0,0,0.05); }
+    .btn-edit-pro:hover { background: #e2e8f0; color: var(--text-main); }
+    
+    .btn-delete-pro { background: #fff1f2; color: #ef4444; }
+    .btn-delete-pro:hover { background: #fee2e2; transform: scale(1.02); }
+
+    [data-theme="dark"] .form-card-ultra,
+    [data-theme="dark"] .product-card-pro { background: #1e293b; border-color: rgba(255,255,255,0.05); }
+    [data-theme="dark"] .form-header-pro { background: rgba(255,255,255,0.02); }
+
+    /* Search Design */
+    .search-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input-wrapper i {
+        position: absolute;
+        left: 16px;
+        color: #94a3b8;
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 12px 16px 12px 42px;
+        border-radius: 14px;
+        border: 2px solid #f1f5f9;
+        background: #f8fafc;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
+        transition: all 0.3s;
+        outline: none;
+    }
+
+    .search-input:focus {
+        border-color: var(--primary);
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(46, 125, 50, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="catalog-layout-ultra">
+    
+    <!-- Hero Section -->
+    <div class="manage-hero-pro fade-in-down">
+        <div class="hero-info-pro">
+            <h2>📦 {% trans "Catalog Management" %}</h2>
+            <p>{% trans "Organization and inventory control for" %} {{ company.company_name }}</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <div class="hero-stats-pro" style="text-align: right;">
+                <div style="font-size: 28px; font-weight: 900;">{{ products|length }}</div>
+                <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; opacity: 0.8;">{% trans "Active Listings" %}</div>
+            </div>
+            <a href="{% url 'companies:dashboard' %}"
+               style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:14px;background:rgba(255,255,255,0.2);color:#fff;font-size:13px;font-weight:800;text-decoration:none;border:1.5px solid rgba(255,255,255,0.35);backdrop-filter:blur(6px);transition:all .2s;"
+               onmouseover="this.style.background='rgba(255,255,255,0.32)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                <i class="fas fa-arrow-left"></i> {% trans "Dashboard" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Collapsible Add Form -->
+    <div class="form-card-ultra fade-in-up">
+        <div class="form-header-pro" onclick="document.getElementById('addProductBody').classList.toggle('show')">
+            <div class="form-title-pro">
+                <i class="fas fa-plus-circle" style="color: var(--primary);"></i>
+                {% trans "Register New Product" %}
+            </div>
+            <i class="fas fa-chevron-down" style="color: #94a3b8;"></i>
+        </div>
+        <div class="form-body-pro" id="addProductBody">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-pro-grid">
+                    {% for field in form %}
+                    <div class="form-field-pro {% if field.name == 'description' %}form-field-full{% endif %}">
+                        <label class="label-pro" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                        <div class="input-wrapper-pro">
+                            {{ field }}
+                        </div>
+                        {% if field.errors %}<span class="form-error">{{ field.errors.0 }}</span>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 32px; display: flex; justify-content: flex-end;">
+                    <button type="submit" class="btn-primary" style="padding: 14px 32px; border-radius: 16px; font-weight: 800;">
+                        <i class="fas fa-save" style="margin-right: 8px;"></i> {% trans "Publish to Catalog" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Catalog View -->
+    <div class="section-header-pro fade-in-up" style="margin-bottom: 24px;">
+        <h3 class="section-title-pro"><i class="fas fa-boxes-stacked"></i> {% trans "Inventory Directory" %}</h3>
+        <div class="search-input-wrapper" style="width: 300px;">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="{% trans 'Quick search...' %}" class="search-input" id="catalogSearch" onkeyup="filterItems(this.value, 'catalogGrid')">
+        </div>
+    </div>
+
+    {% if products %}
+    <div class="catalog-grid-pro" id="catalogGrid">
+        {% for product in products %}
+        <div class="product-card-pro fade-in-up" style="animation-delay: {{ forloop.counter0 }}50ms" data-name="{{ product.name|lower }}">
+            <div class="product-visual-pro">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img-pro">
+                {% else %}
+                <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f1f5f9; color:#cbd5e1; font-size:48px;">
+                    <i class="fas fa-box"></i>
+                </div>
+                {% endif %}
+                <span class="status-badge-pro {% if product.is_active %}active{% endif %}">
+                    {% if product.is_active %}{% trans "Active" %}{% else %}{% trans "Paused" %}{% endif %}
+                </span>
+            </div>
+            <div class="product-info-pro">
+                <h4 class="product-name-pro">{{ product.name }}</h4>
+                <div class="product-meta-pro">
+                    <span class="category-tag-pro">{{ product.get_category_display }}</span>
+                    {% if product.price %}
+                    <span class="price-tag-pro">{{ product.price }} {{ product.currency }}</span>
+                    {% endif %}
+                </div>
+                <p class="product-desc-pro">{{ product.description|truncatewords:15 }}</p>
+                
+                <div class="product-actions-pro">
+                    <a href="#" class="btn-action-pro btn-edit-pro">
+                        <i class="fas fa-pen-nib"></i> {% trans "Edit" %}
+                    </a>
+                    <form method="POST" action="{% url 'companies:delete_product' product.pk %}" style="flex: 1;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-action-pro btn-delete-pro" onclick="return confirm('{% trans "Confirm deletion?" %}')">
+                            <i class="fas fa-trash-alt"></i> {% trans "Delete" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state glass-card fade-in-up" style="padding: 80px 40px; border-radius: 32px; border: 2px dashed rgba(0,0,0,0.05);">
+        <i class="fas fa-box-open" style="font-size: 48px; color: var(--text-muted); margin-bottom: 20px;"></i>
+        <h4 style="font-weight: 850; color: var(--text-main); margin-bottom: 8px;">{% trans "Catalog Empty" %}</h4>
+        <p style="color: var(--text-muted); font-size: 14px;">{% trans "You haven't added any products yet. Use the form above to start building your digital storefront." %}</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterItems(query, gridId) {
+    const grid = document.getElementById(gridId);
+    const cards = grid.getElementsByClassName('product-card-pro');
+    const q = query.toLowerCase();
+    
+    for (let card of cards) {
+        const name = card.getAttribute('data-name');
+        if (name.includes(q)) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    }
+}
+</script>
+{% endblock %}

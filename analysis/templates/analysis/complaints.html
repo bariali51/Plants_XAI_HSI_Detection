@@ -1,0 +1,147 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "My Complaints" %} | Nabtati{% endblock %}
+{% block meta_description %}{% trans "Submit and track your complaints" %}{% endblock %}
+{% block header_title %}{% trans "My Complaints" %}{% endblock %}
+{% block header_subtitle %}{% trans "Submit feedback or report issues" %}{% endblock %}
+
+{% block nav_complaints %}active{% endblock %}
+
+{% block page_styles %}
+.complaints-container { max-width: 800px; margin: 0 auto; }
+
+.complaint-form-card { margin-bottom: 24px; }
+
+.complaint-list { display: flex; flex-direction: column; gap: 12px; }
+
+.complaint-item {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px;
+    background: var(--surface); border-radius: 14px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+    text-decoration: none; color: inherit;
+}
+.complaint-item:hover {
+    transform: translateX(4px);
+    border-color: var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.complaint-id {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--bg-color); display: flex; align-items: center;
+    justify-content: center; font-size: 14px; font-weight: 800;
+    color: var(--text-muted); flex-shrink: 0;
+}
+
+.complaint-info { flex: 1; min-width: 0; }
+.complaint-title {
+    font-size: 15px; font-weight: 700; color: var(--text-main);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.complaint-date {
+    font-size: 12px; color: var(--text-muted); margin-top: 2px;
+}
+
+.status-badge {
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.status-badge.unseen {
+    background: rgba(239, 68, 68, 0.1); color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.status-badge.seen {
+    background: rgba(34, 197, 94, 0.1); color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.form-group { margin-bottom: 20px; }
+.form-label {
+    display: block; font-size: 12px; font-weight: 700; color: var(--text-muted);
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.form-input, .form-textarea {
+    width: 100%; padding: 12px 16px; border: 2px solid var(--border);
+    border-radius: 10px; font-size: 14px; font-weight: 600;
+    font-family: inherit; background: var(--bg-color); color: var(--text-main);
+    transition: border-color 0.2s; box-sizing: border-box;
+}
+.form-input:focus, .form-textarea:focus { outline: none; border-color: var(--primary); }
+.form-input.error, .form-textarea.error { border-color: var(--danger, #ef4444); }
+.form-textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+.form-error { font-size: 12px; font-weight: 600; color: var(--danger, #ef4444); margin-top: 4px; }
+{% endblock %}
+
+{% block content %}
+<div class="complaints-container">
+
+    {# ===== SUBMIT NEW COMPLAINT ===== #}
+    <div class="card complaint-form-card">
+        <h3 class="card-title"><i class="fas fa-paper-plane"></i> {% trans "Submit New Complaint" %}</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="title">{% trans "Title" %}</label>
+                <input type="text" class="form-input {% if errors.title %}error{% endif %}"
+                       id="title" name="title" placeholder="{% trans 'Brief description of your issue' %}"
+                       required minlength="3" maxlength="200">
+                {% if errors.title %}<div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ errors.title }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="message">{% trans "Message" %}</label>
+                <textarea class="form-textarea {% if errors.message %}error{% endif %}"
+                          id="message" name="message" placeholder="{% trans 'Describe your complaint or feedback in detail...' %}"
+                          required minlength="10"></textarea>
+                {% if errors.message %}<div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ errors.message }}</div>{% endif %}
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary" style="padding:12px 28px;">
+                <i class="fas fa-paper-plane"></i> {% trans "Send Complaint" %}
+            </button>
+        </form>
+    </div>
+
+    {# ===== COMPLAINT LIST ===== #}
+    {% if complaints %}
+    <div class="card">
+        <h3 class="card-title">
+            <i class="fas fa-list"></i> {% trans "My Previous Complaints" %}
+            <span class="badge badge-primary" style="margin-left:8px;">{{ complaints|length }}</span>
+        </h3>
+        <div class="complaint-list">
+            {% for c in complaints %}
+            <a href="{% url 'complaint_detail' c.id %}" class="complaint-item">
+                <div class="complaint-id">#{{ c.id }}</div>
+                <div class="complaint-info">
+                    <div class="complaint-title">{{ c.title }}</div>
+                    <div class="complaint-date">{{ c.created_at|date:"M d, Y — H:i" }}</div>
+                </div>
+                <span class="status-badge {{ c.status }}">
+                    {% if c.status == 'seen' %}
+                    <i class="fas fa-check-circle"></i> {% trans "Seen" %}
+                    {% else %}
+                    <i class="fas fa-clock"></i> {% trans "Unseen" %}
+                    {% endif %}
+                </span>
+                <form method="POST" action="{% url 'delete_complaint' c.id %}"
+                      onsubmit="return confirm('{% trans "Delete this complaint?" %}')"
+                      style="margin:0;flex-shrink:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm" style="padding:6px 10px;background:transparent;border:1px solid var(--border);color:var(--danger,#ef4444);font-size:12px;cursor:pointer;" title="{% trans 'Delete' %}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+                <i class="fas fa-chevron-right" style="color:var(--text-muted);font-size:12px;"></i>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    {% include "analysis/components/empty_state.html" with icon="fa-inbox" title="No Complaints Yet" message="You haven't submitted any complaints. Use the form above to send feedback." %}
+    {% endif %}
+</div>
+{% endblock %}

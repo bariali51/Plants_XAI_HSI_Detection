@@ -1,0 +1,470 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Revenue Overview | Nabtati{% endblock %}
+{% block meta_description %}Detailed revenue and paid subscriber overview for Nabtati admin.{% endblock %}
+{% block header_title %}Revenue Overview{% endblock %}
+{% block header_subtitle %}Paid subscriptions, account details & community activity{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'manager:dashboard' %}" class="btn btn-secondary" style="gap:6px;">
+    <i class="fas fa-arrow-left"></i> Dashboard
+</a>
+{% endblock %}
+
+{% block page_styles %}
+/* ===== REVENUE PAGE STYLES ===== */
+
+/* KPI strip */
+.rev-kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+.rev-kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: var(--shadow-sm);
+    transition: transform .2s, box-shadow .2s;
+}
+.rev-kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.rev-kpi-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; margin-bottom: 4px;
+}
+.rev-kpi-icon.green  { background: var(--primary-bg); color: var(--primary); }
+.rev-kpi-icon.indigo { background: rgba(99,102,241,.12); color: #6366f1; }
+.rev-kpi-icon.amber  { background: rgba(245,158,11,.12); color: #f59e0b; }
+.rev-kpi-icon.rose   { background: rgba(239,68,68,.12);  color: #ef4444; }
+.rev-kpi-icon.sky    { background: rgba(14,165,233,.12); color: #0ea5e9; }
+.rev-kpi-value {
+    font-size: 28px; font-weight: 900; color: var(--text-main); line-height: 1;
+}
+.rev-kpi-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .5px; color: var(--text-muted);
+}
+
+/* Search bar */
+.rev-search-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    box-shadow: var(--shadow-sm);
+}
+.rev-search-input {
+    flex: 1; min-width: 220px;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg-color); border: 2px solid var(--border);
+    border-radius: 12px; padding: 9px 14px;
+    transition: all .2s;
+}
+.rev-search-input:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(46,125,50,.08);
+}
+.rev-search-input i { color: var(--primary); font-size: 14px; }
+.rev-search-input input {
+    border: none; background: transparent; outline: none;
+    font-size: 14px; font-weight: 600; color: var(--text-main); width: 100%;
+}
+.rev-search-input input::placeholder { color: var(--text-muted); }
+.rev-plan-pill {
+    padding: 9px 16px; border-radius: 10px;
+    border: 2px solid var(--border); background: var(--bg-color);
+    font-size: 13px; font-weight: 700; color: var(--text-muted);
+    cursor: pointer; transition: all .2s; text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+}
+.rev-plan-pill:hover, .rev-plan-pill.active {
+    border-color: var(--primary); color: var(--primary);
+    background: var(--primary-bg);
+}
+.rev-plan-pill.active-basic   { border-color: #6366f1; color: #6366f1; background: rgba(99,102,241,.08); }
+.rev-plan-pill.active-premium { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,.08); }
+
+/* Results chip */
+.results-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 20px;
+    background: var(--primary-bg); color: var(--primary);
+    font-size: 12px; font-weight: 800;
+}
+
+/* Subscriber table */
+.sub-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+.sub-card-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+}
+.sub-card-header h3 {
+    margin: 0; font-size: 16px; font-weight: 800;
+    display: flex; align-items: center; gap: 8px; color: var(--text-main);
+}
+.sub-card-header h3 i { color: var(--primary); }
+
+.sub-tbl { width: 100%; border-collapse: collapse; }
+.sub-tbl th {
+    text-align: left; font-size: 11px; font-weight: 800;
+    color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px;
+    padding: 12px 16px; border-bottom: 2px solid var(--border);
+    background: var(--bg-color);
+}
+.sub-tbl td {
+    padding: 14px 16px; font-size: 13px; font-weight: 600;
+    color: var(--text-main); border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.sub-tbl tr:last-child td { border-bottom: none; }
+.sub-tbl tr:hover td { background: var(--bg-color); }
+
+/* Avatar */
+.sub-avatar {
+    width: 38px; height: 38px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 900; color: #fff;
+    flex-shrink: 0;
+}
+.sub-avatar.basic   { background: linear-gradient(135deg,#6366f1,#4338ca); }
+.sub-avatar.premium { background: linear-gradient(135deg,#f59e0b,#b45309); }
+.sub-avatar.company { background: linear-gradient(135deg,#3b82f6,#1d4ed8); }
+
+/* Days pill */
+.days-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 8px; font-size: 12px; font-weight: 800;
+}
+.days-ok   { background: rgba(34,197,94,.12);  color: #16a34a; }
+.days-warn { background: rgba(245,158,11,.12); color: #d97706; }
+.days-crit { background: rgba(239,68,68,.12);  color: #dc2626; }
+
+/* Empty state */
+.empty-state {
+    text-align: center; padding: 80px 20px; color: var(--text-muted);
+}
+.empty-state i { font-size: 48px; margin-bottom: 16px; opacity: .3; display: block; }
+.empty-state h3 { color: var(--text-main); margin-bottom: 8px; }
+
+/* Stat mini bar */
+.mini-bar { display: flex; gap: 4px; align-items: center; }
+.mini-bar-fill {
+    height: 6px; border-radius: 3px;
+    background: var(--primary); flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .rev-kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .sub-tbl .hide-sm { display: none; }
+}
+{% endblock %}
+
+{% block content %}
+
+{# ===== KPI STRIP ===== #}
+<div class="rev-kpi-strip">
+    <div class="rev-kpi-card" style="border-left: 4px solid var(--primary);">
+        <div class="rev-kpi-icon green"><i class="fas fa-coins"></i></div>
+        <div class="rev-kpi-value">{{ revenue_stats.total_monthly_revenue|default:"0" }} <span style="font-size:14px;color:var(--text-muted);">DA</span></div>
+        <div class="rev-kpi-label">Total Revenue (All Sources)</div>
+    </div>
+    <div class="rev-kpi-card">
+        <div class="rev-kpi-icon indigo"><i class="fas fa-star"></i></div>
+        <div class="rev-kpi-value">{{ revenue_stats.revenue_basic|default:"0" }} <span style="font-size:14px;color:var(--text-muted);">DA</span></div>
+        <div class="rev-kpi-label">Basic Subscriptions</div>
+    </div>
+    <div class="rev-kpi-card">
+        <div class="rev-kpi-icon amber"><i class="fas fa-crown"></i></div>
+        <div class="rev-kpi-value">{{ revenue_stats.revenue_premium|default:"0" }} <span style="font-size:14px;color:var(--text-muted);">DA</span></div>
+        <div class="rev-kpi-label">Premium Subscriptions</div>
+    </div>
+    <div class="rev-kpi-card" style="border-left: 4px solid #8b5cf6;">
+        <div class="rev-kpi-icon" style="background:rgba(139,92,246,.12);color:#8b5cf6;"><i class="fas fa-bullhorn"></i></div>
+        <div class="rev-kpi-value" style="color:#8b5cf6;">{{ revenue_stats.revenue_promotions|default:"0" }} <span style="font-size:14px;color:var(--text-muted);">DA</span></div>
+        <div class="rev-kpi-label">Community Ads Revenue</div>
+    </div>
+    <div class="rev-kpi-card">
+        <div class="rev-kpi-icon green"><i class="fas fa-check-circle"></i></div>
+        <div class="rev-kpi-value">{{ sub_stats.active_subscriptions|default:"0" }}</div>
+        <div class="rev-kpi-label">Active Subscriptions</div>
+    </div>
+    <div class="rev-kpi-card">
+        <div class="rev-kpi-icon" style="background:rgba(139,92,246,.12);color:#8b5cf6;"><i class="fas fa-rectangle-ad"></i></div>
+        <div class="rev-kpi-value" style="color:#8b5cf6;">{{ revenue_stats.promo_active_count|default:"0" }}</div>
+        <div class="rev-kpi-label">Live Community Ads</div>
+    </div>
+</div>
+
+{# ===== REVENUE BREAKDOWN BAR ===== #}
+{% if revenue_stats.total_monthly_revenue > 0 %}
+<div class="sub-card" style="margin-bottom:20px;padding:20px 24px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <h3 style="margin:0;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--text-main);">
+            <i class="fas fa-chart-pie" style="color:var(--primary);"></i> Revenue Breakdown
+        </h3>
+        <span style="font-size:13px;font-weight:700;color:var(--text-muted);">Total: <strong style="color:var(--text-main);">{{ revenue_stats.total_monthly_revenue }} DA</strong></span>
+    </div>
+    <div style="display:flex;height:10px;border-radius:8px;overflow:hidden;gap:2px;">
+        {% if revenue_stats.total_monthly_revenue > 0 %}
+        {% widthratio revenue_stats.revenue_basic revenue_stats.total_monthly_revenue 100 as pct_basic %}
+        {% widthratio revenue_stats.revenue_premium revenue_stats.total_monthly_revenue 100 as pct_premium %}
+        {% widthratio revenue_stats.revenue_promotions revenue_stats.total_monthly_revenue 100 as pct_promo %}
+        <div style="flex:{{ pct_basic }};background:linear-gradient(90deg,#6366f1,#4338ca);border-radius:4px;" title="Basic: {{ revenue_stats.revenue_basic }} DA"></div>
+        <div style="flex:{{ pct_premium }};background:linear-gradient(90deg,#f59e0b,#b45309);border-radius:4px;" title="Premium: {{ revenue_stats.revenue_premium }} DA"></div>
+        <div style="flex:{{ pct_promo }};background:linear-gradient(90deg,#8b5cf6,#6d28d9);border-radius:4px;" title="Ads: {{ revenue_stats.revenue_promotions }} DA"></div>
+        {% endif %}
+    </div>
+    <div style="display:flex;gap:20px;margin-top:12px;flex-wrap:wrap;">
+        <span style="font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;">
+            <span style="width:10px;height:10px;border-radius:2px;background:#6366f1;display:inline-block;"></span>
+            Basic — {{ revenue_stats.revenue_basic }} DA
+            <span style="color:var(--text-muted);">({{ revenue_stats.active_basic }} users)</span>
+        </span>
+        <span style="font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;">
+            <span style="width:10px;height:10px;border-radius:2px;background:#f59e0b;display:inline-block;"></span>
+            Premium — {{ revenue_stats.revenue_premium }} DA
+            <span style="color:var(--text-muted);">({{ revenue_stats.active_premium }} users)</span>
+        </span>
+        <span style="font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;">
+            <span style="width:10px;height:10px;border-radius:2px;background:#8b5cf6;display:inline-block;"></span>
+            Community Ads — {{ revenue_stats.revenue_promotions }} DA
+            <span style="color:var(--text-muted);">({{ revenue_stats.promo_active_count }} live · {{ revenue_stats.promo_expired_count }} completed)</span>
+        </span>
+    </div>
+</div>
+{% endif %}
+
+
+{# ===== SEARCH & FILTER BAR ===== #}
+<form method="GET" id="filterForm">
+    <div class="rev-search-card">
+        <div class="rev-search-input">
+            <i class="fas fa-search"></i>
+            <input type="text" name="q" value="{{ search }}"
+                   placeholder="Search subscriber name or email…"
+                   autocomplete="off" id="searchInput">
+        </div>
+
+        <a href="?{% if search %}q={{ search }}&{% endif %}"
+           class="rev-plan-pill {% if not plan_filter %}active{% endif %}">
+            <i class="fas fa-th"></i> All
+        </a>
+        <a href="?{% if search %}q={{ search }}&{% endif %}plan=basic"
+           class="rev-plan-pill {% if plan_filter == 'basic' %}active-basic{% endif %}">
+            <i class="fas fa-star"></i> Basic
+        </a>
+        <a href="?{% if search %}q={{ search }}&{% endif %}plan=premium"
+           class="rev-plan-pill {% if plan_filter == 'premium' %}active-premium{% endif %}">
+            <i class="fas fa-crown"></i> Premium
+        </a>
+
+        <button type="submit" class="btn btn-primary" style="padding:9px 18px;">
+            <i class="fas fa-search"></i> Search
+        </button>
+
+        {% if search or plan_filter %}
+        <a href="{% url 'manager:revenue_overview' %}" class="btn btn-secondary" style="padding:9px 18px;">
+            <i class="fas fa-times"></i> Clear
+        </a>
+        {% endif %}
+    </div>
+
+    {% if search or plan_filter %}
+    <div style="margin-bottom:16px;">
+        <span class="results-chip">
+            <i class="fas fa-filter"></i>
+            {{ total_count }} subscriber{{ total_count|pluralize }}
+            {% if search %}· "{{ search }}"{% endif %}
+            {% if plan_filter %}· {{ plan_filter|capfirst }} plan{% endif %}
+        </span>
+    </div>
+    {% endif %}
+</form>
+
+{# ===== SUBSCRIBER TABLE ===== #}
+<div class="sub-card">
+    <div class="sub-card-header">
+        <h3><i class="fas fa-users"></i> Paid Subscribers
+            <span class="badge badge-success" style="font-size:12px;">{{ total_count }}</span>
+        </h3>
+        <span style="font-size:12px;color:var(--text-muted);font-weight:600;">
+            <i class="fas fa-clock"></i> Active subscriptions only
+        </span>
+    </div>
+
+    {% if subscribers %}
+    <div style="overflow-x:auto;">
+        <table class="sub-tbl">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Account</th>
+                    <th>Type</th>
+                    <th>Plan</th>
+                    <th class="hide-sm">Subscription Expires</th>
+                    <th>Days Left</th>
+                    <th>Scans</th>
+                    <th>Community Posts</th>
+                    <th><i class="fas fa-bullhorn" style="color:#8b5cf6;"></i> Ads Revenue</th>
+                    <th class="hide-sm">Joined</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="subNoResults" style="display:none;">
+                    <td colspan="11" style="text-align:center;padding:32px;color:var(--text-muted);">
+                        <i class="fas fa-search" style="margin-right:6px;"></i>No subscribers match.
+                    </td>
+                </tr>
+                {% for u in subscribers %}
+                <tr>
+                    <td style="color:var(--text-muted);font-size:12px;font-weight:800;">{{ forloop.counter }}</td>
+
+                    {# Account column #}
+                    <td>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <span class="sub-avatar {% if u.plan_type == 'premium' %}premium{% elif u.role == 'company' %}company{% else %}basic{% endif %}">
+                                {{ u.username|make_list|first|upper }}
+                            </span>
+                            <div>
+                                <div style="font-weight:800;font-size:13px;">{{ u.username }}</div>
+                                <div style="font-size:11px;color:var(--text-muted);">{{ u.email }}</div>
+                                <code style="font-size:10px;background:var(--bg-color);padding:1px 5px;border-radius:4px;color:var(--text-muted);">{{ u.user_code }}</code>
+                            </div>
+                        </div>
+                    </td>
+
+                    {# Account type #}
+                    <td>
+                        {% if u.role == 'company' %}
+                        <span class="badge badge-info" style="font-size:11px;"><i class="fas fa-building"></i> Company</span>
+                        {% else %}
+                        <span class="badge badge-success" style="font-size:11px;"><i class="fas fa-user"></i> User</span>
+                        {% endif %}
+                    </td>
+
+                    {# Plan badge #}
+                    <td>
+                        {% if u.plan_type == 'premium' %}
+                        <span class="badge badge-warning" style="font-size:12px;"><i class="fas fa-crown"></i> Premium</span>
+                        {% else %}
+                        <span class="badge badge-info" style="font-size:12px;"><i class="fas fa-star"></i> Basic</span>
+                        {% endif %}
+                    </td>
+
+                    {# Expiry date #}
+                    <td class="hide-sm" style="font-size:12px;white-space:nowrap;color:var(--text-muted);">
+                        <i class="fas fa-calendar" style="margin-right:4px;"></i>
+                        {{ u.subscription_end|date:"M d, Y" }}
+                    </td>
+
+                    {# Days remaining pill #}
+                    <td>
+                        {% if u.subscription_end %}
+                        {% with days_left=u.subscription_end|timeuntil %}
+                        <span class="days-pill days-ok">
+                            <i class="fas fa-clock" style="font-size:9px;"></i>
+                            {{ days_left }}
+                        </span>
+                        {% endwith %}
+                        {% else %}
+                        <span class="days-pill days-crit">N/A</span>
+                        {% endif %}
+                    </td>
+
+                    {# Scan count #}
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <strong style="font-size:15px;">{{ u.scan_count }}</strong>
+                            <span style="font-size:11px;color:var(--text-muted);">scans</span>
+                        </div>
+                    </td>
+
+                    {# Community posts count #}
+                    <td>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            {% if u.post_count > 0 %}
+                            <span style="font-size:15px;font-weight:900;color:var(--primary);">{{ u.post_count }}</span>
+                            <span style="font-size:11px;color:var(--text-muted);">post{{ u.post_count|pluralize }}</span>
+                            {% else %}
+                            <span style="color:var(--text-muted);font-size:12px;">—</span>
+                            {% endif %}
+                        </div>
+                    </td>
+
+                    {# Community ads revenue per user #}
+                    <td>
+                        {% if u.promotion_revenue and u.promotion_revenue > 0 %}
+                        <span style="display:inline-flex;align-items:center;gap:5px;
+                            background:rgba(139,92,246,.1);color:#8b5cf6;
+                            padding:4px 10px;border-radius:8px;font-size:12px;font-weight:800;">
+                            <i class="fas fa-bullhorn" style="font-size:9px;"></i>
+                            {{ u.promotion_revenue }} DA
+                        </span>
+                        {% else %}
+                        <span style="color:var(--text-muted);font-size:12px;">—</span>
+                        {% endif %}
+                    </td>
+
+                    {# Joined date #}
+                    <td class="hide-sm" style="font-size:12px;color:var(--text-muted);">
+                        {{ u.date_joined|date:"M d, Y" }}
+                    </td>
+
+                    {# Action #}
+                    <td>
+                        <a href="{% url 'manager:user_detail' u.pk %}"
+                           class="btn btn-sm btn-secondary" title="View full profile">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-coins"></i>
+        <h3>No active paid subscribers</h3>
+        <p>
+            {% if search or plan_filter %}
+                No subscribers match your current filters.
+                <a href="{% url 'manager:revenue_overview' %}" style="color:var(--primary);">Clear filters</a>
+            {% else %}
+                No users currently have an active Basic or Premium subscription.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+/* Auto-submit on Enter */
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') { document.getElementById('filterForm').submit(); }
+});
+</script>
+{% endblock %}

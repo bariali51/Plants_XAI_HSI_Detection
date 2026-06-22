@@ -1,0 +1,75 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load community_tags %}
+
+{% block title %}{{ profile_user.username }} — Community Profile{% endblock %}
+{% block header_title %}{{ profile_user.get_display_name }}{% endblock %}
+{% block nav_community %}active{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/community.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-layout">
+    <div class="profile-header glass-card">
+        <div class="profile-avatar-lg {% if profile_user.role == 'expert' %}avatar-expert{% elif profile_user.role == 'company' %}avatar-company{% endif %}">
+            {% if profile_user.avatar %}
+            <img src="{{ profile_user.avatar.url }}" alt="{{ profile_user.username }}">
+            {% else %}
+            {{ profile_user.username|make_list|first|upper }}
+            {% endif %}
+        </div>
+        <div class="profile-info">
+            <h2 class="profile-name">
+                {{ profile_user.get_display_name }}
+                {% if profile_user.role == 'expert' %}<span class="role-badge expert-badge">Expert</span>{% endif %}
+                {% if profile_user.role == 'company' %}<span class="role-badge company-badge">Company</span>{% endif %}
+            </h2>
+            <p class="profile-username">@{{ profile_user.username }}</p>
+            {% if profile_user.bio %}<p class="profile-bio">{{ profile_user.bio }}</p>{% endif %}
+            {% if profile_user.location %}<p class="profile-location"><i class="fas fa-map-marker-alt"></i> {{ profile_user.location }}</p>{% endif %}
+        </div>
+        <div class="profile-stats-bar">
+            <div class="profile-stat">
+                <span class="stat-number">{{ post_count }}</span>
+                <span class="stat-label">Posts</span>
+            </div>
+            <div class="profile-stat">
+                <span class="stat-number">{{ comment_count }}</span>
+                <span class="stat-label">Comments</span>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="section-title" style="margin:24px 0 16px;"><i class="fas fa-file-alt"></i> Recent Posts</h3>
+
+    {% if user_posts %}
+    <div class="posts-grid">
+        {% for post in user_posts %}
+        <article class="post-card glass-card">
+            <div class="post-card-header">
+                <span class="post-type-badge {{ post.post_type|post_type_class }}">{{ post.post_type|post_type_icon }} {{ post.get_post_type_display }}</span>
+                <span class="post-time">{{ post.created_at|time_ago }}</span>
+            </div>
+            <a href="{% url 'community:post_detail' post.pk %}" class="post-card-body">
+                <h3 class="post-title">{{ post.title }}</h3>
+                <p class="post-excerpt">{{ post.body|truncate_body:120 }}</p>
+            </a>
+            <div class="post-card-footer">
+                <div class="post-stats">
+                    <span class="stat"><i class="fas fa-heart"></i> {{ post.likes_count|default:"0" }}</span>
+                    <span class="stat"><i class="fas fa-comment"></i> {{ post.comments_count|default:"0" }}</span>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state glass-card">
+        <p>No posts yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

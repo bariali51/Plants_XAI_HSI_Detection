@@ -1,0 +1,344 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Expert Dashboard" %} | Nabtati{% endblock %}
+{% block header_title %}{% trans "Expert Dashboard" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/community.css' %}">
+<style>
+    /* ── Expert Dashboard Ultra-Pro Styles ── */
+    .dashboard-layout-ultra {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .stats-grid-ultra {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card-ultra {
+        background: #fff;
+        border-radius: 28px;
+        padding: 28px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-card-ultra:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        border-color: var(--primary-glow);
+    }
+
+    .stat-icon-pro {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    .stat-icon-pro.users { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .stat-icon-pro.unread { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .stat-icon-pro.total { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+    .stat-info-pro {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-value-pro {
+        font-size: 28px;
+        font-weight: 900;
+        color: var(--text-main);
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .stat-label-pro {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .section-header-pro {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding: 0 4px;
+    }
+
+    .section-title-pro {
+        font-size: 20px;
+        font-weight: 900;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .section-title-pro i {
+        color: var(--primary);
+    }
+
+    /* Inbox / Conversation List */
+    .inbox-list-ultra {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 48px;
+    }
+
+    .inbox-item-ultra {
+        background: #fff;
+        border-radius: 20px;
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid rgba(0,0,0,0.04);
+        text-decoration: none !important;
+        transition: all 0.2s;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+
+    .inbox-item-ultra:hover {
+        background: #f8fafc;
+        transform: translateX(4px);
+        border-color: var(--primary);
+    }
+
+    .inbox-user-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .inbox-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: var(--primary-bg);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .inbox-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .inbox-name {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 2px;
+    }
+
+    .inbox-preview {
+        font-size: 13px;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .inbox-meta {
+        text-align: right;
+        margin-left: 20px;
+    }
+
+    .inbox-time {
+        font-size: 11px;
+        font-weight: 600;
+        color: #94a3b8;
+    }
+
+    /* User Management Grid */
+    .user-grid-ultra {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .user-card-pro {
+        background: #fff;
+        border-radius: 24px;
+        padding: 20px;
+        border: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s;
+    }
+
+    .user-card-pro:hover {
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border-color: var(--primary-glow);
+    }
+
+    .plan-badge-pro {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .plan-badge-pro.pro { background: #dcfce7; color: #166534; }
+    .plan-badge-pro.enterprise { background: #fef9c3; color: #854d0e; }
+
+    [data-theme="dark"] .stat-card-ultra,
+    [data-theme="dark"] .inbox-item-ultra,
+    [data-theme="dark"] .user-card-pro {
+        background: #1e293b;
+        border-color: rgba(255,255,255,0.05);
+    }
+
+    [data-theme="dark"] .inbox-item-ultra:hover {
+        background: rgba(255,255,255,0.03);
+    }
+
+    [data-theme="dark"] .stat-value-pro,
+    [data-theme="dark"] .inbox-name,
+    [data-theme="dark"] .section-title-pro {
+        color: #f1f5f9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout-ultra">
+    
+    <!-- Hero Stats -->
+    <div class="stats-grid-ultra fade-in-down">
+        <div class="stat-card-ultra">
+            <div class="stat-icon-pro users"><i class="fas fa-users-viewfinder"></i></div>
+            <div class="stat-info-pro">
+                <div class="stat-value-pro">{{ user_count }}<span style="font-size: 16px; opacity: 0.5; font-weight: 600;">/{{ max_users }}</span></div>
+                <div class="stat-label-pro">{% trans "Assigned Users" %}</div>
+            </div>
+        </div>
+        <div class="stat-card-ultra">
+            <div class="stat-icon-pro unread"><i class="fas fa-envelope-open-text"></i></div>
+            <div class="stat-info-pro">
+                <div class="stat-value-pro">{{ unread_messages }}</div>
+                <div class="stat-label-pro">{% trans "Unread Messages" %}</div>
+            </div>
+        </div>
+        <div class="stat-card-ultra">
+            <div class="stat-icon-pro total"><i class="fas fa-comments"></i></div>
+            <div class="stat-info-pro">
+                <div class="stat-value-pro">{{ total_messages }}</div>
+                <div class="stat-label-pro">{% trans "Total Interactions" %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Conversations Section -->
+    <div class="section-header-pro fade-in-up" style="animation-delay: 100ms">
+        <h3 class="section-title-pro"><i class="fas fa-paper-plane"></i> {% trans "Recent Communications" %}</h3>
+        <a href="{% url 'experts:messages' %}" class="btn-profile-pro" style="width: auto; height: 38px; padding: 0 16px; font-size: 12px; font-weight: 800; border-radius: 12px;">
+            {% trans "View Inbox" %}
+        </a>
+    </div>
+
+    {% if recent_conversations %}
+    <div class="inbox-list-ultra fade-in-up" style="animation-delay: 150ms">
+        {% for conv in recent_conversations %}
+        <a href="{% url 'experts:conversation' conv.id %}" class="inbox-item-ultra">
+            <div class="inbox-user-info">
+                <div class="inbox-avatar">{{ conv.user.username|make_list|first|upper }}</div>
+                <div class="inbox-details">
+                    <div class="inbox-name">{{ conv.user.get_full_name|default:conv.user.username }}</div>
+                    <div class="inbox-preview">
+                        {% with last=conv.last_message %}
+                            {% if last %}{{ last.text|truncatechars:80 }}{% else %}{% trans "Start a consultation..." %}{% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            <div class="inbox-meta">
+                <div class="inbox-time">{{ conv.updated_at|timesince }} {% trans "ago" %}</div>
+                {% with unread=conv.unread_count_for|default:0 %}
+                    {% if unread > 0 %}
+                    <span class="unread-pill-pro" style="margin-left: 0; margin-top: 4px; display: inline-block;">{{ unread }}</span>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card fade-in-up" style="padding: 40px; text-align: center; border-radius: 24px; margin-bottom: 40px; border: 1px dashed rgba(0,0,0,0.1);">
+        <i class="fas fa-comment-slash" style="font-size: 32px; color: var(--text-muted); margin-bottom: 12px;"></i>
+        <p style="color: var(--text-muted); font-weight: 600;">{% trans "No recent conversations." %}</p>
+    </div>
+    {% endif %}
+
+    <!-- User Management Section -->
+    <div class="section-header-pro fade-in-up" style="animation-delay: 200ms">
+        <h3 class="section-title-pro"><i class="fas fa-id-card-alt"></i> {% trans "Assigned User Directory" %}</h3>
+    </div>
+
+    {% if relations %}
+    <div class="user-grid-ultra fade-in-up" style="animation-delay: 250ms">
+        {% for rel in relations %}
+        <div class="user-card-pro">
+            <div class="inbox-user-info">
+                <div class="inbox-avatar" style="background: var(--emerald-gradient); color: #fff;">{{ rel.user.username|make_list|first|upper }}</div>
+                <div>
+                    <div class="inbox-name" style="margin-bottom: 4px;">{{ rel.user.get_full_name|default:rel.user.username }}</div>
+                    <span class="plan-badge-pro {% if rel.user.plan_config.id == 'pro' %}pro{% elif rel.user.plan_config.id == 'enterprise' %}enterprise{% endif %}">
+                        {{ rel.user.plan_config.label|default:"Standard" }}
+                    </span>
+                </div>
+            </div>
+            <a href="{% url 'experts:conversation' rel.user.id %}" class="btn-chat-pro" style="height: 44px; width: 44px; padding: 0; min-width: auto; border-radius: 12px; flex: 0 0 auto;" title="{% trans 'Direct Message' %}" onclick="event.preventDefault(); openChat({{ rel.user.id }});">
+                <i class="fas fa-comment-dots" style="font-size: 18px;"></i>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state glass-card fade-in-up" style="padding: 60px 40px; border-radius: 32px;">
+        <i class="fas fa-user-clock" style="font-size: 40px; color: var(--text-muted); margin-bottom: 16px;"></i>
+        <h4 style="font-weight: 800; color: var(--text-main); margin-bottom: 8px;">{% trans "Awaiting Assignments" %}</h4>
+        <p style="color: var(--text-muted); font-size: 14px; max-width: 350px; margin: 0 auto;">{% trans "You haven't been assigned to any users yet. New assignments will appear here automatically." %}</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function openChat(userId) {
+    // Navigate to messages to find or create conversation
+    window.location.href = "{% url 'experts:messages' %}";
+}
+</script>
+{% endblock %}

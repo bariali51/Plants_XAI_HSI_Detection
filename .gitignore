@@ -1,29 +1,59 @@
+# ==================================
+# Nabtati — .gitignore
+# ==================================
+
 # Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
 
-# Virtual env
-.venv/
+# Virtual environments
 venv/
+.venv/
 env/
 
-# IDE
-.idea/
-.vscode/
+# Environment & secrets
+.env
+*.env.local
 
 # Django
 db.sqlite3
-.env
+db.sqlite3-journal
+staticfiles/
 media/
 
-# Jupyter
-.ipynb_checkpoints/
+# Logs
+logs/
+*.log
 
-# Models
-*.h5
-*.keras
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Model files (too large for git — use cloud storage)
+# analysis/model_files/*.h5
+# analysis/model_files/*.pth
+# analysis/model_files/*.onnx
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Misc
+.qodo/

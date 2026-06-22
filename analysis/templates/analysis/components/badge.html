@@ -1,0 +1,9 @@
+{% comment %}
+  components/badge.html — Reusable Badge
+  Usage: include "analysis/components/badge.html" with text="Critical" variant="danger"
+  Variants: success, warning, danger, info, primary
+{% endcomment %}
+<span class="badge badge-{{ variant|default:'primary' }}">
+    {% if badge_icon %}<i class="fas {{ badge_icon }}"></i>{% endif %}
+    {{ text }}
+</span>

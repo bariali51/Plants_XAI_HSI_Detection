@@ -1,0 +1,481 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ company.company_name }} — Corporate Profile{% endblock %}
+{% block header_title %}{% trans "Corporate Profile" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/companies.css' %}">
+<style>
+    /* ── Company Profile Ultra-Pro ── */
+    .profile-layout-ultra {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding-bottom: 60px;
+    }
+
+    .profile-hero-ultra {
+        background: #fff;
+        border-radius: 32px;
+        overflow: hidden;
+        margin-bottom: 40px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+    }
+
+    .hero-banner-pro {
+        height: 240px;
+        background: var(--emerald-gradient);
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+
+    .hero-content-pro {
+        padding: 0 40px 40px;
+        margin-top: -60px;
+        position: relative;
+        z-index: 10;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 24px;
+    }
+
+    .profile-identity-pro {
+        display: flex;
+        align-items: flex-end;
+        gap: 32px;
+    }
+
+    .profile-logo-ultra {
+        width: 140px;
+        height: 140px;
+        background: #fff;
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: 900;
+        color: var(--primary);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border: 6px solid #fff;
+        overflow: hidden;
+    }
+
+    .profile-logo-ultra img { width: 100%; height: 100%; object-fit: cover; }
+
+    .profile-text-pro h1 {
+        font-size: 32px;
+        font-weight: 950;
+        color: var(--text-main);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .verified-badge-pro {
+        background: #dcfce7;
+        color: #166534;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 4px 14px;
+        border-radius: 30px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .profile-meta-pro {
+        display: flex;
+        gap: 24px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    /* Tabs Overhaul */
+    .profile-tabs-pro {
+        display: flex;
+        gap: 8px;
+        background: #f1f5f9;
+        padding: 6px;
+        border-radius: 20px;
+        margin-bottom: 32px;
+        width: fit-content;
+    }
+
+    .tab-btn-pro {
+        padding: 12px 28px;
+        border-radius: 16px;
+        font-size: 14px;
+        font-weight: 800;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        background: transparent;
+    }
+
+    .tab-btn-pro.active {
+        background: #fff;
+        color: var(--primary);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .tab-pane-pro { display: none; animation: fadeIn 0.4s ease; }
+    .tab-pane-pro.active { display: block; }
+
+    /* Product/Service Cards */
+    .showcase-grid-pro {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
+    }
+
+    .showcase-card-pro {
+        background: #fff;
+        border-radius: 28px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s;
+    }
+
+    .showcase-card-pro:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+    }
+
+    .showcase-visual-pro {
+        height: 180px;
+        background: #f8fafc;
+        overflow: hidden;
+    }
+
+    .showcase-visual-pro img { width: 100%; height: 100%; object-fit: cover; }
+
+    .showcase-body-pro {
+        padding: 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .showcase-title-pro {
+        font-size: 18px;
+        font-weight: 850;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+
+    .showcase-desc-pro {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 20px;
+        flex: 1;
+    }
+
+    .showcase-footer-pro {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 16px;
+        border-top: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .showcase-price-pro {
+        font-size: 18px;
+        font-weight: 900;
+        color: var(--primary);
+    }
+
+    /* Review Card */
+    .review-card-pro {
+        background: #fff;
+        border-radius: 24px;
+        padding: 28px;
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+
+    .review-header-pro {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .review-author-pro {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .author-avatar-pro {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: var(--primary-bg);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .review-stars-pro { color: #f59e0b; font-size: 14px; display: flex; gap: 2px; }
+
+    [data-theme="dark"] .profile-hero-ultra,
+    [data-theme="dark"] .showcase-card-pro,
+    [data-theme="dark"] .review-card-pro,
+    [data-theme="dark"] .tab-btn-pro.active {
+        background: #1e293b;
+        border-color: rgba(255,255,255,0.05);
+    }
+    [data-theme="dark"] .profile-tabs-pro { background: rgba(255,255,255,0.05); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-layout-ultra">
+    
+    <!-- Hero Section -->
+    <div class="profile-hero-ultra fade-in-down">
+        <div class="hero-banner-pro" {% if company.cover_image %}style="background-image: url('{{ company.cover_image.url }}')"{% endif %}></div>
+        <div class="hero-content-pro">
+            <div class="profile-identity-pro">
+                <div class="profile-logo-ultra">
+                    {% if company.logo %}
+                    <img src="{{ company.logo.url }}" alt="{{ company.company_name }}">
+                    {% else %}
+                    {{ company.company_name|make_list|first|upper }}
+                    {% endif %}
+                </div>
+                <div class="profile-text-pro">
+                    <h1>
+                        {{ company.company_name }}
+                        {% if company.verified %}<span class="verified-badge-pro"><i class="fas fa-certificate"></i> {% trans "Verified" %}</span>{% endif %}
+                    </h1>
+                    <div class="profile-meta-pro">
+                        <span><i class="fas fa-location-dot" style="color: var(--primary); margin-right: 8px;"></i> {{ company.city }}, {{ company.country }}</span>
+                        {% if company.avg_rating %}
+                        <span style="color: #f59e0b;"><i class="fas fa-star" style="margin-right: 6px;"></i> {{ company.avg_rating|floatformat:1 }} ({{ company.review_count }} {% trans "reviews" %})</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 12px; align-items:center;">
+                <a href="javascript:history.back()"
+                   style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:14px;background:#f1f5f9;color:#475569;font-size:13px;font-weight:800;text-decoration:none;border:1.5px solid #e2e8f0;transition:all .2s;"
+                   onmouseover="this.style.background='#e2e8f0';this.style.color='#1e293b'"
+                   onmouseout="this.style.background='#f1f5f9';this.style.color='#475569'">
+                    <i class="fas fa-arrow-left"></i> {% trans "Back" %}
+                </a>
+                {% if company.website %}
+                <a href="{{ company.website }}" target="_blank" class="btn-secondary" style="height: 48px; width: 48px; padding: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-globe"></i>
+                </a>
+                {% endif %}
+                <a href="{% url 'companies:start_chat' company.pk %}" class="btn-primary" style="height: 48px; border-radius: 16px; padding: 0 32px; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-comment-dots"></i> {% trans "Initiate Contact" %}
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="profile-tabs-pro fade-in-up" style="animation-delay: 100ms">
+        <button class="tab-btn-pro active" onclick="showTab('about', this)">{% trans "About" %}</button>
+        <button class="tab-btn-pro" onclick="showTab('products', this)">{% trans "Products" %} <span style="opacity: 0.5; margin-left: 4px;">{{ products|length }}</span></button>
+        <button class="tab-btn-pro" onclick="showTab('services', this)">{% trans "Services" %} <span style="opacity: 0.5; margin-left: 4px;">{{ services|length }}</span></button>
+        <button class="tab-btn-pro" onclick="showTab('reviews', this)">{% trans "Reviews" %} <span style="opacity: 0.5; margin-left: 4px;">{{ reviews|length }}</span></button>
+    </div>
+
+    <!-- About Tab -->
+    <div id="pane-about" class="tab-pane-pro active">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px;">
+            <div class="glass-card" style="padding: 40px; border-radius: 28px;">
+                <h3 style="font-size: 20px; font-weight: 900; color: var(--text-main); margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-circle-info" style="color: var(--primary);"></i> {% trans "Corporate Overview" %}
+                </h3>
+                <div style="font-size: 16px; line-height: 1.8; color: var(--text-main);">
+                    {{ company.description|default:"No description available."|linebreaksbr }}
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <div class="glass-card" style="padding: 28px; border-radius: 24px;">
+                    <h4 style="font-size: 15px; font-weight: 850; color: var(--text-main); margin-bottom: 16px;">{% trans "Specializations" %}</h4>
+                    <p style="font-size: 14px; font-weight: 700; color: var(--primary); line-height: 1.6;">
+                        {{ company.specializations|default:"General Agricultural Services" }}
+                    </p>
+                </div>
+                <div class="glass-card" style="padding: 28px; border-radius: 24px;">
+                    <h4 style="font-size: 15px; font-weight: 850; color: var(--text-main); margin-bottom: 16px;">{% trans "Direct Channels" %}</h4>
+                    <div style="display: flex; flex-direction: column; gap: 14px; font-size: 13px; font-weight: 600; color: #64748b;">
+                        <div><i class="fas fa-envelope" style="width: 24px; color: var(--primary);"></i> {{ company.email }}</div>
+                        {% if company.phone %}<div><i class="fas fa-phone" style="width: 24px; color: var(--primary);"></i> {{ company.phone }}</div>{% endif %}
+                        {% if company.address %}<div><i class="fas fa-map-pin" style="width: 24px; color: var(--primary);"></i> {{ company.address }}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="pane-products" class="tab-pane-pro">
+        {% if products %}
+        <div class="showcase-grid-pro">
+            {% for product in products %}
+            <div class="showcase-card-pro">
+                <div class="showcase-visual-pro">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                    <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#cbd5e1; font-size:48px;"><i class="fas fa-box"></i></div>
+                    {% endif %}
+                </div>
+                <div class="showcase-body-pro">
+                    <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">{{ product.get_category_display }}</div>
+                    <h4 class="showcase-title-pro">{{ product.name }}</h4>
+                    <p class="showcase-desc-pro">{{ product.description|truncatewords:15 }}</p>
+                    <div class="showcase-footer-pro">
+                        <div class="showcase-price-pro">{{ product.price }} {{ product.currency }}</div>
+                        <i class="fas fa-circle-chevron-right" style="color: var(--primary); font-size: 20px;"></i>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state-sm">
+            <i class="fas fa-box-open" style="font-size: 40px; opacity: 0.3; margin-bottom: 12px;"></i>
+            <p>{% trans "No products listed." %}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Services Tab -->
+    <div id="pane-services" class="tab-pane-pro">
+        {% if services %}
+        <div class="showcase-grid-pro">
+            {% for service in services %}
+            <div class="showcase-card-pro" style="padding: 24px;">
+                <div style="width: 56px; height: 56px; border-radius: 16px; background: var(--primary-bg); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 20px;">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h4 class="showcase-title-pro">{{ service.name }}</h4>
+                <p class="showcase-desc-pro">{{ service.description|truncatewords:20 }}</p>
+                <div class="showcase-footer-pro">
+                    <div style="font-weight: 800; color: #2563eb; font-size: 14px;">{{ service.price_range|default:"Consultation Required" }}</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #94a3b8;"><i class="fas fa-map-marker-alt"></i> {{ service.service_area }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state-sm">
+            <i class="fas fa-handshake-slash" style="font-size: 40px; opacity: 0.3; margin-bottom: 12px;"></i>
+            <p>{% trans "No services listed." %}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Reviews Tab -->
+    <div id="pane-reviews" class="tab-pane-pro">
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 32px;">
+            <div>
+                {% if not user_reviewed and review_form %}
+                <div class="glass-card" style="padding: 32px; border-radius: 28px; position: sticky; top: 40px;">
+                    <h3 style="font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 20px;">{% trans "Post a Review" %}</h3>
+                    <form method="POST" action="{% url 'companies:add_review' company.pk %}">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 20px;">
+                            <label style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 12px;">{% trans "Your Rating" %}</label>
+                            <div id="starInput" style="font-size: 28px; color: #e2e8f0; display: flex; gap: 8px;">
+                                {% for i in "12345" %}
+                                <i class="fas fa-star" data-val="{{ forloop.counter }}" style="cursor: pointer; transition: all 0.2s;" onclick="setRating({{ forloop.counter }})"></i>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="rating" id="finalRating" value="5">
+                        </div>
+                        <div style="margin-bottom: 24px;">
+                            {{ review_form.review_text }}
+                        </div>
+                        <button type="submit" class="btn-primary" style="width: 100%; height: 50px; border-radius: 16px; font-weight: 800; justify-content: center;">
+                            {% trans "Submit Feedback" %}
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                {% for review in reviews %}
+                <div class="review-card-pro">
+                    <div class="review-header-pro">
+                        <div class="review-author-pro">
+                            <div class="author-avatar-pro">{{ review.user.username|make_list|first|upper }}</div>
+                            <div>
+                                <div style="font-weight: 850; color: var(--text-main);">{{ review.user.username }}</div>
+                                <div style="font-size: 11px; font-weight: 600; color: #94a3b8;">{{ review.created_at|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+                        <div class="review-stars-pro">
+                            {% for i in "12345" %}
+                            <i class="fas fa-star" style="{% if forloop.counter > review.rating %}color: #e2e8f0;{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p style="font-size: 15px; color: var(--text-main); line-height: 1.6;">{{ review.review_text }}</p>
+                </div>
+                {% empty %}
+                <div class="empty-state-sm">
+                    <i class="far fa-star" style="font-size: 40px; opacity: 0.2; margin-bottom: 12px;"></i>
+                    <p>{% trans "Be the first to review this company." %}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(id, btn) {
+    document.querySelectorAll('.tab-pane-pro').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn-pro').forEach(b => b.classList.remove('active'));
+    document.getElementById('pane-' + id).classList.add('active');
+    btn.classList.add('active');
+}
+
+function setRating(val) {
+    document.getElementById('finalRating').value = val;
+    const stars = document.getElementById('starInput').children;
+    for (let i = 0; i < stars.length; i++) {
+        stars[i].style.color = (i < val) ? '#f59e0b' : '#e2e8f0';
+    }
+}
+
+// Initialize stars
+setRating(5);
+
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('textarea[name="review_text"]');
+    if (textarea) {
+        textarea.classList.add('chat-textarea-pro');
+        textarea.style.background = '#f8fafc';
+        textarea.style.minHeight = '120px';
+        textarea.placeholder = "{% trans 'Write your experience...' %}";
+    }
+});
+</script>
+{% endblock %}

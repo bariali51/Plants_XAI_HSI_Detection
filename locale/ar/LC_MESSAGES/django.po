@@ -1,0 +1,630 @@
+# Arabic translations for Nabtati
+# Copyright (C) 2026
+# This file is distributed under the same license as the Nabtati package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Nabtati 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-20 22:00+0000\n"
+"PO-Revision-Date: 2026-06-20 22:00+0000\n"
+"Last-Translator: Nabtati Team\n"
+"Language-Team: Arabic\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+# ============================================================
+# Navigation (base.html)
+# ============================================================
+msgid "Skip to main content"
+msgstr "تخطي إلى المحتوى الرئيسي"
+
+msgid "Open menu"
+msgstr "فتح القائمة"
+
+msgid "Toggle dark mode"
+msgstr "تبديل الوضع الداكن"
+
+msgid "Main navigation"
+msgstr "التنقل الرئيسي"
+
+msgid "Toggle sidebar"
+msgstr "تبديل الشريط الجانبي"
+
+msgid "Navigation"
+msgstr "التنقل"
+
+msgid "Diagnosis"
+msgstr "التشخيص"
+
+msgid "Model Info"
+msgstr "معلومات النموذج"
+
+msgid "History"
+msgstr "السجل"
+
+msgid "My Files"
+msgstr "ملفاتي"
+
+msgid "AI Assistant"
+msgstr "مساعد الذكاء الاصطناعي"
+
+msgid "AI Chat"
+msgstr "محادثة الذكاء الاصطناعي"
+
+msgid "Model"
+msgstr "النموذج"
+
+msgid "Social"
+msgstr "اجتماعي"
+
+msgid "Community"
+msgstr "المجتمع"
+
+msgid "Companies"
+msgstr "الشركات"
+
+msgid "My Experts"
+msgstr "خبرائي"
+
+msgid "Complaints"
+msgstr "الشكاوى"
+
+msgid "Company"
+msgstr "الشركة"
+
+msgid "Company Dashboard"
+msgstr "لوحة تحكم الشركة"
+
+msgid "Company Inbox"
+msgstr "صندوق بريد الشركة"
+
+msgid "Products"
+msgstr "المنتجات"
+
+msgid "Services"
+msgstr "الخدمات"
+
+msgid "Messages"
+msgstr "الرسائل"
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "Expert"
+msgstr "خبير"
+
+msgid "Expert Dashboard"
+msgstr "لوحة تحكم الخبير"
+
+msgid "Admin Messages"
+msgstr "رسائل المدير"
+
+msgid "Expert Complaints"
+msgstr "شكاوى الخبراء"
+
+msgid "User Complaints"
+msgstr "شكاوى المستخدمين"
+
+# Admin Section
+msgid "Admin"
+msgstr "الإدارة"
+
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+msgid "Users"
+msgstr "المستخدمون"
+
+msgid "All Scans"
+msgstr "جميع الفحوصات"
+
+msgid "Experts"
+msgstr "الخبراء"
+
+msgid "Audit Log"
+msgstr "سجل المراجعة"
+
+msgid "ADMIN"
+msgstr "مدير"
+
+# ============================================================
+# Auth
+# ============================================================
+msgid "Sign Out"
+msgstr "تسجيل الخروج"
+
+msgid "Login"
+msgstr "تسجيل الدخول"
+
+msgid "Logout"
+msgstr "تسجيل الخروج"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Yes, Logout"
+msgstr "نعم، تسجيل الخروج"
+
+msgid "Are you sure you want to sign out of Nabtati?"
+msgstr "هل أنت متأكد أنك تريد تسجيل الخروج من نبتتي؟"
+
+# ============================================================
+# Header
+# ============================================================
+msgid "System Online"
+msgstr "النظام متصل"
+
+msgid "Change language"
+msgstr "تغيير اللغة"
+
+msgid "Mobile navigation"
+msgstr "التنقل المحمول"
+
+msgid "Analyzing..."
+msgstr "جاري التحليل..."
+
+msgid "scans"
+msgstr "فحوصات"
+
+# ============================================================
+# Login Page
+# ============================================================
+msgid "Smart Plant Disease Detection Platform"
+msgstr "منصة ذكية لكشف أمراض النباتات"
+
+msgid "Username"
+msgstr "اسم المستخدم"
+
+msgid "Password"
+msgstr "كلمة المرور"
+
+msgid "Invalid username or password"
+msgstr "اسم المستخدم أو كلمة المرور غير صحيحة"
+
+msgid "Login to Dashboard"
+msgstr "الدخول إلى لوحة التحكم"
+
+msgid "Don't have an account?"
+msgstr "ليس لديك حساب؟"
+
+msgid "Create one"
+msgstr "أنشئ حساباً"
+
+# ============================================================
+# Signup Page
+# ============================================================
+msgid "Create Account"
+msgstr "إنشاء حساب"
+
+msgid "Create your Nabtati account — Smart Plant Disease Detection Platform"
+msgstr "أنشئ حسابك في نبتتي — منصة ذكية لكشف أمراض النباتات"
+
+msgid "Create your diagnostic account"
+msgstr "أنشئ حساب التشخيص الخاص بك"
+
+msgid "Draft restored — your progress was saved!"
+msgstr "تمت استعادة المسودة — تم حفظ تقدمك!"
+
+msgid "First Name"
+msgstr "الاسم الأول"
+
+msgid "John"
+msgstr "أحمد"
+
+msgid "Last Name"
+msgstr "اسم العائلة"
+
+msgid "Doe"
+msgstr "محمد"
+
+msgid "Date of Birth"
+msgstr "تاريخ الميلاد"
+
+msgid "Email Address"
+msgstr "البريد الإلكتروني"
+
+msgid "john@example.com"
+msgstr "ahmed@example.com"
+
+msgid "Enter username"
+msgstr "أدخل اسم المستخدم"
+
+msgid "Min 8 characters"
+msgstr "8 أحرف على الأقل"
+
+msgid "Confirm"
+msgstr "تأكيد"
+
+msgid "Re-enter password"
+msgstr "أعد إدخال كلمة المرور"
+
+msgid "Purpose"
+msgstr "الغرض"
+
+msgid "Choose Purpose"
+msgstr "اختر الغرض"
+
+msgid "Farmer"
+msgstr "مزارع"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Form data auto-saved locally"
+msgstr "تم حفظ بيانات النموذج تلقائياً"
+
+msgid "Already have an account?"
+msgstr "لديك حساب بالفعل؟"
+
+# ============================================================
+# Dashboard (Diagnosis Page)
+# ============================================================
+msgid "Premium Diagnostic Dashboard"
+msgstr "لوحة التشخيص المتقدمة"
+
+msgid "AI-Powered Plant Disease Detection Dashboard"
+msgstr "لوحة كشف أمراض النباتات بالذكاء الاصطناعي"
+
+msgid "Disease Diagnostics"
+msgstr "تشخيص الأمراض"
+
+msgid "Upload a leaf image to detect plant diseases with AI precision"
+msgstr "حمّل صورة ورقة لكشف أمراض النباتات بدقة الذكاء الاصطناعي"
+
+msgid "scans remaining today"
+msgstr "فحوصات متبقية اليوم"
+
+msgid "Unlimited"
+msgstr "غير محدود"
+
+msgid "Upgrade"
+msgstr "ترقية"
+
+msgid "Daily scan limit reached"
+msgstr "تم الوصول للحد اليومي من الفحوصات"
+
+msgid "Upgrade your plan"
+msgstr "قم بترقية خطتك"
+
+msgid "for more scans."
+msgstr "للحصول على المزيد من الفحوصات."
+
+msgid "Scan limit reached"
+msgstr "تم الوصول لحد الفحوصات"
+
+msgid "Upgrade to continue scanning"
+msgstr "قم بالترقية لمتابعة الفحص"
+
+msgid "Drop image here"
+msgstr "أسقط الصورة هنا"
+
+msgid "or click to browse"
+msgstr "أو انقر للاختيار"
+
+msgid "JPG, PNG up to 10MB"
+msgstr "JPG، PNG حتى 10 ميجابايت"
+
+msgid "Original Image"
+msgstr "الصورة الأصلية"
+
+msgid "Input"
+msgstr "المدخل"
+
+msgid "No image uploaded"
+msgstr "لم يتم رفع صورة"
+
+msgid "Grad-CAM Analysis"
+msgstr "تحليل Grad-CAM"
+
+msgid "Heatmap"
+msgstr "خريطة حرارية"
+
+msgid "Waiting for analysis..."
+msgstr "في انتظار التحليل..."
+
+msgid "Model Confidence"
+msgstr "ثقة النموذج"
+
+msgid "Disease Progression"
+msgstr "تطور المرض"
+
+msgid "View Detailed Analytics"
+msgstr "عرض التحليلات التفصيلية"
+
+msgid "Immediate Treatment Recommendations"
+msgstr "توصيات العلاج الفورية"
+
+msgid "AI Agronomic Intelligence Report"
+msgstr "تقرير الذكاء الزراعي الاصطناعي"
+
+msgid "Medical Diagnosis"
+msgstr "التشخيص الطبي"
+
+msgid "Treatment Strategy"
+msgstr "استراتيجية العلاج"
+
+msgid "Irrigation Plan"
+msgstr "خطة الري"
+
+msgid "Economic Risk"
+msgstr "المخاطر الاقتصادية"
+
+msgid "Yield Loss Prediction"
+msgstr "توقع خسائر المحصول"
+
+msgid "Estimated production reduction based on AI disease severity analysis."
+msgstr "تقدير انخفاض الإنتاج بناءً على تحليل شدة المرض بالذكاء الاصطناعي."
+
+msgid "Name this scan (e.g., Field A - Row 2)"
+msgstr "سمّ هذا الفحص (مثال: الحقل أ - الصف 2)"
+
+msgid "Scan folder name"
+msgstr "اسم مجلد الفحص"
+
+msgid "Save Report"
+msgstr "حفظ التقرير"
+
+msgid "Discard"
+msgstr "تجاهل"
+
+msgid "Save AI Report"
+msgstr "حفظ تقرير الذكاء الاصطناعي"
+
+msgid "Do you want to securely save this diagnostic report to your files for future reference?"
+msgstr "هل تريد حفظ هذا التقرير التشخيصي في ملفاتك للرجوع إليه مستقبلاً؟"
+
+msgid "Yes, Save Report"
+msgstr "نعم، حفظ التقرير"
+
+msgid "Discard Analysis"
+msgstr "تجاهل التحليل"
+
+msgid "This will remove the current results. You will need to re-upload to scan again."
+msgstr "سيتم حذف النتائج الحالية. ستحتاج لإعادة رفع الصورة لإجراء فحص جديد."
+
+msgid "Discard Results"
+msgstr "تجاهل النتائج"
+
+# ============================================================
+# Scan Detail Page
+# ============================================================
+msgid "Scan Report"
+msgstr "تقرير الفحص"
+
+msgid "AI Medical Scan Report"
+msgstr "تقرير الفحص الطبي بالذكاء الاصطناعي"
+
+msgid "AI Medical Diagnostic Report"
+msgstr "تقرير التشخيص الطبي بالذكاء الاصطناعي"
+
+msgid "Export PDF"
+msgstr "تصدير PDF"
+
+msgid "Back to Files"
+msgstr "العودة للملفات"
+
+msgid "Original"
+msgstr "أصلي"
+
+msgid "Grad-CAM"
+msgstr "Grad-CAM"
+
+msgid "Confidence"
+msgstr "الثقة"
+
+msgid "Disease Stage"
+msgstr "مرحلة المرض"
+
+msgid "Infection Ratio"
+msgstr "نسبة الإصابة"
+
+msgid "Analyzed on"
+msgstr "تم التحليل في"
+
+msgid "Yield Loss"
+msgstr "خسائر المحصول"
+
+msgid "AI Agronomic Intelligence"
+msgstr "الذكاء الزراعي الاصطناعي"
+
+msgid "Disease Evolution History"
+msgstr "تاريخ تطور المرض"
+
+msgid "Severity"
+msgstr "الشدة"
+
+msgid "Medical"
+msgstr "طبي"
+
+msgid "Treatment"
+msgstr "العلاج"
+
+msgid "Irrigation"
+msgstr "الري"
+
+msgid "Economic"
+msgstr "اقتصادي"
+
+msgid "Compare Disease Evolution"
+msgstr "مقارنة تطور المرض"
+
+msgid "Upload a new leaf photo of the same plant to track disease progression with AI."
+msgstr "حمّل صورة جديدة لورقة من نفس النبات لتتبع تطور المرض بالذكاء الاصطناعي."
+
+msgid "Drop your image here"
+msgstr "أسقط صورتك هنا"
+
+msgid "or"
+msgstr "أو"
+
+msgid "click to browse"
+msgstr "انقر للاختيار"
+
+msgid "JPG, PNG up to 10 MB"
+msgstr "JPG، PNG حتى 10 ميجابايت"
+
+msgid "No file chosen"
+msgstr "لم يتم اختيار ملف"
+
+msgid "Analyze New Image"
+msgstr "تحليل صورة جديدة"
+
+msgid "Saved Progress Reports"
+msgstr "تقارير التقدم المحفوظة"
+
+msgid "Stage"
+msgstr "المرحلة"
+
+# ============================================================
+# Admin Dashboard
+# ============================================================
+msgid "Admin Dashboard"
+msgstr "لوحة تحكم المدير"
+
+msgid "PlantGuard AI Admin Dashboard — Platform Analytics"
+msgstr "لوحة تحكم نبتتي — تحليلات المنصة"
+
+msgid "Platform analytics & management overview"
+msgstr "نظرة عامة على التحليلات والإدارة"
+
+msgid "Staff Access"
+msgstr "وصول الموظفين"
+
+msgid "Welcome back"
+msgstr "مرحباً بعودتك"
+
+msgid "Here's what's happening with PlantGuard AI today."
+msgstr "إليك ما يحدث مع نبتتي اليوم."
+
+msgid "Today"
+msgstr "اليوم"
+
+msgid "Scans"
+msgstr "الفحوصات"
+
+msgid "View All"
+msgstr "عرض الكل"
+
+msgid "All clear — no critical cases detected"
+msgstr "كل شيء واضح — لم يتم اكتشاف حالات حرجة"
+
+msgid "Manage Users"
+msgstr "إدارة المستخدمين"
+
+msgid "View All Scans"
+msgstr "عرض جميع الفحوصات"
+
+msgid "Critical Cases"
+msgstr "الحالات الحرجة"
+
+# KPI Labels
+msgid "Key Performance Indicators"
+msgstr "مؤشرات الأداء الرئيسية"
+
+msgid "Total Users"
+msgstr "إجمالي المستخدمين"
+
+msgid "Total Scans"
+msgstr "إجمالي الفحوصات"
+
+msgid "Scans Today"
+msgstr "فحوصات اليوم"
+
+msgid "New Users (7d)"
+msgstr "مستخدمون جدد (7 أيام)"
+
+msgid "Scans (7d)"
+msgstr "فحوصات (7 أيام)"
+
+msgid "Avg Confidence %"
+msgstr "متوسط الثقة %"
+
+msgid "Follow-ups"
+msgstr "المتابعات"
+
+# Charts
+msgid "Analytics"
+msgstr "التحليلات"
+
+msgid "Disease Distribution"
+msgstr "توزيع الأمراض"
+
+msgid "Top 10"
+msgstr "الأعلى 10"
+
+msgid "Critical"
+msgstr "حرج"
+
+msgid "Avg Conf."
+msgstr "مت. الثقة"
+
+msgid "Scan Volume"
+msgstr "حجم الفحوصات"
+
+msgid "Last 30 Days"
+msgstr "آخر 30 يوماً"
+
+msgid "This Week"
+msgstr "هذا الأسبوع"
+
+msgid "New Users"
+msgstr "مستخدمون جدد"
+
+# Tables
+msgid "Recent Critical Cases"
+msgstr "الحالات الحرجة الأخيرة"
+
+msgid "Attention Required"
+msgstr "يتطلب انتباه"
+
+msgid "User"
+msgstr "المستخدم"
+
+msgid "Disease"
+msgstr "المرض"
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Actions"
+msgstr "الإجراءات"
+
+msgid "View details"
+msgstr "عرض التفاصيل"
+
+msgid "No Critical Cases"
+msgstr "لا توجد حالات حرجة"
+
+msgid "All scans are within safe severity thresholds."
+msgstr "جميع الفحوصات ضمن حدود الشدة الآمنة."
+
+# Plurals
+msgid "%(counter)s critical case detected — immediate attention needed"
+msgid_plural "%(counter)s critical cases detected — immediate attention needed"
+msgstr[0] "لم يتم اكتشاف حالات حرجة"
+msgstr[1] "%(counter)s حالة حرجة تم اكتشافها — يلزم اهتمام فوري"
+msgstr[2] "%(counter)s حالتان حرجتان تم اكتشافهما — يلزم اهتمام فوري"
+msgstr[3] "%(counter)s حالات حرجة تم اكتشافها — يلزم اهتمام فوري"
+msgstr[4] "%(counter)s حالة حرجة تم اكتشافها — يلزم اهتمام فوري"
+msgstr[5] "%(counter)s حالة حرجة تم اكتشافها — يلزم اهتمام فوري"
+
+# Empty State
+msgid "No Data Found"
+msgstr "لم يتم العثور على بيانات"
+
+msgid "There's nothing to display at the moment."
+msgstr "لا يوجد شيء لعرضه حالياً."
+
+msgid "Go Back"
+msgstr "رجوع"
+
+# Search
+msgid "Search..."
+msgstr "بحث..."
+
+msgid "Diagnosis"
+msgstr "التشخيص"

@@ -1,0 +1,245 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+
+{% block title %}Boost Post | Nabtati{% endblock %}
+{% block header_title %}Boost Your Post{% endblock %}
+{% block header_subtitle %}Reach the right farmers, experts & companies{% endblock %}
+
+{% block page_styles %}
+    .promote-wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+
+    .boost-header {
+        display: flex; align-items: center; gap: 16px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white; padding: 24px 28px; border-radius: var(--radius-md);
+    }
+    .boost-header i { font-size: 36px; opacity: .9; }
+    .boost-header h2 { margin: 0; font-size: 20px; font-weight: 800; }
+    .boost-header p  { margin: 4px 0 0; opacity: .85; font-size: 13px; }
+
+    .section-label {
+        font-size: 11px; font-weight: 700; letter-spacing: .08em;
+        text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .section-label i { color: var(--primary); }
+
+    .form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+    @media(max-width:600px) { .form-row, .form-row.three { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: var(--text-main); }
+    .form-group input, .form-group select {
+        padding: 10px 14px; border-radius: var(--radius-sm);
+        border: 1.5px solid var(--border); background: var(--bg-color);
+        font-size: 14px; color: var(--text-main); font-family: inherit;
+        transition: border-color .2s ease;
+    }
+    .form-group input:focus, .form-group select:focus {
+        border-color: var(--primary); outline: none;
+    }
+    .form-hint { font-size: 11px; color: var(--text-muted); }
+
+    /* Pricing preview */
+    .price-preview {
+        background: var(--primary-bg); border: 1.5px solid rgba(46,125,50,.2);
+        border-radius: var(--radius-md); padding: 20px 24px;
+        display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .price-total { font-size: 28px; font-weight: 900; color: var(--primary-dark); }
+    [data-theme="dark"] .price-total { color: var(--primary-light); }
+    .price-label { font-size: 12px; color: var(--text-muted); }
+
+    /* Security note */
+    .security-note {
+        background: rgba(46,125,50,.07); border-left: 4px solid var(--primary);
+        padding: 12px 16px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        font-size: 13px; color: var(--text-muted); display: flex; gap: 10px;
+    }
+    .security-note i { color: var(--primary); flex-shrink: 0; margin-top: 2px; }
+
+    /* Targeting badges */
+    .targeting-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;
+    }
+    .target-option {
+        border: 2px solid var(--border); border-radius: var(--radius-sm);
+        padding: 12px 14px; cursor: pointer; transition: all .2s ease;
+        display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+    }
+    .target-option.selected { border-color: var(--primary); background: var(--primary-bg); color: var(--primary-dark); }
+    [data-theme="dark"] .target-option.selected { color: var(--primary-light); }
+    .target-option i { font-size: 16px; }
+
+    .submit-row { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+{% endblock %}
+
+{% block content %}
+<div class="promote-wrap">
+
+    <!-- Header Banner -->
+    <div class="boost-header" data-animate>
+        <i class="fas fa-rocket"></i>
+        <div>
+            <h2>Promote: "{{ post.title|truncatechars:60 }}"</h2>
+            <p>Your post will appear at the top of the community feed for your selected audience.</p>
+        </div>
+    </div>
+
+    <form method="post" id="promoteForm">
+        {% csrf_token %}
+
+        <!-- 1. Duration & Budget -->
+        <div class="card" data-animate>
+            <p class="section-label"><i class="fas fa-calendar-days"></i> Duration & Budget</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="duration_days">Promotion Duration (days)</label>
+                    <input type="number" id="duration_days" name="duration_days"
+                           min="1" max="30" value="{{ form_data.duration_days|default:7 }}"
+                           oninput="updatePreview()" required>
+                    <span class="form-hint">1 to 30 days</span>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Budget Amount (DA)</label>
+                    <input type="number" id="amount" name="amount"
+                           min="100" step="50" value="{{ form_data.amount|default:500 }}"
+                           oninput="updatePreview()" required>
+                    <span class="form-hint">Minimum 100 DA</span>
+                </div>
+            </div>
+
+            <!-- Live price preview -->
+            <div class="price-preview" style="margin-top:16px;">
+                <div>
+                    <div class="price-label">Total Investment</div>
+                    <div class="price-total" id="previewAmount">500 DA</div>
+                </div>
+                <div style="text-align:right;">
+                    <div class="price-label">Duration</div>
+                    <div style="font-size:18px; font-weight:700; color:var(--text-main);" id="previewDays">7 days</div>
+                </div>
+                <div style="text-align:right;">
+                    <div class="price-label">Daily cost</div>
+                    <div style="font-size:18px; font-weight:700; color:var(--text-main);" id="previewDaily">71 DA/day</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Payment (Simulated) -->
+        <div class="card" data-animate>
+            <p class="section-label"><i class="fas fa-credit-card"></i> Payment Details (Simulated)</p>
+
+            <div class="security-note" style="margin-bottom:16px;">
+                <i class="fas fa-shield-halved"></i>
+                <span>This is a <strong>simulated payment system</strong>. No real money is charged.
+                Your PIN is hashed with SHA-256 and never stored in plain text.</span>
+            </div>
+
+            <div class="form-row three">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="account_number">Account / Wallet ID</label>
+                    <input type="text" id="account_number" name="account_number"
+                           placeholder="e.g. 00799 1234567890 12"
+                           value="{{ form_data.account_number|default:'' }}" required>
+                    <span class="form-hint">CCP number, BaridiMob ID, or wallet reference</span>
+                </div>
+                <div class="form-group">
+                    <label for="pin">Confirmation PIN</label>
+                    <input type="password" id="pin" name="pin"
+                           placeholder="••••" maxlength="8"
+                           autocomplete="new-password" required>
+                    <span class="form-hint">4–8 digit PIN</span>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:12px;">
+                <label for="payment_method">Payment Method</label>
+                <select id="payment_method" name="payment_method">
+                    <option value="balance"   {% if form_data.payment_method == 'balance'   %}selected{% endif %}>Account Balance</option>
+                    <option value="ccp"       {% if form_data.payment_method == 'ccp'       %}selected{% endif %}>CCP / Postal Account</option>
+                    <option value="baridimob" {% if form_data.payment_method == 'baridimob' %}selected{% endif %}>BaridiMob</option>
+                    <option value="dahabiya"  {% if form_data.payment_method == 'dahabiya'  %}selected{% endif %}>Dahabiya Card</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 3. Audience Targeting -->
+        <div class="card" data-animate>
+            <p class="section-label"><i class="fas fa-bullseye"></i> Audience Targeting</p>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+                Narrow your audience to maximize relevance. More specific targeting = higher ranking score.
+            </p>
+
+            <div class="form-row" style="margin-bottom:16px;">
+                <div class="form-group">
+                    <label for="target_role">Target User Type</label>
+                    <select id="target_role" name="target_role">
+                        <option value="all"     {% if form_data.target_role == 'all'     %}selected{% endif %}>All Users (+0)</option>
+                        <option value="farmer"  {% if form_data.target_role == 'farmer'  %}selected{% endif %}>Farmers Only (+2.0)</option>
+                        <option value="company" {% if form_data.target_role == 'company' %}selected{% endif %}>Companies Only (+2.0)</option>
+                        <option value="expert"  {% if form_data.target_role == 'expert'  %}selected{% endif %}>Experts Only (+2.0)</option>
+                        <option value="user"    {% if form_data.target_role == 'user'    %}selected{% endif %}>General Users (+2.0)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="target_interest">Target Interest</label>
+                    <select id="target_interest" name="target_interest">
+                        <option value="all"         {% if form_data.target_interest == 'all'         %}selected{% endif %}>All Interests (+0)</option>
+                        <option value="pesticides"  {% if form_data.target_interest == 'pesticides'  %}selected{% endif %}>Medicines / Pesticides (+1.5)</option>
+                        <option value="crops"       {% if form_data.target_interest == 'crops'       %}selected{% endif %}>Crops / Agriculture (+1.5)</option>
+                        <option value="equipment"   {% if form_data.target_interest == 'equipment'   %}selected{% endif %}>Equipment / Machinery (+1.5)</option>
+                        <option value="fertilizers" {% if form_data.target_interest == 'fertilizers' %}selected{% endif %}>Fertilizers (+1.5)</option>
+                        <option value="general"     {% if form_data.target_interest == 'general'     %}selected{% endif %}>General Farming (+1.5)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="target_country">Target Country (optional)</label>
+                    <input type="text" id="target_country" name="target_country"
+                           placeholder="e.g. Algeria" value="{{ form_data.target_country|default:'' }}">
+                    <span class="form-hint">Leave blank for all countries (+1.0 if set)</span>
+                </div>
+                <div class="form-group">
+                    <label for="target_city">Target City (optional)</label>
+                    <input type="text" id="target_city" name="target_city"
+                           placeholder="e.g. Oran" value="{{ form_data.target_city|default:'' }}">
+                    <span class="form-hint">Leave blank for all cities (+0.5 if set)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="card" data-animate>
+            <div class="submit-row">
+                <a href="{% url 'community:post_detail' post.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary" style="padding:12px 32px; font-size:15px;">
+                    <i class="fas fa-rocket"></i> Submit Promotion Request
+                </button>
+            </div>
+            <p style="text-align:right; font-size:12px; color:var(--text-muted); margin-top:8px;">
+                <i class="fas fa-info-circle"></i>
+                Promotion goes live after admin approval (usually within a few hours).
+            </p>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function updatePreview() {
+    const days   = parseInt(document.getElementById('duration_days').value) || 1;
+    const amount = parseFloat(document.getElementById('amount').value) || 0;
+    document.getElementById('previewAmount').textContent = amount.toLocaleString() + ' DA';
+    document.getElementById('previewDays').textContent   = days + ' day' + (days > 1 ? 's' : '');
+    document.getElementById('previewDaily').textContent  = Math.round(amount / days) + ' DA/day';
+}
+updatePreview();
+</script>
+{% endblock %}

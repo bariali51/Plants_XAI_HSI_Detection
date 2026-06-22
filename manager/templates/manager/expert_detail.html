@@ -1,0 +1,365 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ expert_user.username }} — Expert Detail | Nabtati{% endblock %}
+{% block header_title %}{{ expert_user.get_full_name|default:expert_user.username }}{% endblock %}
+{% block header_subtitle %}{{ profile.specialization }}{% endblock %}
+
+{% block nav_admin_experts %}active{% endblock %}
+
+{% block page_styles %}
+    .detail-container { max-width: 900px; margin: 0 auto; }
+
+    /* Profile Header */
+    .expert-profile-header {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px;
+    }
+    .profile-banner {
+        height: 100px;
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary), #66bb6a);
+    }
+    .profile-header-body {
+        padding: 0 28px 24px; position: relative;
+        display: flex; align-items: flex-end; gap: 20px;
+    }
+    .profile-avatar-lg {
+        width: 80px; height: 80px; border-radius: 50%; margin-top: -40px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 30px; font-weight: 900; color: white;
+        border: 4px solid var(--surface); box-shadow: var(--shadow-md);
+        flex-shrink: 0; overflow: hidden;
+    }
+    .profile-avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-header-info { padding-bottom: 6px; flex: 1; }
+    .profile-header-name { font-size: 20px; font-weight: 800; color: var(--text-main); }
+    .profile-header-title { font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 2px; }
+    .profile-header-links {
+        display: flex; gap: 8px; margin-top: 6px;
+    }
+    .profile-header-links a {
+        font-size: 12px; color: var(--text-muted); text-decoration: none;
+        display: inline-flex; align-items: center; gap: 4px;
+        transition: color 0.2s;
+    }
+    .profile-header-links a:hover { color: var(--primary); }
+
+    /* Info grid */
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .info-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius-md); padding: 18px;
+    }
+    .info-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+    .info-value { font-size: 16px; font-weight: 800; color: var(--text-main); }
+
+    /* Skills */
+    .skills-display { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .skill-chip {
+        padding: 4px 12px; border-radius: 20px;
+        background: var(--primary-bg); color: var(--primary);
+        font-size: 12px; font-weight: 700;
+    }
+
+    /* Sections */
+    .section { margin-bottom: 24px; }
+    .section-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+    }
+    .section-title { font-size: 17px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    .section-title i { color: var(--primary); }
+
+    /* Edit form */
+    .edit-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px;
+    }
+    .edit-card .card-title { font-size: 16px; font-weight: 800; margin-bottom: 18px; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    .edit-card .card-title i { color: var(--primary); }
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 5px; color: var(--text-main); }
+    .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .form-input, .form-textarea {
+        width: 100%; padding: 9px 13px; border: 2px solid var(--border);
+        border-radius: var(--radius-md); font-size: 14px; font-family: inherit;
+        background: var(--bg-color); color: var(--text-main); transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--primary); }
+    .form-textarea { min-height: 70px; resize: vertical; }
+    .form-error { color: var(--danger); font-size: 12px; margin-top: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+    .save-btn {
+        padding: 10px 24px; border-radius: var(--radius-md); border: none;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;
+    }
+    .save-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(46, 125, 50, 0.3); }
+
+    /* Table */
+    .assign-form { display: flex; gap: 10px; align-items: center; }
+    .assign-select {
+        padding: 8px 14px; border: 2px solid var(--border); border-radius: var(--radius-md);
+        font-size: 14px; background: var(--bg-color); color: var(--text-main);
+        min-width: 200px;
+    }
+    .assign-btn {
+        padding: 8px 18px; border-radius: var(--radius-md); border: none;
+        background: var(--primary); color: white; font-weight: 700;
+        font-size: 13px; cursor: pointer; transition: all 0.2s;
+    }
+    .assign-btn:hover { background: var(--primary-dark); }
+
+    .user-table {
+        width: 100%; background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .user-table th {
+        text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700;
+        color: var(--text-muted); text-transform: uppercase; background: var(--bg-color);
+        border-bottom: 1px solid var(--border);
+    }
+    .user-table td { padding: 12px 16px; font-size: 14px; color: var(--text-main); border-bottom: 1px solid var(--border); }
+    .user-table tr:last-child td { border-bottom: none; }
+    .remove-btn {
+        padding: 5px 12px; border-radius: var(--radius-full); border: none;
+        background: rgba(239, 68, 68, 0.1); color: #ef4444;
+        font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .remove-btn:hover { background: #ef4444; color: white; }
+
+    .action-btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .toggle-btn {
+        padding: 10px 22px; border-radius: var(--radius-md); border: none;
+        font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;
+    }
+    .toggle-btn.deactivate { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .toggle-btn.activate { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .toggle-btn:hover { transform: translateY(-1px); }
+    .back-link {
+        padding: 10px 22px; border-radius: var(--radius-md); border: 1px solid var(--border);
+        color: var(--text-main); font-weight: 600; font-size: 13px;
+        text-decoration: none; transition: all 0.2s;
+    }
+    .back-link:hover { border-color: var(--primary); }
+    .profile-link {
+        padding: 10px 22px; border-radius: var(--radius-md); border: 1px solid var(--border);
+        color: var(--primary); font-weight: 700; font-size: 13px;
+        text-decoration: none; transition: all 0.2s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .profile-link:hover { border-color: var(--primary); background: var(--primary-bg); }
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <!-- Profile Header -->
+    <div class="expert-profile-header">
+        <div class="profile-banner"></div>
+        <div class="profile-header-body">
+            <div class="profile-avatar-lg">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="{{ profile.display_name }}">
+                {% else %}
+                    {{ expert_user.username|make_list|first|upper }}
+                {% endif %}
+            </div>
+            <div class="profile-header-info">
+                <div class="profile-header-name">{{ profile.display_name }}</div>
+                {% if profile.title %}
+                <div class="profile-header-title">{{ profile.title }}</div>
+                {% endif %}
+                <div class="profile-header-links">
+                    {% if profile.linkedin_url %}
+                    <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                    {% endif %}
+                    {% if profile.website_url %}
+                    <a href="{{ profile.website_url }}" target="_blank" rel="noopener"><i class="fas fa-globe"></i> Website</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="info-grid">
+        <div class="info-card">
+            <div class="info-label">{% trans "Username" %}</div>
+            <div class="info-value">{{ expert_user.username }}</div>
+        </div>
+        <div class="info-card">
+            <div class="info-label">{% trans "Email" %}</div>
+            <div class="info-value" style="font-size: 14px;">{{ expert_user.email }}</div>
+        </div>
+        <div class="info-card">
+            <div class="info-label">{% trans "Assigned Users" %}</div>
+            <div class="info-value">{{ user_count }}/{{ max_users }}</div>
+        </div>
+        <div class="info-card">
+            <div class="info-label">{% trans "Status" %}</div>
+            <div class="info-value">
+                {% if profile.is_active %}
+                <span style="color: #10b981;">{% trans "Active" %}</span>
+                {% else %}
+                <span style="color: #ef4444;">{% trans "Inactive" %}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bio & Skills -->
+    {% if profile.bio or profile.skills %}
+    <div class="info-card" style="margin-bottom: 24px;">
+        {% if profile.bio %}
+        <div class="info-label">{% trans "Bio" %}</div>
+        <p style="font-size: 14px; color: var(--text-main); line-height: 1.6; margin-top: 6px;">{{ profile.bio }}</p>
+        {% endif %}
+        {% if profile.skills %}
+        <div class="info-label" style="{% if profile.bio %}margin-top: 16px;{% endif %}">{% trans "Skills" %}</div>
+        <div class="skills-display">
+            {% for skill in profile.skills %}
+            <span class="skill-chip">{{ skill }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Admin Edit Profile Form -->
+    <div class="edit-card">
+        <h3 class="card-title"><i class="fas fa-pen"></i> {% trans "Edit Expert Profile" %}</h3>
+        <form method="POST" action="{% url 'manager:edit_expert_profile' expert_user.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">{% trans "First Name" %}</label>
+                    <input type="text" name="first_name" class="form-input" value="{{ expert_user.first_name }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{% trans "Last Name" %}</label>
+                    <input type="text" name="last_name" class="form-input" value="{{ expert_user.last_name }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% trans "Title" %}</label>
+                <input type="text" name="title" class="form-input" value="{{ profile.title }}" placeholder="e.g. Senior Plant Pathologist">
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% trans "Specialization" %}</label>
+                <input type="text" name="specialization" class="form-input" value="{{ profile.specialization }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% trans "Bio" %}</label>
+                <textarea name="bio" class="form-textarea">{{ profile.bio }}</textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% trans "Skills" %}</label>
+                <input type="text" name="skills" class="form-input" value="{% for skill in profile.skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}" placeholder="{% trans 'Comma-separated skills...' %}">
+                <div class="form-hint">{% trans "Enter skills separated by commas." %}</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label"><i class="fab fa-linkedin" style="color:#0077b5;"></i> {% trans "LinkedIn" %}</label>
+                    <input type="url" name="linkedin_url" class="form-input" value="{{ profile.linkedin_url }}" placeholder="https://linkedin.com/in/...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-globe" style="color:var(--primary);"></i> {% trans "Website" %}</label>
+                    <input type="url" name="website_url" class="form-input" value="{{ profile.website_url }}" placeholder="https://...">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">{% trans "Avatar" %}</label>
+                <input type="file" name="avatar" class="form-input" accept="image/*" style="padding: 8px;">
+                <div class="form-hint">{% trans "Leave empty to keep current avatar. JPG, PNG, GIF, or WebP. Max 2 MB." %}</div>
+            </div>
+            {% if errors %}
+            <div class="form-error" style="margin-bottom: 12px;">{{ errors.general }}</div>
+            {% endif %}
+            <button type="submit" class="save-btn"><i class="fas fa-check"></i> {% trans "Save Changes" %}</button>
+        </form>
+    </div>
+
+    <!-- Assigned Users -->
+    <div class="section">
+        <div class="section-header">
+            <h3 class="section-title"><i class="fas fa-users"></i> {% trans "Assigned Users" %}</h3>
+            {% if user_count < max_users %}
+            <form method="POST" action="{% url 'manager:assign_expert' expert_user.id %}" class="assign-form">
+                {% csrf_token %}
+                <select name="user_id" class="assign-select" required>
+                    <option value="">{% trans "Select user..." %}</option>
+                    {% for u in available_users %}
+                    <option value="{{ u.id }}">{{ u.username }} ({{ u.email }})</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="assign-btn"><i class="fas fa-plus"></i> {% trans "Assign" %}</button>
+            </form>
+            {% else %}
+            <span style="font-size: 13px; color: #f59e0b; font-weight: 700;">
+                <i class="fas fa-exclamation-triangle"></i> {% trans "Maximum users reached" %}
+            </span>
+            {% endif %}
+        </div>
+
+        {% if relations %}
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>{% trans "User" %}</th>
+                    <th>{% trans "Email" %}</th>
+                    <th>{% trans "Plan" %}</th>
+                    <th>{% trans "Assigned" %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rel in relations %}
+                <tr>
+                    <td><strong>{{ rel.user.username }}</strong></td>
+                    <td style="font-size: 13px; color: var(--text-muted);">{{ rel.user.email }}</td>
+                    <td style="font-size: 13px;">{{ rel.user.plan_config.label }}</td>
+                    <td style="font-size: 13px; color: var(--text-muted);">{{ rel.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'manager:remove_expert_user' expert_user.id rel.id %}" style="display: inline;"
+                              onsubmit="return confirm('Remove this user from the expert?');">
+                            {% csrf_token %}
+                            <button type="submit" class="remove-btn"><i class="fas fa-times"></i> {% trans "Remove" %}</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="text-align: center; color: var(--text-muted); padding: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);">
+            {% trans "No users assigned to this expert." %}
+        </p>
+        {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div class="action-btns">
+        <a href="{% url 'experts:public_profile' expert_user.id %}" class="profile-link">
+            <i class="fas fa-eye"></i> {% trans "View Public Profile" %}
+        </a>
+        <form method="GET" action="{% url 'manager:toggle_expert_active' expert_user.id %}">
+            {% if profile.is_active %}
+            <button type="submit" class="toggle-btn deactivate"><i class="fas fa-ban"></i> {% trans "Deactivate Expert" %}</button>
+            {% else %}
+            <button type="submit" class="toggle-btn activate"><i class="fas fa-check"></i> {% trans "Activate Expert" %}</button>
+            {% endif %}
+        </form>
+        <form method="POST" action="{% url 'manager:delete_expert' expert_user.id %}"
+              onsubmit="return confirm('{% trans "Permanently delete this expert account? This action cannot be undone." %}')">
+            {% csrf_token %}
+            <button type="submit" class="toggle-btn deactivate" style="background:rgba(239,68,68,0.15);">
+                <i class="fas fa-trash-alt"></i> {% trans "Delete Expert" %}
+            </button>
+        </form>
+        <a href="{% url 'manager:experts_list' %}" class="back-link"><i class="fas fa-arrow-left"></i> {% trans "Back to Experts" %}</a>
+    </div>
+</div>
+{% endblock %}

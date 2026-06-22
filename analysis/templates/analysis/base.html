@@ -1,0 +1,406 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="{% block meta_description %}Nabtati — Smart Plant Disease Detection Platform{% endblock %}">
+    <meta name="theme-color" content="#1b5e20">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>{% block title %}Nabtati{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mobile.css' %}">
+
+    {% block extra_head %}{% endblock %}
+
+    <style>
+        {% block page_styles %}{% endblock %}
+    </style>
+</head>
+
+<body>
+    <!-- Skip Link -->
+    <a href="#main-content" class="sr-only" style="position:absolute;top:12px;left:12px;background:var(--primary);color:white;padding:12px 20px;border-radius:10px;z-index:9999;">
+        {% trans "Skip to main content" %}
+    </a>
+
+    <!-- Mobile Header -->
+    <header class="mobile-header" id="mobileHeader">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="{% trans 'Open menu' %}">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="mobile-logo">
+            <span class="logo-icon">🌿</span>
+            <span>Nabtati</span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="{% trans 'Toggle dark mode' %}">
+            <i class="fas fa-moon" id="theme-icon-mobile"></i>
+        </button>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Sidebar (Desktop) + Slide-out Menu (Mobile) -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="{% trans 'Main navigation' %}" style="display:flex;flex-direction:column;">
+        <button class="toggle-btn" onclick="toggleSidebar()" aria-label="{% trans 'Toggle sidebar' %}" aria-expanded="true">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Nabtati</span>
+        </div>
+
+        <div class="mobile-close-btn" onclick="closeMobileMenu()">
+            <i class="fas fa-times"></i>
+        </div>
+
+        <div class="nav-section-label">{% trans "Navigation" %}</div>
+        <div style="flex:1;overflow-y:auto;">
+        <nav>
+            <a href="{% url 'home' %}" class="nav {% block nav_home %}{% endblock %}" {% block nav_home_aria %}{% endblock %}>
+                <i class="fas fa-home"></i>
+                <span class="nav-text">{% trans "Diagnosis" %}</span>
+            </a>
+
+            <!-- History removed (#8) -->
+            <a href="{% url 'my_files' %}" class="nav {% block nav_files %}{% endblock %}" {% block nav_files_aria %}{% endblock %}>
+                <i class="fas fa-folder"></i>
+                <span class="nav-text">{% trans "My Files" %}</span>
+            </a>
+            <a href="{% url 'assistant' %}" class="nav {% block nav_assistant %}{% endblock %}" {% block nav_assistant_aria %}{% endblock %}>
+                <i class="fas fa-robot"></i>
+                <span class="nav-text">{% trans "AI Assistant" %}</span>
+            </a>
+
+            <div class="nav-section-label">{% trans "Social" %}</div>
+            <a href="{% url 'community:feed' %}" class="nav {% block nav_community %}{% endblock %}">
+                <i class="fas fa-seedling"></i>
+                <span class="nav-text">{% trans "Community" %}</span>
+            </a>
+            <a href="{% url 'companies:directory' %}" class="nav {% block nav_companies %}{% endblock %}">
+                <i class="fas fa-building"></i>
+                <span class="nav-text">{% trans "Companies" %}</span>
+            </a>
+
+            {% if has_experts %}
+            <a href="{% url 'experts:user_experts' %}" class="nav {% block nav_experts %}{% endblock %}">
+                <i class="fas fa-user-md"></i>
+                <span class="nav-text">{% trans "My Experts" %}</span>
+                {% if unread_messages > 0 %}
+                <span class="badge badge-danger" style="margin-left:auto;font-size:10px;padding:2px 8px;">{{ unread_messages }}</span>
+                {% endif %}
+            </a>
+            {% endif %}
+            {% if not is_expert and not user.is_staff %}
+            <a href="{% url 'my_complaints' %}" class="nav {% block nav_complaints %}{% endblock %}">
+                <i class="fas fa-comment-dots"></i>
+                <span class="nav-text">{% trans "Complaints" %}</span>
+            </a>
+            {% endif %}
+            {% if user.role == 'company' %}
+            <div class="nav-section-label">{% trans "Company" %}</div>
+            <a href="{% url 'companies:dashboard' %}" class="nav {% block nav_company_dashboard %}{% endblock %}">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">{% trans "Company Dashboard" %}</span>
+            </a>
+            <a href="{% url 'companies:company_messages' %}" class="nav {% block nav_company_messages %}{% endblock %}">
+                <i class="fas fa-inbox"></i>
+                <span class="nav-text">{% trans "Company Inbox" %}</span>
+            </a>
+            <a href="{% url 'companies:manage_products' %}" class="nav {% block nav_company_products %}{% endblock %}">
+                <i class="fas fa-box"></i>
+                <span class="nav-text">{% trans "Products" %}</span>
+            </a>
+            <a href="{% url 'companies:manage_services' %}" class="nav {% block nav_company_services %}{% endblock %}">
+                <i class="fas fa-concierge-bell"></i>
+                <span class="nav-text">{% trans "Services" %}</span>
+            </a>
+            {% endif %}
+            <a href="{% url 'companies:user_messages' %}" class="nav {% block nav_user_messages %}{% endblock %}">
+                <i class="fas fa-envelope"></i>
+                <span class="nav-text">{% trans "Messages" %}</span>
+            </a>
+            <a href="{% url 'settings' %}" class="nav {% block nav_settings %}{% endblock %}">
+                <i class="fas fa-cog"></i>
+                <span class="nav-text">{% trans "Settings" %}</span>
+            </a>
+        </nav>
+
+        {% if is_expert %}
+        <div class="nav-section-label">{% trans "Expert" %}</div>
+        <nav>
+            <a href="{% url 'experts:dashboard' %}" class="nav {% block nav_expert_dashboard %}{% endblock %}">
+                <i class="fas fa-stethoscope"></i>
+                <span class="nav-text">{% trans "Expert Dashboard" %}</span>
+            </a>
+            <a href="{% url 'experts:messages' %}" class="nav {% block nav_expert_messages %}{% endblock %}">
+                <i class="fas fa-envelope"></i>
+                <span class="nav-text">{% trans "Messages" %}</span>
+                {% if unread_messages > 0 %}
+                <span class="badge badge-danger" style="margin-left:auto;font-size:10px;padding:2px 8px;">{{ unread_messages }}</span>
+                {% endif %}
+            </a>
+            <!-- My Files removed (#7) -->
+            <a href="{% url 'experts:complaints' %}" class="nav {% block nav_expert_complaints %}{% endblock %}">
+                <i class="fas fa-flag"></i>
+                <span class="nav-text">{% trans "Complaints" %}</span>
+            </a>
+            <a href="{% url 'experts:admin_messages' %}" class="nav {% block nav_expert_admin_messages %}{% endblock %}">
+                <i class="fas fa-shield-alt"></i>
+                <span class="nav-text">{% trans "Admin Messages" %}</span>
+                {% if admin_unread_messages > 0 %}
+                <span class="badge badge-info" style="margin-left:auto;font-size:10px;padding:2px 8px;">{{ admin_unread_messages }}</span>
+                {% endif %}
+            </a>
+            <!-- Settings removed (#7) -->
+        </nav>
+        {% endif %}
+
+        {% if user.is_staff %}
+        <div class="nav-section-label">{% trans "Admin" %}</div>
+        <nav>
+            <a href="{% url 'manager:dashboard' %}" class="nav {% block nav_admin_dashboard %}{% endblock %}">
+                <i class="fas fa-gauge-high"></i>
+                <span class="nav-text">{% trans "Dashboard" %}</span>
+            </a>
+            <a href="{% url 'manager:users' %}" class="nav {% block nav_admin_users %}{% endblock %}">
+                <i class="fas fa-users-gear"></i>
+                <span class="nav-text">{% trans "Users" %}</span>
+            </a>
+            <a href="{% url 'manager:scans' %}" class="nav {% block nav_admin_scans %}{% endblock %}">
+                <i class="fas fa-microscope"></i>
+                <span class="nav-text">{% trans "All Scans" %}</span>
+            </a>
+            <a href="{% url 'manager:experts_list' %}" class="nav {% block nav_admin_experts %}{% endblock %}">
+                <i class="fas fa-user-tie"></i>
+                <span class="nav-text">{% trans "Experts" %}</span>
+            </a>
+            <a href="{% url 'manager:audit_log' %}" class="nav {% block nav_admin_audit %}{% endblock %}">
+                <i class="fas fa-clipboard-list"></i>
+                <span class="nav-text">{% trans "Audit Log" %}</span>
+            </a>
+            <a href="{% url 'manager:complaints' %}" class="nav {% block nav_admin_complaints %}{% endblock %}">
+                <i class="fas fa-comments"></i>
+                <span class="nav-text">{% trans "User Complaints" %}</span>
+                {% if unseen_complaints %}
+                <span class="badge badge-danger" style="margin-left:auto;font-size:10px;padding:2px 8px;">{{ unseen_complaints }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'manager:expert_complaints' %}" class="nav {% block nav_admin_expert_complaints %}{% endblock %}">
+                <i class="fas fa-flag"></i>
+                <span class="nav-text">{% trans "Expert Complaints" %}</span>
+                {% if unseen_expert_complaints %}
+                <span class="badge badge-danger" style="margin-left:auto;font-size:10px;padding:2px 8px;">{{ unseen_expert_complaints }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'manager:admin_messages' %}" class="nav {% block nav_admin_messages %}{% endblock %}">
+                <i class="fas fa-paper-plane"></i>
+                <span class="nav-text">{% trans "Messages" %}</span>
+            </a>
+        </nav>
+        {% endif %}
+        </div> <!-- end scrollable nav area -->
+
+        <div class="sidebar-footer">
+            {% if user.is_authenticated %}
+            <div class="user-info">
+                <div class="user-avatar">{{ user.username|make_list|first|upper }}</div>
+                <span class="nav-text user-name">
+                    {{ user.get_display_name }}
+                    {% if user.is_staff %}
+                    <span class="admin-badge-sm">{% trans "ADMIN" %}</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="nav-text plan-info-sidebar" style="padding: 10px 0 4px 0; font-size: 12px;">
+                <span class="plan-badge plan-badge-{{ plan_type }}" style="
+                    display: inline-block;
+                    padding: 4px 12px;
+                    border-radius: 12px;
+                    font-size: 11px;
+                    font-weight: 800;
+                    letter-spacing: 0.5px;
+                    text-transform: uppercase;
+                    {% if plan_type == 'premium' %}
+                        background: linear-gradient(135deg, #f59e0b, #d97706);
+                        color: #fff;
+                        box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);
+                    {% elif plan_type == 'basic' %}
+                        background: linear-gradient(135deg, #6366f1, #4f46e5);
+                        color: #fff;
+                        box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+                    {% else %}
+                        background: #fff;
+                        color: var(--primary);
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                    {% endif %}
+                ">{{ plan_label }}</span>
+                {% if daily_limit is not None %}
+                <span style="color: rgba(255,255,255,0.7); margin-left: 8px; font-weight: 600;">
+                    {{ remaining_scans }}/{{ daily_limit }} {% trans "scans" %}
+                </span>
+                {% else %}
+                <span style="color: rgba(255,255,255,0.7); margin-left: 8px; font-weight: 600;">
+                    ∞ {% trans "scans" %}
+                </span>
+                {% endif %}
+            </div>
+            <button class="sidebar-logout-btn" onclick="confirmLogout()" data-logout-url="{% url 'logout' %}">
+                <i class="fas fa-right-from-bracket"></i>
+                <span class="nav-text">{% trans "Sign Out" %}</span>
+            </button>
+            {% else %}
+            <a href="{% url 'login' %}" class="nav">
+                <i class="fas fa-sign-in-alt"></i>
+                <span class="nav-text">{% trans "Login" %}</span>
+            </a>
+            {% endif %}
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="header desktop-header">
+            <div>
+                <h1 class="header-title">{% block header_title %}Nabtati{% endblock %}</h1>
+                <p class="header-subtitle">{% block header_subtitle %}{% endblock %}</p>
+            </div>
+            <div class="header-actions">
+                {% block header_actions %}
+                <span class="status-badge" role="status" aria-live="polite">
+                    <i class="fas fa-circle"></i> {% trans "System Online" %}
+                </span>
+                {% endblock %}
+
+                <!-- Language Switcher -->
+                <div class="lang-switcher" id="langSwitcher">
+                    <button class="lang-btn" id="langToggle" type="button" aria-label="{% trans 'Change language' %}">
+                        <i class="fas fa-globe"></i>
+                        <span>{{ LANGUAGE_CODE|upper }}</span>
+                    </button>
+                    <div class="lang-dropdown" id="langDropdown">
+                        <form method="POST" action="{% url 'set_language' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" name="language" value="en" class="lang-option {% if LANGUAGE_CODE == 'en' %}active{% endif %}">
+                                🇬🇧 English
+                            </button>
+                            <button type="submit" name="language" value="fr" class="lang-option {% if LANGUAGE_CODE == 'fr' %}active{% endif %}">
+                                🇫🇷 Français
+                            </button>
+                            <button type="submit" name="language" value="ar" class="lang-option {% if LANGUAGE_CODE == 'ar' %}active{% endif %}">
+                                🇸🇦 العربية
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Logout (Header) -->
+                {% if user.is_authenticated %}
+                <button class="header-logout-btn" onclick="confirmLogout()" data-logout-url="{% url 'logout' %}" title="{% trans 'Sign Out' %}">
+                    <i class="fas fa-right-from-bracket"></i>
+                </button>
+                {% endif %}
+
+                <button class="theme-toggle desktop-theme-toggle" onclick="toggleTheme()" aria-label="{% trans 'Toggle dark mode' %}">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="content" id="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="{% trans 'Mobile navigation' %}">
+        <a href="{% url 'home' %}" class="bottom-nav-item {% block bnav_home %}{% endblock %}" id="bnav-home">
+            <i class="fas fa-home"></i>
+            <span>{% trans "Diagnosis" %}</span>
+        </a>
+        <a href="{% url 'my_files' %}" class="bottom-nav-item {% block bnav_files %}{% endblock %}" id="bnav-files">
+            <i class="fas fa-folder"></i>
+            <span>{% trans "My Files" %}</span>
+        </a>
+        <a href="{% url 'community:feed' %}" class="bottom-nav-item {% block bnav_community %}{% endblock %}" id="bnav-community">
+            <i class="fas fa-seedling"></i>
+            <span>{% trans "Community" %}</span>
+        </a>
+        {% if user.is_authenticated %}
+        <a href="#" onclick="confirmLogout();return false;" class="bottom-nav-item" id="bnav-logout" data-logout-url="{% url 'logout' %}">
+            <i class="fas fa-right-from-bracket"></i>
+            <span>{% trans "Logout" %}</span>
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}" class="bottom-nav-item" id="bnav-login">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>{% trans "Login" %}</span>
+        </a>
+        {% endif %}
+    </nav>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <p class="loading-text">{% trans "Analyzing..." %}</p>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div class="modal" id="logoutModal" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
+        <div class="modal-content">
+            <div class="modal-icon" style="background:var(--danger-bg);color:var(--danger);">
+                <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <h3 class="modal-title" id="logoutTitle">{% trans "Logout" %}</h3>
+            <p class="modal-text">{% trans "Are you sure you want to sign out of Nabtati?" %}</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal('logoutModal')">{% trans "Cancel" %}</button>
+                <button class="modal-btn danger" id="logoutConfirmBtn">
+                    <i class="fas fa-check"></i> {% trans "Yes, Logout" %}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- Language Switcher JS -->
+    <script>
+    (function(){
+        const toggle = document.getElementById('langToggle');
+        const dropdown = document.getElementById('langDropdown');
+        if (toggle && dropdown) {
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('show');
+            });
+            document.addEventListener('click', function() {
+                dropdown.classList.remove('show');
+            });
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    })();
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

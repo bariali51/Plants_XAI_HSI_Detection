@@ -1,0 +1,78 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% block title %}My Promotions | Nabtati{% endblock %}
+{% block header_title %}My Promotions{% endblock %}
+{% block header_subtitle %}Track your boosted posts and analytics{% endblock %}
+
+{% block page_styles %}
+.promo-card { border-left:4px solid var(--border); transition:var(--transition-fast); }
+.promo-card.active   { border-left-color:var(--primary); }
+.promo-card.pending  { border-left-color:var(--warning); }
+.promo-card.expired  { border-left-color:var(--text-muted); }
+.promo-card.rejected { border-left-color:var(--danger); }
+.promo-card:hover    { transform:translateX(3px); }
+.status-pill { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:var(--radius-full); font-size:11px; font-weight:700; text-transform:uppercase; }
+.status-pill.active   { background:rgba(46,125,50,.12); color:var(--primary-dark); }
+.status-pill.pending  { background:rgba(245,158,11,.12); color:#b45309; }
+.status-pill.expired  { background:var(--border); color:var(--text-muted); }
+.status-pill.rejected { background:rgba(239,68,68,.1); color:var(--danger); }
+.stat-row { display:flex; gap:20px; flex-wrap:wrap; margin-top:12px; }
+.stat-item .val { font-size:20px; font-weight:800; }
+.stat-item .lbl { font-size:11px; color:var(--text-muted); }
+.meta-row { display:flex; gap:16px; flex-wrap:wrap; font-size:13px; color:var(--text-muted); margin-top:8px; }
+.t-tags span { background:var(--primary-bg); color:var(--primary-dark); padding:2px 8px; border-radius:var(--radius-full); font-size:11px; font-weight:600; margin-right:4px; }
+{% endblock %}
+
+{% block content %}
+<div style="max-width:900px;margin:0 auto;">
+{% if not promotions %}
+<div class="card" style="text-align:center;padding:60px 20px;" data-animate>
+    <i class="fas fa-rocket" style="font-size:56px;opacity:.3;display:block;margin-bottom:16px;"></i>
+    <h3>No promotions yet</h3>
+    <p style="color:var(--text-muted);">Boost your posts to reach more farmers, experts and companies.</p>
+    <a href="{% url 'community:feed' %}" class="btn btn-primary" style="margin-top:16px;"><i class="fas fa-arrow-left"></i> Go to Feed</a>
+</div>
+{% else %}
+{% for promo in promotions %}
+<div class="card promo-card {{ promo.status }}" style="margin-bottom:16px;" data-animate>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                <span class="status-pill {{ promo.status }}">
+                    {% if promo.status == 'active' %}<i class="fas fa-circle-dot"></i>
+                    {% elif promo.status == 'pending' %}<i class="fas fa-clock"></i>
+                    {% elif promo.status == 'rejected' %}<i class="fas fa-xmark"></i>
+                    {% else %}<i class="fas fa-check"></i>{% endif %}
+                    {{ promo.get_status_display }}
+                </span>
+                {% if promo.is_live %}<span style="font-size:11px;color:var(--primary);font-weight:700;"><i class="fas fa-bolt"></i> LIVE — {{ promo.days_remaining }} day(s) left</span>{% endif %}
+            </div>
+            <a href="{% url 'community:post_detail' promo.post.pk %}" style="font-size:16px;font-weight:700;color:var(--text-main);text-decoration:none;">{{ promo.post.title|truncatechars:70 }}</a>
+            <div class="meta-row">
+                <span><strong>{{ promo.duration_days }}</strong> days</span>
+                <span><strong>{{ promo.amount|floatformat:0 }} DA</strong></span>
+                <span>via <strong>{{ promo.get_payment_method_display }}</strong></span>
+                <span>{{ promo.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="t-tags" style="margin-top:8px;">
+                <span><i class="fas fa-users"></i> {{ promo.get_target_role_display }}</span>
+                <span><i class="fas fa-tag"></i> {{ promo.get_target_interest_display }}</span>
+                {% if promo.target_country %}<span><i class="fas fa-globe"></i> {{ promo.target_country }}</span>{% endif %}
+                {% if promo.target_city %}<span><i class="fas fa-location-dot"></i> {{ promo.target_city }}</span>{% endif %}
+            </div>
+            {% if promo.rejected_reason %}<div style="margin-top:8px;padding:8px 12px;background:rgba(239,68,68,.06);border-radius:var(--radius-sm);font-size:13px;color:var(--danger);"><i class="fas fa-triangle-exclamation"></i> {{ promo.rejected_reason }}</div>{% endif %}
+        </div>
+        {% if promo.status == 'active' %}
+        <div class="stat-row">
+            <div class="stat-item"><div class="val">{{ promo.impressions }}</div><div class="lbl">Impressions</div></div>
+            <div class="stat-item"><div class="val">{{ promo.clicks }}</div><div class="lbl">Clicks</div></div>
+            <div class="stat-item"><div class="val">{{ promo.ctr }}%</div><div class="lbl">CTR</div></div>
+            <div class="stat-item"><div class="val" style="color:var(--primary);">{{ promo.boost_score|floatformat:1 }}</div><div class="lbl">Boost Score</div></div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+</div>
+{% endblock %}

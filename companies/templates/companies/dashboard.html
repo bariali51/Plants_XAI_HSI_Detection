@@ -1,0 +1,929 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Corporate Command" %} — Nabtati{% endblock %}
+{% block header_title %}{% if creating %}{% trans "Initialize Identity" %}{% else %}{% trans "Business Operations" %}{% endif %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/companies.css' %}">
+<style>
+    /* ── Emerald Executive Dashboard Core ── */
+    :root {
+        --executive-emerald: #1b5e20;
+        --executive-light: #4caf50;
+        --executive-glass: rgba(255, 255, 255, 0.9);
+        --executive-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        --executive-border: rgba(0,0,0,0.05);
+    }
+
+    .dashboard-layout-ultra {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px 100px;
+        font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+    }
+
+    /* Glassmorphic Hero */
+    .company-hero-ultra {
+        background: #fff;
+        border-radius: 40px;
+        overflow: hidden;
+        margin-bottom: 50px;
+        border: 1px solid var(--executive-border);
+        box-shadow: var(--executive-shadow);
+        position: relative;
+    }
+
+    .hero-banner-pro {
+        height: 180px;
+        background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #4caf50 100%);
+        position: relative;
+    }
+
+    .hero-banner-pro::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+        opacity: 0.1;
+    }
+
+    .hero-content-pro {
+        padding: 0 50px 50px;
+        margin-top: -60px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 30px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .company-logo-ultra {
+        width: 150px;
+        height: 150px;
+        background: #fff;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 52px;
+        font-weight: 900;
+        color: #1b5e20;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        border: 8px solid #fff;
+        overflow: hidden;
+        flex-shrink: 0;
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .company-logo-ultra:hover {
+        transform: scale(1.05) rotate(-2deg);
+    }
+
+    .company-logo-ultra img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .company-text-pro h2 {
+        font-size: 36px;
+        font-weight: 950;
+        color: #1e293b;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .verified-pill {
+        background: #dcfce7;
+        color: #15803d;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 6px 16px;
+        border-radius: 30px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 1px solid #bbf7d0;
+    }
+
+    .hero-meta-pro {
+        display: flex;
+        gap: 24px;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 15px;
+    }
+
+    /* Stats Grid */
+    .dashboard-stats-ultra {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+        margin-bottom: 50px;
+    }
+
+    .stat-card-ultra {
+        background: #fff;
+        border-radius: 30px;
+        padding: 30px;
+        border: 1px solid var(--executive-border);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card-ultra:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.06);
+        border-color: #4caf50;
+    }
+
+    .stat-icon-pro {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        transition: all 0.4s;
+    }
+
+    .stat-card-ultra:hover .stat-icon-pro {
+        transform: scale(1.1) rotate(8deg);
+    }
+
+    /* Operations Center */
+    .ops-section-ultra {
+        margin-bottom: 60px;
+    }
+
+    .section-header-pro {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .section-title-pro {
+        font-size: 24px;
+        font-weight: 900;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .control-grid-ultra {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+    }
+
+    .control-item-pro {
+        background: #fff;
+        border-radius: 32px;
+        padding: 32px;
+        border: 1px solid var(--executive-border);
+        text-decoration: none !important;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .control-item-pro:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.08);
+        border-color: #2e7d32;
+    }
+
+    .control-icon-pro {
+        width: 70px;
+        height: 70px;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        transition: all 0.5s;
+    }
+
+    .control-item-pro:hover .control-icon-pro {
+        transform: rotate(10deg);
+    }
+
+    .control-text-pro strong {
+        display: block;
+        font-size: 20px;
+        font-weight: 900;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+
+    .control-text-pro span {
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 600;
+        line-height: 1.6;
+    }
+
+    /* Unified Settings Experience */
+    .settings-container-ultra {
+        background: #fff;
+        border-radius: 40px;
+        border: 1px solid var(--executive-border);
+        box-shadow: var(--executive-shadow);
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        min-height: 800px;
+        overflow: hidden;
+    }
+
+    .settings-nav-pro {
+        background: #f8fafc;
+        padding: 50px 30px;
+        border-right: 1px solid var(--executive-border);
+    }
+
+    .settings-nav-title {
+        font-size: 12px;
+        font-weight: 900;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 30px;
+        padding-left: 20px;
+    }
+
+    .nav-btn-pro {
+        width: 100%;
+        padding: 16px 24px;
+        border-radius: 20px;
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 15px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: left;
+        margin-bottom: 8px;
+    }
+
+    .nav-btn-pro:hover {
+        background: rgba(46, 125, 50, 0.05);
+        color: #2e7d32;
+    }
+
+    .nav-btn-pro.active {
+        background: #fff;
+        color: #1b5e20;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    .settings-content-pro {
+        padding: 60px;
+    }
+
+    .form-group-ultra {
+        margin-bottom: 50px;
+    }
+
+    .group-label-pro {
+        font-size: 11px;
+        font-weight: 900;
+        color: #2e7d32;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .group-label-pro::after {
+        content: '';
+        flex: 1;
+        height: 2px;
+        background: linear-gradient(to right, #dcfce7, transparent);
+    }
+
+    /* Form Fields Premium */
+    .form-grid-pro {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+
+    .field-full-pro {
+        grid-column: 1 / -1;
+    }
+
+    .input-group-pro {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .input-group-pro label {
+        font-size: 14px;
+        font-weight: 800;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .input-group-pro label i {
+        color: #2e7d32;
+        font-size: 16px;
+    }
+
+    .input-pro {
+        width: 100%;
+        padding: 16px 24px;
+        border-radius: 18px;
+        border: 2px solid #f1f5f9;
+        background: #f8fafc;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1e293b;
+        transition: all 0.3s;
+    }
+
+    .input-pro:focus {
+        border-color: #4caf50;
+        background: #fff;
+        box-shadow: 0 0 0 5px rgba(76, 175, 80, 0.1);
+        outline: none;
+    }
+
+    .btn-save-pro {
+        background: linear-gradient(135deg, #1b5e20, #2e7d32);
+        color: #fff;
+        padding: 20px 50px;
+        border-radius: 24px;
+        border: none;
+        font-size: 16px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: all 0.4s;
+        box-shadow: 0 15px 35px rgba(27, 94, 32, 0.25);
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 40px;
+    }
+
+    .btn-save-pro:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 45px rgba(27, 94, 32, 0.35);
+    }
+
+    /* Dark Mode Overrides */
+    [data-theme="dark"] .company-hero-ultra,
+    [data-theme="dark"] .stat-card-ultra,
+    [data-theme="dark"] .control-item-pro,
+    [data-theme="dark"] .settings-container-ultra {
+        background: #0f172a;
+        border-color: rgba(255,255,255,0.05);
+    }
+
+    [data-theme="dark"] .settings-nav-pro { background: #1e293b; border-color: rgba(255,255,255,0.05); }
+    [data-theme="dark"] .nav-btn-pro.active { background: #0f172a; color: #4caf50; }
+    [data-theme="dark"] .input-pro { background: #1e293b; border-color: #334155; color: #f1f5f9; }
+    [data-theme="dark"] .company-text-pro h2, [data-theme="dark"] .section-title-pro { color: #f1f5f9; }
+
+    @media (max-width: 1024px) {
+        .settings-container-ultra { grid-template-columns: 1fr; }
+        .settings-nav-pro { border-right: none; border-bottom: 1px solid var(--executive-border); padding: 30px; display: flex; overflow-x: auto; gap: 10px; }
+        .settings-nav-title { display: none; }
+        .nav-btn-pro { white-space: nowrap; width: auto; margin-bottom: 0; }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-layout-ultra { padding: 20px 15px 60px; }
+        .company-hero-ultra { border-radius: 30px; }
+        .hero-content-pro { padding: 0 25px 30px; margin-top: -40px; }
+        .company-logo-ultra { width: 110px; height: 110px; border-radius: 25px; }
+        .company-text-pro h2 { font-size: 24px; }
+        .settings-content-pro { padding: 30px; }
+        .form-grid-pro { grid-template-columns: 1fr; }
+    }
+
+    /* ── Custom Upload Zones ─────────────────────────────── */
+    .upload-zone-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-main, #1e293b);
+        margin-bottom: 10px;
+        cursor: default;
+    }
+
+    .upload-zone {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 130px;
+        border: 2px dashed #c8e6c9;
+        border-radius: 18px;
+        background: #f0fdf4;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .upload-zone:hover,
+    .upload-zone.drag {
+        border-color: #2e7d32;
+        background: #dcfce7;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(46,125,50,0.12);
+    }
+    [data-theme="dark"] .upload-zone {
+        background: rgba(46,125,50,0.06);
+        border-color: rgba(46,125,50,0.3);
+    }
+    [data-theme="dark"] .upload-zone:hover {
+        background: rgba(46,125,50,0.12);
+    }
+
+    .upload-zone-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 20px;
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .upload-icon-wrap {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #2e7d32, #43a047);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 6px 16px rgba(46,125,50,0.25);
+        transition: transform 0.2s;
+    }
+    .upload-zone:hover .upload-icon-wrap {
+        transform: scale(1.08) rotate(-4deg);
+    }
+
+    .upload-preview-img {
+        width: 72px;
+        height: 72px;
+        border-radius: 14px;
+        object-fit: cover;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+        border: 3px solid #fff;
+    }
+
+    .upload-zone-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #2e7d32;
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .upload-zone-hint {
+        font-size: 11px;
+        color: var(--text-muted, #94a3b8);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout-ultra">
+    
+    {% if not creating %}
+    <!-- Emerald Hero -->
+    <header class="company-hero-ultra fade-in-down" id="company-hero">
+        <div class="hero-banner-pro"></div>
+        <div class="hero-content-pro">
+            <div class="company-identity-pro" style="display: flex; align-items: flex-end; gap: 30px; flex-wrap: wrap;">
+                <div class="company-logo-ultra" id="logo-main">
+                    {% if company.logo %}
+                    <img src="{{ company.logo.url }}" alt="{{ company.company_name }}">
+                    {% else %}
+                    {{ company.company_name|make_list|first|upper }}
+                    {% endif %}
+                </div>
+                <div class="company-text-pro">
+                    <h2>
+                        {{ company.company_name }}
+                        {% if company.verified %}<span class="verified-pill"><i class="fas fa-check-decagram"></i> {% trans "Elite Partner" %}</span>{% endif %}
+                    </h2>
+                    <div class="hero-meta-pro">
+                        <span><i class="fas fa-map-marker-alt" style="color: #4caf50; margin-right: 10px;"></i> {{ company.city }}, {{ company.country }}</span>
+                        <span><i class="fas fa-envelope-open-text" style="color: #4caf50; margin-right: 10px;"></i> {{ company.email }}</span>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'companies:profile' company.pk %}" class="btn-save-pro" style="margin-top: 0; padding: 14px 28px; border-radius: 18px; font-size: 14px; text-decoration: none;">
+                <i class="fas fa-eye"></i> {% trans "Preview Public Profile" %}
+            </a>
+        </div>
+    </header>
+
+    <!-- Executive Metrics -->
+    <section class="dashboard-stats-ultra fade-in-up" style="animation-delay: 100ms">
+        <div class="stat-card-ultra">
+            <div class="stat-icon-pro" style="background: rgba(16, 185, 129, 0.1); color: #10b981;"><i class="fas fa-cubes"></i></div>
+            <div class="stat-info-pro">
+                <div style="font-size: 32px; font-weight: 950; color: #1e293b;">{{ product_count }}</div>
+                <div style="font-size: 12px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">{% trans "Active Products" %}</div>
+            </div>
+        </div>
+        <div class="stat-card-ultra">
+            <div class="stat-icon-pro" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;"><i class="fas fa-hand-holding-heart"></i></div>
+            <div class="stat-info-pro">
+                <div style="font-size: 32px; font-weight: 950; color: #1e293b;">{{ service_count }}</div>
+                <div style="font-size: 12px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">{% trans "Total Services" %}</div>
+            </div>
+        </div>
+        <div class="stat-card-ultra">
+            <div class="stat-icon-pro" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;"><i class="fas fa-crown"></i></div>
+            <div class="stat-info-pro">
+                <div style="font-size: 32px; font-weight: 950; color: #1e293b;">{{ avg_rating|floatformat:1 }}</div>
+                <div style="font-size: 12px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">{% trans "Reputation" %}</div>
+            </div>
+        </div>
+        <div class="stat-card-ultra">
+            <div class="stat-icon-pro" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="fas fa-paper-plane"></i></div>
+            <div class="stat-info-pro">
+                <div style="font-size: 32px; font-weight: 950; color: #1e293b;">{{ unread_total }}</div>
+                <div style="font-size: 12px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">{% trans "Direct Inquiries" %}</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Operations Center -->
+    <section class="ops-section-ultra fade-in-up" style="animation-delay: 200ms">
+        <div class="section-header-pro">
+            <h3 class="section-title-pro"><i class="fas fa-layer-group" style="color: #2e7d32;"></i> {% trans "Operational Units" %}</h3>
+        </div>
+        <div class="control-grid-ultra">
+            <a href="{% url 'companies:manage_products' %}" class="control-item-pro" id="unit-products">
+                <div class="control-icon-pro" style="background: #f0fdf4; color: #16a34a;"><i class="fas fa-boxes-packing"></i></div>
+                <div class="control-text-pro">
+                    <strong>{% trans "Inventory Manager" %}</strong>
+                    <span>{% trans "Optimize your stock, manage listings, and control pricing strategies." %}</span>
+                </div>
+            </a>
+            <a href="{% url 'companies:manage_services' %}" class="control-item-pro" id="unit-services">
+                <div class="control-icon-pro" style="background: #f5f3ff; color: #8b5cf6;"><i class="fas fa-user-tie"></i></div>
+                <div class="control-text-pro">
+                    <strong>{% trans "Service Delivery" %}</strong>
+                    <span>{% trans "Deploy specialized consultations and field technical support." %}</span>
+                </div>
+            </a>
+            <a href="{% url 'companies:company_messages' %}" class="control-item-pro" id="unit-messages">
+                <div class="control-icon-pro" style="background: #eff6ff; color: #3b82f6;"><i class="fas fa-comments-dollar"></i></div>
+                <div class="control-text-pro">
+                    <strong>{% trans "Negotiation Hub" %}</strong>
+                    <span>{% trans "Direct communication pipeline with high-value clients." %}</span>
+                </div>
+                {% if unread_total > 0 %}
+                <span style="position: absolute; top: 32px; right: 32px; background: #ef4444; color: #fff; font-size: 11px; padding: 4px 12px; border-radius: 30px; font-weight: 950; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);">{{ unread_total }} NEW</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'community:feed' %}" class="control-item-pro" id="unit-market">
+                <div class="control-icon-pro" style="background: #fff7ed; color: #ea580c;"><i class="fas fa-chart-line"></i></div>
+                <div class="control-text-pro">
+                    <strong>{% trans "Intelligence Feed" %}</strong>
+                    <span>{% trans "Monitor industry shifts and engage with the broader community." %}</span>
+                </div>
+            </a>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Identity & Corporate Settings Section -->
+    <div class="ops-section-ultra fade-in-up" style="animation-delay: 300ms">
+        <div class="section-header-pro">
+            <h3 class="section-title-pro">
+                <i class="fas fa-fingerprint" style="color: #2e7d32;"></i> 
+                {% if creating %}{% trans "Identity Provisioning" %}{% else %}{% trans "Corporate Configuration" %}{% endif %}
+            </h3>
+        </div>
+
+        <div class="settings-container-ultra">
+            <aside class="settings-nav-pro">
+                <div class="settings-nav-title">{% trans "Control Panels" %}</div>
+                <button class="nav-btn-pro active" onclick="scrollToSection('identity-basics')">
+                    <i class="fas fa-id-card"></i> {% trans "Core Identity" %}
+                </button>
+                <button class="nav-btn-pro" onclick="scrollToSection('narrative')">
+                    <i class="fas fa-feather-pointed"></i> {% trans "Brand Narrative" %}
+                </button>
+                <button class="nav-btn-pro" onclick="scrollToSection('regional')">
+                    <i class="fas fa-earth-americas"></i> {% trans "Regional Node" %}
+                </button>
+                <button class="nav-btn-pro" onclick="scrollToSection('assets')">
+                    <i class="fas fa-photo-film"></i> {% trans "Media Assets" %}
+                </button>
+            </aside>
+
+            <main class="settings-content-pro">
+                <form method="POST" enctype="multipart/form-data" id="corporate-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-group-ultra" id="identity-basics">
+                        <div class="group-label-pro">{% trans "Basic Identity" %}</div>
+                        <div class="form-grid-pro">
+                            {% for field in form %}
+                                {% if field.name == 'company_name' or field.name == 'email' or field.name == 'phone' or field.name == 'website' %}
+                                <div class="input-group-pro">
+                                    <label for="{{ field.id_for_label }}">
+                                        {% if field.name == 'company_name' %}<i class="fas fa-building"></i>{% endif %}
+                                        {% if field.name == 'email' %}<i class="fas fa-envelope"></i>{% endif %}
+                                        {% if field.name == 'phone' %}<i class="fas fa-phone"></i>{% endif %}
+                                        {% if field.name == 'website' %}<i class="fas fa-globe"></i>{% endif %}
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.errors %}<span style="color: #ef4444; font-size: 12px; font-weight: 700;">{{ field.errors.0 }}</span>{% endif %}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group-ultra" id="narrative">
+                        <div class="group-label-pro">{% trans "Professional Narrative" %}</div>
+                        <div class="form-grid-pro">
+                            {% for field in form %}
+                                {% if field.name == 'description' or field.name == 'specializations' %}
+                                <div class="input-group-pro field-full-pro">
+                                    <label for="{{ field.id_for_label }}">
+                                        {% if field.name == 'description' %}<i class="fas fa-quote-left"></i>{% endif %}
+                                        {% if field.name == 'specializations' %}<i class="fas fa-tags"></i>{% endif %}
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.errors %}<span style="color: #ef4444; font-size: 12px; font-weight: 700;">{{ field.errors.0 }}</span>{% endif %}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group-ultra" id="regional">
+                        <div class="group-label-pro">{% trans "Regional Nodes" %}</div>
+                        <div class="form-grid-pro">
+                            {% for field in form %}
+                                {% if field.name == 'address' or field.name == 'city' or field.name == 'country' %}
+                                <div class="input-group-pro {% if field.name == 'address' %}field-full-pro{% endif %}">
+                                    <label for="{{ field.id_for_label }}">
+                                        {% if field.name == 'address' %}<i class="fas fa-map-marked-alt"></i>{% endif %}
+                                        {% if field.name == 'city' %}<i class="fas fa-city"></i>{% endif %}
+                                        {% if field.name == 'country' %}<i class="fas fa-flag"></i>{% endif %}
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.errors %}<span style="color: #ef4444; font-size: 12px; font-weight: 700;">{{ field.errors.0 }}</span>{% endif %}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group-ultra" id="assets">
+                        <div class="group-label-pro">{% trans "Media Assets" %}</div>
+                        <div class="form-grid-pro">
+                            {% for field in form %}
+                                {% if field.name == 'logo' or field.name == 'cover_image' %}
+                                <div class="input-group-pro">
+                                    <label class="upload-zone-label" for="{{ field.id_for_label }}">
+                                        {% if field.name == 'logo' %}
+                                            <i class="fas fa-circle-user" style="color:var(--primary)"></i>
+                                        {% else %}
+                                            <i class="fas fa-image" style="color:var(--primary)"></i>
+                                        {% endif %}
+                                        {{ field.label }}
+                                    </label>
+
+                                    <label class="upload-zone" id="zone-{{ field.name }}"
+                                           for="{{ field.id_for_label }}"
+                                           ondragover="event.preventDefault();this.classList.add('drag')"
+                                           ondragleave="this.classList.remove('drag')"
+                                           ondrop="handleDrop(event,'{{ field.name }}')">
+
+                                        <div class="upload-zone-inner" id="inner-{{ field.name }}">
+                                            {% if field.name == 'logo' and company.logo %}
+                                                <img src="{{ company.logo.url }}" class="upload-preview-img" id="preview-{{ field.name }}" alt="Logo">
+                                                <span class="upload-zone-name" id="name-{{ field.name }}">{{ company.logo.name|truncatechars:28 }}</span>
+                                            {% elif field.name == 'cover_image' and company.cover_image %}
+                                                <img src="{{ company.cover_image.url }}" class="upload-preview-img" id="preview-{{ field.name }}" alt="Cover">
+                                                <span class="upload-zone-name" id="name-{{ field.name }}">{{ company.cover_image.name|truncatechars:28 }}</span>
+                                            {% else %}
+                                                <div class="upload-icon-wrap" id="preview-{{ field.name }}">
+                                                    {% if field.name == 'logo' %}
+                                                        <i class="fas fa-user-circle"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-panorama"></i>
+                                                    {% endif %}
+                                                </div>
+                                                <span class="upload-zone-name" id="name-{{ field.name }}">{% trans "Click or drag to upload" %}</span>
+                                            {% endif %}
+                                            <span class="upload-zone-hint">PNG, JPG, WEBP &mdash; max 5 MB</span>
+                                        </div>
+
+                                        {# Hidden real input #}
+                                        <div style="display:none">{{ field }}</div>
+                                    </label>
+
+                                    {% if field.errors %}
+                                        <span style="color:#ef4444;font-size:12px;font-weight:700">{{ field.errors.0 }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ── Action Buttons ──────────────────────────────── -->
+                    <div style="
+                        display: flex;
+                        justify-content: flex-end;
+                        align-items: center;
+                        gap: 12px;
+                        margin-top: 48px;
+                        padding-top: 28px;
+                        border-top: 1px solid rgba(0,0,0,0.06);
+                    ">
+                        {% if not creating %}
+                        <!-- Discard — ghost style -->
+                        <a href="{% url 'companies:dashboard' %}"
+                           style="
+                               display: inline-flex;
+                               align-items: center;
+                               gap: 8px;
+                               padding: 12px 24px;
+                               border-radius: 14px;
+                               border: 1.5px solid #e2e8f0;
+                               background: transparent;
+                               color: #94a3b8;
+                               font-size: 14px;
+                               font-weight: 700;
+                               text-decoration: none;
+                               transition: all 0.2s ease;
+                               letter-spacing: 0.01em;
+                           "
+                           onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444';this.style.background='rgba(239,68,68,0.05)'"
+                           onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#94a3b8';this.style.background='transparent'">
+                            <i class="fas fa-xmark" style="font-size:13px;"></i>
+                            {% trans "Discard" %}
+                        </a>
+                        {% endif %}
+
+                        <!-- Save — primary gradient -->
+                        <button type="submit"
+                                style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 10px;
+                                    padding: 13px 28px;
+                                    border-radius: 14px;
+                                    border: none;
+                                    background: linear-gradient(135deg, #2e7d32, #43a047);
+                                    color: #fff;
+                                    font-size: 14px;
+                                    font-weight: 800;
+                                    cursor: pointer;
+                                    letter-spacing: 0.02em;
+                                    box-shadow: 0 4px 14px rgba(46,125,50,0.3);
+                                    transition: all 0.25s ease;
+                                "
+                                onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 22px rgba(46,125,50,0.4)'"
+                                onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px rgba(46,125,50,0.3)'">
+                            <i class="fas fa-cloud-arrow-up" style="font-size:15px;"></i>
+                            {% if creating %}{% trans "Create Profile" %}{% else %}{% trans "Save Changes" %}{% endif %}
+                        </button>
+                    </div>
+
+                </form>
+            </main>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Premium Form Injection — skip file inputs (handled by upload zones)
+    document.querySelectorAll('input:not([type="file"]), textarea, select').forEach(el => {
+        if (!el.classList.contains('btn-save-pro')) {
+            el.classList.add('input-pro');
+        }
+    });
+
+    // Smooth scroll for settings navigation
+    function scrollToSection(id) {
+        const target = document.getElementById(id);
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Update active state
+        document.querySelectorAll('.nav-btn-pro').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+    }
+
+    // Interactive hover effects for logo
+    const logo = document.getElementById('logo-main');
+    if (logo) {
+        logo.addEventListener('mousemove', (e) => {
+            const { left, top, width, height } = logo.getBoundingClientRect();
+            const x = (e.clientX - left) / width - 0.5;
+            const y = (e.clientY - top) / height - 0.5;
+            logo.style.transform = `perspective(1000px) rotateY(${x * 20}deg) rotateX(${y * -20}deg) scale(1.05)`;
+        });
+        logo.addEventListener('mouseleave', () => {
+            logo.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1)';
+        });
+    }
+
+    /* ── Upload Zone Interactivity ── */
+    (function() {
+        // Attach change listeners to every hidden file input inside an upload-zone
+        document.querySelectorAll('.upload-zone input[type="file"]').forEach(function(inp) {
+            inp.addEventListener('change', function() {
+                var file = this.files[0];
+                if (!file) return;
+                // Derive the field name from the zone id (zone-logo, zone-cover_image)
+                var zone = this.closest('.upload-zone');
+                if (!zone) return;
+                var fieldName = zone.id.replace('zone-', '');
+                _updateZone(fieldName, file);
+            });
+        });
+    })();
+
+    function handleDrop(e, fieldName) {
+        e.preventDefault();
+        var zone = document.getElementById('zone-' + fieldName);
+        if (zone) zone.classList.remove('drag');
+        var file = e.dataTransfer.files[0];
+        if (!file) return;
+        // Push the file into the real hidden input
+        var inp = document.querySelector('#zone-' + fieldName + ' input[type="file"]');
+        if (inp) {
+            var dt = new DataTransfer();
+            dt.items.add(file);
+            inp.files = dt.files;
+        }
+        _updateZone(fieldName, file);
+    }
+
+    function _updateZone(fieldName, file) {
+        var previewEl = document.getElementById('preview-' + fieldName);
+        var nameEl    = document.getElementById('name-' + fieldName);
+        if (nameEl) nameEl.textContent = file.name.length > 28 ? file.name.slice(0, 25) + '...' : file.name;
+
+        if (file.type.startsWith('image/') && previewEl) {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                if (previewEl.tagName === 'IMG') {
+                    previewEl.src = ev.target.result;
+                } else {
+                    // Replace icon wrapper with preview image
+                    var img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.className = 'upload-preview-img';
+                    img.id = 'preview-' + fieldName;
+                    previewEl.replaceWith(img);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+
+{% endblock %}

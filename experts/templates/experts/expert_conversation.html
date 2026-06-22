@@ -1,0 +1,420 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Chat with {{ other_user.get_full_name|default:other_user.username }} | Nabtati{% endblock %}
+{% block header_title %}{{ other_user.get_full_name|default:other_user.username }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/companies.css' %}">
+<style>
+    /* ── Expert-Side Conversation Ultra-Pro ── */
+    .chat-wrapper-ultra {
+        max-width: 900px;
+        margin: 0 auto;
+        height: calc(100vh - 180px);
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .chat-header-ultra {
+        padding: 16px 24px;
+        background: #fff;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .header-avatar-pro {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: var(--primary-bg);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 800;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    .header-info-pro {
+        flex: 1;
+    }
+
+    .header-name-pro {
+        font-size: 16px;
+        font-weight: 850;
+        color: var(--text-main);
+    }
+
+    .header-status-pro {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .messages-scroll-pro {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        gap: 4px; /* Tight vertical flow */
+    }
+
+    /* Override company.css for expert specific needs if any */
+    .msg-ultra-wrap {
+        max-width: 80% !important;
+    }
+
+    /* Input Area */
+    .input-box-ultra {
+        padding: 16px 24px;
+        background: #fff;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+    }
+
+    .chat-textarea-pro {
+        flex: 1;
+        background: #f1f5f9;
+        border: 2px solid transparent;
+        border-radius: 18px;
+        padding: 12px 18px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
+        resize: none;
+        max-height: 150px;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .chat-textarea-pro:focus {
+        background: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+
+    .action-circle-pro {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        flex-shrink: 0;
+    }
+
+    .btn-attach-pro {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .btn-attach-pro:hover {
+        background: #e2e8f0;
+        color: var(--text-main);
+    }
+
+    .btn-send-pro {
+        background: var(--emerald-gradient);
+        color: #fff;
+        box-shadow: 0 8px 16px rgba(46, 125, 50, 0.2);
+    }
+
+    .btn-send-pro:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 12px 20px rgba(46, 125, 50, 0.3);
+    }
+
+    .btn-send-pro:disabled {
+        opacity: 0.5;
+        transform: none;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+    [data-theme="dark"] .chat-wrapper-ultra,
+    [data-theme="dark"] .chat-header-ultra,
+    [data-theme="dark"] .input-box-ultra {
+        background: #1e293b;
+        border-color: rgba(255,255,255,0.05);
+    }
+
+    [data-theme="dark"] .messages-scroll-pro {
+        background: #0f172a;
+    }
+
+    [data-theme="dark"] .chat-textarea-pro {
+        background: rgba(255,255,255,0.03);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-wrapper-ultra">
+    
+    <!-- Chat Header -->
+    <div class="chat-header-ultra">
+        <div class="header-avatar-pro">{{ other_user.username|make_list|first|upper }}</div>
+        <div class="header-info-pro">
+            <div class="header-name-pro">{{ other_user.get_full_name|default:other_user.username }}</div>
+            <div class="header-status-pro">
+                <i class="fas fa-circle" style="font-size: 8px; color: #10b981;"></i>
+                {% trans "Active Consultation" %}
+            </div>
+        </div>
+        <a href="{% url 'experts:messages' %}" class="btn-profile-pro" style="width: auto; height: 38px; padding: 0 16px; font-size: 12px; font-weight: 800; border-radius: 12px;">
+            <i class="fas fa-arrow-left" style="margin-right: 6px;"></i> {% trans "Back to Inbox" %}
+        </a>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="messages-scroll-pro" id="messagesArea">
+        {% if messages_list %}
+            {% for msg in messages_list %}
+            <div class="msg-ultra-wrap {% if msg.sender == request.user %}msg-mine{% else %}msg-other{% endif %}" data-id="{{ msg.id }}">
+                <div class="msg-avatar-pro">
+                    {% if msg.sender == request.user %}
+                        {{ request.user.username|make_list|first|upper }}
+                    {% else %}
+                        {{ other_user.username|make_list|first|upper }}
+                    {% endif %}
+                </div>
+                <div class="msg-bubble-ultra">
+                    <div class="msg-text-pro">{{ msg.text|linebreaksbr }}</div>
+                    {% if msg.image %}
+                    <div class="msg-image-pro" onclick="window.open('{{ msg.image.url }}')">
+                        <img src="{{ msg.image.url }}" alt="Attachment">
+                    </div>
+                    {% endif %}
+                    {% if msg.file %}
+                    <div class="msg-file-pro">
+                        <i class="fas fa-paperclip"></i>
+                        <a href="{{ msg.file.url }}" target="_blank">{{ msg.file_name|default:"Document" }}</a>
+                    </div>
+                    {% endif %}
+                    <div class="msg-meta-ultra">
+                        {{ msg.created_at|date:"H:i" }}
+                        {% if msg.sender == request.user %}
+                            <i class="fas fa-check-double" style="margin-left: 4px;"></i>
+                            <button class="msg-delete-btn" onclick="deleteMsg({{ msg.id }})" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="chat-empty-ultra" id="emptyChat">
+                <i class="fas fa-comments"></i>
+                <p>{% trans "Start the consultation by sending a message below." %}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Attachment Preview -->
+    <div class="attach-preview" id="attachPreview" style="margin: 0 24px;">
+        <i class="fas fa-paperclip"></i>
+        <span id="attachName" style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+        <button class="remove-attach" onclick="clearAttach()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Input Bar -->
+    <div class="input-box-ultra">
+        <div style="display: flex; gap: 8px;">
+            <label class="action-circle-pro btn-attach-pro" title="{% trans 'Attach image' %}">
+                <i class="fas fa-image"></i>
+                <input type="file" accept="image/*" id="imageInput" style="display:none;" onchange="previewAttach(this, 'image')">
+            </label>
+            <label class="action-circle-pro btn-attach-pro" title="{% trans 'Attach file' %}">
+                <i class="fas fa-paperclip"></i>
+                <input type="file" accept=".pdf,.doc,.docx,.txt" id="fileInput" style="display:none;" onchange="previewAttach(this, 'file')">
+            </label>
+        </div>
+        
+        <textarea class="chat-textarea-pro" id="chatInput" placeholder="{% trans 'Type a response...' %}" rows="1" maxlength="5000"></textarea>
+        
+        <button class="action-circle-pro btn-send-pro" id="sendBtn" onclick="sendMsg()">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+const CONV_ID = {{ conversation.id }};
+const MY_USERNAME = "{{ request.user.username }}";
+const OTHER_NAME = "{{ other_user.username }}";
+const messagesArea = document.getElementById('messagesArea');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+let lastMsgId = {{ messages_list.last.id|default:0 }};
+let sending = false;
+let attachType = null;
+let attachFile = null;
+
+// Re-use logic from user side with updated element IDs if needed
+chatInput.addEventListener('input', () => {
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 150) + 'px';
+});
+
+chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMsg();
+    }
+});
+
+function previewAttach(input, type) {
+    if (input.files.length) {
+        attachType = type;
+        attachFile = input.files[0];
+        document.getElementById('attachName').textContent = attachFile.name;
+        document.getElementById('attachPreview').classList.add('show');
+    }
+}
+
+function clearAttach() {
+    attachType = null; attachFile = null;
+    document.getElementById('imageInput').value = '';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('attachPreview').classList.remove('show');
+}
+
+async function sendMsg() {
+    const text = chatInput.value.trim();
+    if (!text && !attachFile) return;
+    if (sending) return;
+
+    sending = true;
+    sendBtn.disabled = true;
+    const empty = document.getElementById('emptyChat');
+    if (empty) empty.remove();
+
+    if (text) {
+        appendMsg({ text, sender: MY_USERNAME, is_mine: true, created_at: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) });
+    }
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    scrollBottom();
+
+    try {
+        let res;
+        if (attachFile) {
+            const formData = new FormData();
+            formData.append('conversation_id', CONV_ID);
+            formData.append('text', text);
+            if (attachType === 'image') formData.append('image', attachFile);
+            else formData.append('file', attachFile);
+
+            res = await fetch("{% url 'experts:api_send_message' %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCsrfToken() },
+                body: formData,
+            });
+        } else {
+            res = await fetch("{% url 'experts:api_send_message' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+                body: JSON.stringify({ conversation_id: CONV_ID, text }),
+            });
+        }
+        const data = await res.json();
+        if (data.status === 'ok' && data.message) {
+            lastMsgId = data.message.id;
+            if (attachFile) appendMsg(data.message);
+        }
+    } catch (err) { console.error(err); } 
+    finally {
+        sending = false;
+        sendBtn.disabled = false;
+        chatInput.focus();
+        clearAttach();
+    }
+}
+
+function appendMsg(msg) {
+    const div = document.createElement('div');
+    div.className = `msg-ultra-wrap ${msg.is_mine ? 'msg-mine' : 'msg-other'}`;
+    div.dataset.id = msg.id || '';
+    
+    const avatarInit = msg.is_mine ? MY_USERNAME[0].toUpperCase() : OTHER_NAME[0].toUpperCase();
+    
+    let content = (msg.text || '').replace(/\n/g, '<br>');
+    if (msg.image_url) content += `<div class="msg-image-pro" onclick="window.open('${msg.image_url}')"><img src="${msg.image_url}" alt="Attachment"></div>`;
+    if (msg.file_url) content += `<div class="msg-file-pro"><i class="fas fa-paperclip"></i> <a href="${msg.file_url}" target="_blank">${msg.file_name || 'Document'}</a></div>`;
+    
+    const time = msg.created_at || new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    
+    div.innerHTML = `
+        <div class="msg-avatar-pro">${avatarInit}</div>
+        <div class="msg-bubble-ultra">
+            <div class="msg-text-pro">${content}</div>
+            <div class="msg-meta-ultra">
+                ${time}
+                ${msg.is_mine ? '<i class="fas fa-check-double" style="margin-left: 4px;"></i><button class="msg-delete-btn" onclick="deleteMsg('+(msg.id || 0)+')" title="Delete"><i class="fas fa-trash-alt"></i></button>' : ''}
+            </div>
+        </div>`;
+    messagesArea.appendChild(div);
+}
+
+function scrollBottom() {
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+}
+
+async function deleteMsg(msgId) {
+    if (!msgId) return;
+    try {
+        const res = await fetch(`/experts/api/delete-message/${msgId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCsrfToken() },
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            const el = document.querySelector(`.msg-ultra-wrap[data-id="${msgId}"]`);
+            if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(-10px)'; setTimeout(() => el.remove(), 300); }
+        }
+    } catch (err) { console.error(err); }
+}
+
+async function pollMessages() {
+    try {
+        const res = await fetch(`/experts/api/messages/${CONV_ID}/?after=${lastMsgId}`);
+        const data = await res.json();
+        if (data.status === 'ok' && data.messages.length > 0) {
+            const empty = document.getElementById('emptyChat');
+            if (empty) empty.remove();
+            data.messages.forEach(msg => {
+                if (!msg.is_mine) appendMsg(msg);
+                lastMsgId = Math.max(lastMsgId, msg.id);
+            });
+            scrollBottom();
+        }
+    } catch (err) { }
+}
+
+setInterval(pollMessages, 3000);
+scrollBottom();
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,358 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+{% load community_tags %}
+
+{% block title %}{% trans "Corporate Directory" %} — Nabtati{% endblock %}
+{% block header_title %}{% trans "Industrial Network" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/companies.css' %}">
+<style>
+    /* ── Company Directory Ultra-Pro ── */
+    .directory-layout-ultra {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px 60px;
+    }
+
+    .hero-search-ultra {
+        background: #fff;
+        border-radius: 40px;
+        padding: 30px 40px;
+        text-align: center;
+        margin-bottom: 30px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-search-ultra h1 {
+        font-size: 28px;
+        font-weight: 950;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        letter-spacing: -1px;
+    }
+
+    .hero-search-ultra p {
+        font-size: 14px;
+        color: var(--text-muted);
+        max-width: 500px;
+        margin: 0 auto 20px;
+        font-weight: 500;
+    }
+
+    .search-box-pro {
+        max-width: 700px;
+        margin: 0 auto;
+        position: relative;
+        display: flex;
+        gap: 12px;
+    }
+
+    .search-input-ultra {
+        flex: 1;
+        background: #f1f5f9;
+        border: 2px solid transparent;
+        border-radius: 18px;
+        padding: 14px 24px 14px 56px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-main);
+        transition: all 0.3s;
+        outline: none;
+    }
+
+    .search-input-ultra:focus {
+        background: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 10px 30px rgba(46, 125, 50, 0.1);
+    }
+
+    .search-icon-fixed {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px;
+        color: #94a3b8;
+    }
+
+    .btn-search-ultra {
+        background: var(--emerald-gradient);
+        color: #fff;
+        border: none;
+        border-radius: 16px;
+        padding: 0 28px;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(46, 125, 50, 0.2);
+    }
+
+    .btn-search-ultra:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 15px 30px rgba(46, 125, 50, 0.3);
+    }
+
+    /* Company Cards Grid */
+    .company-grid-ultra {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 32px;
+    }
+
+    .company-card-pro {
+        background: #fff;
+        border-radius: 32px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        text-decoration: none !important;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .company-card-pro:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        border-color: var(--primary-glow);
+    }
+
+    .card-banner-ultra {
+        height: 140px;
+        position: relative;
+        background: #f1f5f9;
+    }
+
+    .card-banner-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .banner-overlay-pro {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.4));
+    }
+
+    .card-logo-pro {
+        position: absolute;
+        bottom: -24px;
+        left: 24px;
+        width: 72px;
+        height: 72px;
+        background: #fff;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 900;
+        color: var(--primary);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border: 4px solid #fff;
+        overflow: hidden;
+    }
+
+    .card-logo-pro img { width: 100%; height: 100%; object-fit: cover; }
+
+    .card-content-pro {
+        padding: 40px 24px 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .company-name-pro {
+        font-size: 20px;
+        font-weight: 950;
+        color: var(--text-main);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .verified-icon-pro {
+        color: #3b82f6;
+        font-size: 16px;
+    }
+
+    .company-loc-pro {
+        font-size: 13px;
+        font-weight: 700;
+        color: #64748b;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .company-spec-pro {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: 24px;
+        flex: 1;
+    }
+
+    .card-footer-pro {
+        padding-top: 16px;
+        border-top: 1px solid rgba(0,0,0,0.03);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .rating-pill-pro {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #fffbeb;
+        color: #f59e0b;
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .btn-view-pro {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 12px;
+        transition: all 0.2s;
+    }
+
+    .company-card-pro:hover .btn-view-pro {
+        background: var(--primary);
+        color: #fff;
+    }
+
+    [data-theme="dark"] .hero-search-ultra,
+    [data-theme="dark"] .company-card-pro { background: #1e293b; border-color: rgba(255,255,255,0.05); }
+    [data-theme="dark"] .search-input-ultra { background: rgba(255,255,255,0.03); }
+    [data-theme="dark"] .rating-pill-pro { background: rgba(245, 158, 11, 0.1); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="directory-layout-ultra">
+    
+    <!-- Hero Section -->
+    <div class="hero-search-ultra fade-in-down">
+        <h1>{% trans "Industrial Network" %}</h1>
+        <p>{% trans "Connect with the world's leading agricultural innovators and technical providers." %}</p>
+        
+        <form method="GET" class="search-box-pro">
+            <i class="fas fa-search search-icon-fixed"></i>
+            <input type="text" name="q" value="{{ query|default:'' }}" 
+                   class="search-input-ultra" 
+                   placeholder="{% trans 'Search by name, location or expertise...' %}"
+                   autocomplete="off">
+            <button type="submit" class="btn-search-ultra">
+                {% trans "Find Partners" %}
+            </button>
+        </form>
+
+        {% if query %}
+        <div style="margin-top: 24px;">
+            <span style="font-size: 14px; font-weight: 700; color: var(--text-muted);">
+                {% trans "Showing results for" %} <span style="color: var(--primary);">"{{ query }}"</span>
+            </span>
+            <a href="{% url 'companies:directory' %}" style="margin-left: 12px; color: #ef4444; font-size: 14px; font-weight: 800; text-decoration: none;">
+                <i class="fas fa-times"></i> {% trans "Clear" %}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if companies %}
+    <!-- Company Cards -->
+    <div class="company-grid-ultra" id="companiesGrid">
+        {% for company in companies %}
+        <a href="{% url 'companies:profile' company.pk %}" class="company-card-pro fade-in-up" style="animation-delay: {{ forloop.counter0 }}50ms">
+            <div class="card-banner-ultra">
+                {% if company.cover_image %}
+                <img src="{{ company.cover_image.url }}" alt="Cover" class="card-banner-img">
+                {% else %}
+                <div style="width:100%; height:100%; background: var(--emerald-gradient); opacity: 0.8;"></div>
+                {% endif %}
+                <div class="banner-overlay-pro"></div>
+                <div class="card-logo-pro">
+                    {% if company.logo %}
+                    <img src="{{ company.logo.url }}" alt="{{ company.company_name }}">
+                    {% else %}
+                    {{ company.company_name|make_list|first|upper }}
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card-content-pro">
+                <h3 class="company-name-pro">
+                    {{ company.company_name }}
+                    {% if company.verified %}<i class="fas fa-check-circle verified-icon-pro"></i>{% endif %}
+                </h3>
+                <div class="company-loc-pro">
+                    <i class="fas fa-location-dot" style="color: var(--primary);"></i>
+                    {{ company.city }}, {{ company.country }}
+                </div>
+                <p class="company-spec-pro">{{ company.specializations|truncatechars:80 }}</p>
+                
+                <div class="card-footer-pro">
+                    <div class="rating-pill-pro">
+                        <i class="fas fa-star"></i>
+                        <span>{{ company.avg_rating|default:"0.0"|floatformat:1 }}</span>
+                        <span style="color: #94a3b8; font-weight: 600; font-size: 11px;">({{ company.review_count }})</span>
+                    </div>
+                    <div class="btn-view-pro">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if companies.has_other_pages %}
+    <div class="pagination-ultra" style="margin-top: 60px; display: flex; justify-content: center; gap: 12px;">
+        {% if companies.has_previous %}
+        <a href="?page={{ companies.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="btn-action-icon"><i class="fas fa-chevron-left"></i></a>
+        {% endif %}
+        
+        <div style="padding: 0 20px; background: #fff; border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; font-size: 14px; font-weight: 800;">
+            {% trans "Page" %} <span style="color: var(--primary); margin: 0 6px;">{{ companies.number }}</span> {% trans "of" %} {{ companies.paginator.num_pages }}
+        </div>
+        
+        {% if companies.has_next %}
+        <a href="?page={{ companies.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="btn-action-icon"><i class="fas fa-chevron-right"></i></a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state glass-card fade-in-up" style="padding: 100px 40px; text-align: center; border-radius: 40px;">
+        <div style="width: 120px; height: 120px; background: var(--primary-bg); color: var(--primary); border-radius: 40px; display: flex; align-items: center; justify-content: center; font-size: 48px; margin: 0 auto 24px;">
+            <i class="fas fa-building-circle-exclamation"></i>
+        </div>
+        <h2 style="font-size: 28px; font-weight: 950; color: var(--text-main); margin-bottom: 12px;">{% trans "No Companies Found" %}</h2>
+        <p style="color: var(--text-muted); font-size: 16px; max-width: 450px; margin: 0 auto;">{% trans "We couldn't find any partners matching your search. Try adjusting your filters or browsing the full network." %}</p>
+        <a href="{% url 'companies:directory' %}" class="btn-primary" style="margin-top: 32px; padding: 14px 40px; border-radius: 20px; display: inline-flex;">
+            {% trans "Reset Search" %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

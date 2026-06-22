@@ -1,0 +1,229 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Company Messages" %} — Nabtati{% endblock %}
+{% block header_title %}{% trans "Partner Communications" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/companies.css' %}">
+<style>
+    /* ── User Company Messages Ultra-Pro ── */
+    .inbox-layout-pro {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        height: calc(100vh - 180px);
+        background: #fff;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .inbox-sidebar-pro {
+        border-right: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+
+    .inbox-search-pro {
+        padding: 24px;
+        border-bottom: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .search-input-pro {
+        width: 100%;
+        background: #f1f5f9;
+        border: none;
+        border-radius: 14px;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        outline: none;
+    }
+
+    .inbox-scroll-pro {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+    }
+
+    .inbox-card-pro {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        border-radius: 20px;
+        text-decoration: none !important;
+        transition: all 0.2s;
+        margin-bottom: 8px;
+        border: 1px solid transparent;
+    }
+
+    .inbox-card-pro:hover {
+        background: #f8fafc;
+    }
+
+    .inbox-card-pro.active {
+        background: var(--primary-bg);
+        border-color: var(--primary-glow);
+    }
+
+    .avatar-wrap-pro {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--primary);
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .avatar-wrap-pro img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .unread-pill-pro {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 10px;
+        height: 100px; /* Hidden placeholder style, use dot instead */
+    }
+
+    .inbox-info-pro {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .inbox-top-pro {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    .inbox-name-pro {
+        font-size: 15px;
+        font-weight: 850;
+        color: var(--text-main);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .inbox-time-pro {
+        font-size: 11px;
+        font-weight: 700;
+        color: #94a3b8;
+    }
+
+    .inbox-msg-pro {
+        font-size: 13px;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.4;
+    }
+
+    .chat-empty-ultra {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        text-align: center;
+        padding: 40px;
+    }
+
+    @media (max-width: 900px) {
+        .inbox-layout-pro { grid-template-columns: 1fr; }
+        .chat-empty-ultra { display: none; }
+    }
+
+    [data-theme="dark"] .inbox-layout-pro,
+    [data-theme="dark"] .inbox-sidebar-pro { background: #1e293b; border-color: rgba(255,255,255,0.05); }
+    [data-theme="dark"] .chat-empty-ultra { background: #0f172a; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="inbox-layout-pro fade-in-up">
+    <!-- Sidebar -->
+    <div class="inbox-sidebar-pro">
+        <div class="inbox-search-pro">
+            <h2 style="font-size: 20px; font-weight: 950; color: var(--text-main); margin-bottom: 16px;">{% trans "Conversations" %}</h2>
+            <input type="text" class="search-input-pro" placeholder="{% trans 'Search partners...' %}">
+        </div>
+        
+        <div class="inbox-scroll-pro">
+            {% for item in conversations %}
+            <a href="{% url 'companies:user_conversation' item.conversation.pk %}" 
+               class="inbox-card-pro {% if conversation and conversation.pk == item.conversation.pk %}active{% endif %}">
+                <div class="avatar-wrap-pro">
+                    {% if item.conversation.company.logo %}
+                    <img src="{{ item.conversation.company.logo.url }}" alt="{{ item.conversation.company.company_name }}">
+                    {% else %}
+                    {{ item.conversation.company.company_name|make_list|first|upper }}
+                    {% endif %}
+                    {% if item.unread > 0 %}
+                    <div style="position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: #ef4444; border: 2.5px solid #fff; border-radius: 50%;"></div>
+                    {% endif %}
+                </div>
+                <div class="inbox-info-pro">
+                    <div class="inbox-top-pro">
+                        <span class="inbox-name-pro">{{ item.conversation.company.company_name }}</span>
+                        <span class="inbox-time-pro">{{ item.conversation.updated_at|date:"M d" }}</span>
+                    </div>
+                    <p class="inbox-msg-pro">
+                        {% if item.last_message %}
+                            <span style="font-weight: 700; color: var(--primary);">{% if item.last_message.sender == request.user %}{% trans "You:" %} {% endif %}</span>
+                            {{ item.last_message.text|truncatechars:45 }}
+                        {% else %}
+                            <em style="opacity: 0.6;">{% trans "Start the conversation..." %}</em>
+                        {% endif %}
+                    </p>
+                </div>
+            </a>
+            {% empty %}
+            <div style="text-align: center; padding: 60px 24px;">
+                <div style="width: 64px; height: 64px; background: var(--primary-bg); color: var(--primary); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 20px;">
+                    <i class="fas fa-ghost"></i>
+                </div>
+                <p style="font-weight: 800; color: var(--text-main); margin-bottom: 8px;">{% trans "No chats found" %}</p>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">{% trans "Connect with companies in the directory to start messaging." %}</p>
+                <a href="{% url 'companies:directory' %}" class="btn-chat-pro" style="font-size: 12px; padding: 10px 20px; border-radius: 12px;">
+                    {% trans "Browse Directory" %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Main Placeholder -->
+    <div class="chat-empty-ultra">
+        <div style="max-width: 320px;">
+            <div style="width: 100px; height: 100px; background: #fff; color: var(--primary); border-radius: 35px; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 32px; box-shadow: 0 15px 35px rgba(0,0,0,0.05);">
+                <i class="fas fa-comments"></i>
+            </div>
+            <h3 style="font-size: 26px; font-weight: 950; color: var(--text-main); margin-bottom: 16px;">{% trans "Your Messages" %}</h3>
+            <p style="font-size: 15px; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
+                {% trans "Select a conversation from the sidebar to view your message history and chat in real-time." %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

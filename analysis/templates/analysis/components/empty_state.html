@@ -1,0 +1,15 @@
+{% comment %}
+  components/empty_state.html — Reusable Empty State
+  Usage: include "analysis/components/empty_state.html" with icon="fa-seedling" title="No Data" message="Nothing to show." action_url="/" action_text="Go Home"
+{% endcomment %}
+<div class="empty-state">
+    <i class="fas {{ icon|default:'fa-inbox' }}"></i>
+    <h3>{{ title|default:"No Data Found" }}</h3>
+    <p>{{ message|default:"There's nothing to display at the moment." }}</p>
+    {% if action_url %}
+    <a href="{{ action_url }}" class="btn btn-primary">
+        {% if action_icon %}<i class="fas {{ action_icon }}"></i>{% endif %}
+        {{ action_text|default:"Go Back" }}
+    </a>
+    {% endif %}
+</div>

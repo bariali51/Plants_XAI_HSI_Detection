@@ -6,9 +6,13 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('analysis.urls')),  # ربط مسارات التحليل
+    path('i18n/', include('django.conf.urls.i18n')),  # Language switching
+    path('manager/', include('manager.urls')),
+    path('experts/', include('experts.urls')),
+    path('community/', include('community.urls')),
+    path('companies/', include('companies.urls')),
+    path('', include('analysis.urls')),
 ]
 
-# إعدادات عرض الصور (Heatmaps) أثناء التطوير
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

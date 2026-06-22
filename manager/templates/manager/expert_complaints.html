@@ -1,0 +1,67 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Expert Complaints | Nabtati{% endblock %}
+{% block header_title %}{% trans "Expert Complaints" %}{% endblock %}
+{% block header_subtitle %}{% trans "Feedback and issues from experts" %}{% endblock %}
+{% block nav_admin_expert_complaints %}active{% endblock %}
+
+{% block page_styles %}
+.complaints-page { max-width: 900px; margin: 0 auto; }
+.filter-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+.filter-btn {
+    padding: 8px 18px; border-radius: var(--radius-full); border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-main); font-size: 13px;
+    font-weight: 600; text-decoration: none; transition: all 0.2s;
+}
+.filter-btn:hover, .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.complaint-list { display: flex; flex-direction: column; gap: 10px; }
+.complaint-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); padding: 16px 20px;
+    text-decoration: none; color: inherit; display: block; transition: border-color 0.2s;
+}
+.complaint-item:hover { border-color: var(--primary); }
+.complaint-item.unseen { border-left: 3px solid #f59e0b; }
+.c-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.c-title { font-weight: 700; font-size: 15px; color: var(--text-main); }
+.s-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; text-transform: uppercase; }
+.s-badge.unseen { background: rgba(245,158,11,0.1); color: #f59e0b; }
+.s-badge.seen { background: rgba(16,185,129,0.1); color: #10b981; }
+.c-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 16px; }
+.c-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-top: 8px; }
+{% endblock %}
+
+{% block content %}
+<div class="complaints-page">
+    <div class="filter-bar">
+        <a href="?status=all" class="filter-btn {% if status_filter == 'all' %}active{% endif %}">{% trans "All" %}</a>
+        <a href="?status=unseen" class="filter-btn {% if status_filter == 'unseen' %}active{% endif %}">{% trans "Unseen" %} ({{ unseen_count }})</a>
+        <a href="?status=seen" class="filter-btn {% if status_filter == 'seen' %}active{% endif %}">{% trans "Seen" %}</a>
+    </div>
+
+    {% if complaints %}
+    <div class="complaint-list">
+        {% for c in complaints %}
+        <a href="{% url 'manager:expert_complaint_detail' c.id %}" class="complaint-item {% if c.status == 'unseen' %}unseen{% endif %}">
+            <div class="c-header">
+                <div class="c-title">{{ c.title }}</div>
+                <span class="s-badge {{ c.status }}">{{ c.status }}</span>
+            </div>
+            <div class="c-meta">
+                <span><i class="fas fa-user-tie"></i> {{ c.expert.username }}</span>
+                <span><i class="fas fa-clock"></i> {{ c.created_at|date:"M d, Y H:i" }}</span>
+            </div>
+            <div class="c-body">{{ c.message|truncatechars:150 }}</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:48px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);">
+        <i class="fas fa-check-circle" style="font-size:48px; color:#10b981; margin-bottom:12px;"></i>
+        <p style="color:var(--text-muted);">{% trans "No expert complaints found." %}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

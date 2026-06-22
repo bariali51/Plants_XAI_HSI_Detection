@@ -1,0 +1,183 @@
+{% extends "analysis/base.html" %}
+{% load static %}
+
+{% block title %}Scan {{ scan.photo_id }} | Admin | Nabtati{% endblock %}
+{% block header_title %}Scan Details{% endblock %}
+{% block header_subtitle %}{{ scan.prediction }} — {{ scan.photo_id }}{% endblock %}
+
+{% block nav_admin_scans %}active{% endblock %}
+
+{% block content %}
+    <div class="admin-section-header">
+        <div>
+            <h1><i class="fas fa-microscope"></i> {{ scan.prediction }}</h1>
+            <p class="subtitle">Scan ID: {{ scan.photo_id }} · By {{ scan.user.username }} · {{ scan.created_at|date:"F d, Y H:i" }}</p>
+        </div>
+        <div class="table-actions">
+            <a href="{% url 'manager:scans' %}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Scans
+            </a>
+            <a href="{% url 'manager:user_detail' scan.user.pk %}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-user"></i> View User
+            </a>
+            <form method="POST" action="{% url 'manager:delete_scan' scan.photo_id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger"
+                        onclick="return confirm('Delete this scan? This cannot be undone.')">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Images -->
+    <div class="detail-grid">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-image"></i> Original Image</h3>
+            {% if scan.image_original %}
+            <img src="{{ scan.image_original.url }}" alt="{{ scan.prediction }}"
+                 style="width:100%;border-radius:var(--radius-md);border:1px solid var(--border);" loading="lazy">
+            {% else %}
+            <div style="padding:60px;text-align:center;color:var(--text-muted);">
+                <i class="fas fa-image fa-3x" style="opacity:0.3;"></i>
+                <p>No image available</p>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-fire" style="color:var(--danger);"></i> Grad-CAM Heatmap</h3>
+            {% if scan.image_gradcam %}
+            <img src="{{ scan.image_gradcam.url }}" alt="Grad-CAM heatmap"
+                 style="width:100%;border-radius:var(--radius-md);border:1px solid var(--border);" loading="lazy">
+            {% else %}
+            <div style="padding:60px;text-align:center;color:var(--text-muted);">
+                <i class="fas fa-fire fa-3x" style="opacity:0.3;"></i>
+                <p>No heatmap available</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Scan Data -->
+    <div class="detail-grid">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-chart-bar"></i> Diagnosis Data</h3>
+            <div class="detail-field">
+                <div class="detail-label">Prediction</div>
+                <div class="detail-value">{{ scan.prediction }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">Confidence</div>
+                <div class="detail-value">
+                    {{ scan.confidence }}%
+                    <div class="progress-track" style="margin-top:8px;">
+                        <div class="progress-fill" style="width:{{ scan.confidence }}%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">Disease Severity</div>
+                <div class="detail-value">
+                    <span class="badge {% if scan.disease_ratio >= 70 %}badge-danger{% elif scan.disease_ratio >= 40 %}badge-warning{% else %}badge-success{% endif %}" style="font-size:14px;">
+                        {{ scan.disease_ratio }}%
+                    </span>
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-label">Stage</div>
+                <div class="detail-value">
+                    <span class="badge {% if scan.disease_stage == 'Critical' or scan.disease_stage == 'Severe' %}badge-danger{% elif scan.disease_stage == 'Moderate' %}badge-warning{% else %}badge-success{% endif %}">
+                        {{ scan.disease_stage }}
+                    </span>
+                </div>
+            </div>
+            {% if scan.yield_loss %}
+            <div class="detail-field">
+                <div class="detail-label">Yield Loss</div>
+                <div class="detail-value" style="color:var(--danger);">{{ scan.yield_loss }}%</div>
+            </div>
+            {% endif %}
+            <div class="detail-field">
+                <div class="detail-label">Folder</div>
+                <div class="detail-value">{{ scan.folder_name }}</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-robot"></i> AI Reports</h3>
+            {% if scan.ai_medical %}
+            <div class="detail-field">
+                <div class="detail-label">Medical Diagnosis</div>
+                <div class="detail-value" style="font-size:14px;line-height:1.6;">{{ scan.ai_medical|truncatewords:60 }}</div>
+            </div>
+            {% endif %}
+            {% if scan.ai_treatment %}
+            <div class="detail-field">
+                <div class="detail-label">Treatment Strategy</div>
+                <div class="detail-value" style="font-size:14px;line-height:1.6;">{{ scan.ai_treatment|truncatewords:60 }}</div>
+            </div>
+            {% endif %}
+            {% if scan.ai_irrigation %}
+            <div class="detail-field">
+                <div class="detail-label">Irrigation Plan</div>
+                <div class="detail-value" style="font-size:14px;line-height:1.6;">{{ scan.ai_irrigation|truncatewords:60 }}</div>
+            </div>
+            {% endif %}
+            {% if scan.ai_economic %}
+            <div class="detail-field">
+                <div class="detail-label">Economic Risk</div>
+                <div class="detail-value" style="font-size:14px;line-height:1.6;">{{ scan.ai_economic|truncatewords:60 }}</div>
+            </div>
+            {% endif %}
+            {% if not scan.ai_medical and not scan.ai_treatment %}
+            <div style="padding:40px;text-align:center;color:var(--text-muted);">
+                <i class="fas fa-robot fa-2x" style="opacity:0.3;margin-bottom:12px;"></i>
+                <p>No AI reports generated for this scan.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Follow-up Scans -->
+    {% if followups %}
+    <div class="card" style="overflow-x:auto;">
+        <h3 class="card-title">
+            <i class="fas fa-arrows-rotate"></i>
+            Follow-up Scans
+            <span class="badge badge-info">{{ followups|length }}</span>
+        </h3>
+        <table class="data-table" role="table">
+            <thead>
+                <tr>
+                    <th scope="col">Follow-up ID</th>
+                    <th scope="col">Disease</th>
+                    <th scope="col">Confidence</th>
+                    <th scope="col">Severity</th>
+                    <th scope="col">Stage</th>
+                    <th scope="col">Evolution</th>
+                    <th scope="col">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in followups %}
+                <tr>
+                    <td><code style="font-size:12px;">{{ f.follow_id }}</code></td>
+                    <td><strong>{{ f.disease }}</strong></td>
+                    <td>{{ f.confidence }}%</td>
+                    <td>
+                        <span class="badge {% if f.ratio >= 70 %}badge-danger{% elif f.ratio >= 40 %}badge-warning{% else %}badge-success{% endif %}">
+                            {{ f.ratio }}%
+                        </span>
+                    </td>
+                    <td>{{ f.stage }}</td>
+                    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ f.evolution_text }}">
+                        {{ f.evolution_text|truncatewords:10 }}
+                    </td>
+                    <td>{{ f.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+{% endblock %}
